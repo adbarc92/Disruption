@@ -1,20 +1,55 @@
-import { StatsDerived } from './Stats';
-import { InventoryItem } from './Item';
+import { BasicInfo } from 'src/model/basic-info';
+import { Stats } from 'src/model/stats';
+import { Family } from 'src/model/unit';
 
-const enum EquipSlot {
-	'HELM'=0,
-	'CHEST'=1,
-	'GLOVES'=2,
-	'PANTS'=3,
-	'SHOES'=4,
-	'NECKLACE'=5,
-	'BRACELET'=6
+const enum Slot {
+	HELM = 'HELM',
+	CHEST = 'CHEST',
+	GLOVES = 'GLOVES',
+	GREAVES = 'GREAVES',
+	BOOTS = 'BOOTS',
+	ACCESSORY = 'ACCESSORY',
 }
 
-export interface Equipment extends InventoryItem {
-  stats: StatsDerived;
-  defense: number;
-	worn: boolean;
-	enchanted: boolean;
-	slot: EquipSlot;
-}
+export class Equipment extends BasicInfo {
+  families: Family[];
+  slot: Slot;
+  worn: boolean;
+  stats: Stats;
+
+  constructor(
+    name: string,
+    description: string,
+    families: Family[],
+    slot: Slot,
+    vitality: number,
+    defense: number,
+    resistance: number,
+    amplification: number,
+    damage: number,
+    critDamage: number,
+    critRate: number,
+    accuracy: number,
+    initiative: number,
+    evasion: number,
+  ) {
+    super(name, description)
+    this.families = families;
+    this.slot = slot;
+    this.worn = false;
+    this.stats = new Stats(
+      {
+        vitality,
+        defense,
+        resistance,
+        amplification,
+        damage,
+        critDamage,
+        critRate,
+        accuracy,
+        initiative,
+        evasion,
+      }
+    )
+  }
+};
