@@ -1,5 +1,18 @@
 import { AbilityScores } from 'src/model/ability-score';
 
+export const enum Stat {
+  VITALITY = 'VITALITY',
+	DEFENSE = 'DEFENSE',
+	RESISTANCE = 'RESISTANCE',
+	AMPLIFICATION = 'AMPLIFICATION',
+	DAMAGE = 'DAMAGE',
+	CRIT_DAMAGE = 'CRIT_DAMAGE',
+	CRIT_RATE = 'CRIT_RATE',
+  ACCURACY = 'ACCURACY',
+  INITIATIVE = 'INITIATIVE',
+  EVASION = 'EVASION',
+}
+
 export interface StatSet {
   vitality: number;
 	defense: number;

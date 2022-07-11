@@ -3,7 +3,6 @@ import { AbilityScores } from 'src/model/ability-score';
 import { Stats } from 'src/model/stats';
 import { Equipment } from 'src/model/equipment';
 
-
 /**
  * The category of a unit. This is used for damage-effectiveness.
  */

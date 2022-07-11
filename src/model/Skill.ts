@@ -1,43 +1,66 @@
+import { BasicInfo } from 'src/model/basic-info';
+import { Position } from 'src/model/position';
+import { BattleEffect, FieldEffect } from 'src/model/effect';
+import { Stat } from 'src/model/stats';
+
 /**
- * Different creatures have different strengths and weaknesses.
+ * The type of damage done by a skill.
  */
 enum DamageType {
-	fire = 'FIRE',
-	water = 'WATER',
-	air = 'AIR',
-	metal = 'METAL',
-	wood = 'WOOD',
-	piercing = 'PIERCING',
-	blunt = 'BLUNT',
-	divine = 'DIVINE',
-	cursed = 'CURSED'
+	FLAME = 'FLAME',
+	RAIN = 'RAIN',
+	WIND = 'WIND',
+	STONE = 'STONE',
+	LIGHTNING = 'LIGHTNING',
+	PIERCING = 'PIERCING',
+	BLUDGEONING = 'BLUDGEONING',
+	HOLY = 'HOLY',
+	ENTROPIC = 'ENTROPIC',
+}
+
+export interface OutcomeStats {
+  user_health_stat: Stat,
+  target_health_stat: Stat,
+  user_status_stat: Stat,
+  target_status_stat: Stat,
+  user_accuracy_stat: Stat,
+  target_accuracy_stat: Stat,
+  user_position_stat: Stat,
+  target_position_stat: Stat,
 }
 
 /**
- * The type of unit that owns the skill.
+ * A skill to be used in combat.
  */
-export interface OwnerCategory {
-	name: string;
-	friendly: boolean;
-}
+export class Skill extends BasicInfo {
+  usablePositions: Position[];
+  targetPositions: Position[];
+  battleEffects: BattleEffect[];
+  fieldEffects: FieldEffect[];
+  families: number[];
+  actionCost: number;
+  outcomeStats: OutcomeStats;
+  // animation
+  // partner requirements
 
-/**
- * Meta-data associated with the skill.
- */
-export interface SkillMeta {
-	animDuration: number;
-	// sound loop
-	// anim loop
-}
-
-/**
- * A technique to be used in combat.
- */
-export interface Skill {
-	name: string;
-	id: number;
-	ownerCategory: OwnerCategory;
-	use: () => void;
-	metaData: SkillMeta;
-	damageType: DamageType;
+  constructor(
+    name: string,
+    description: string,
+    usablePositions: Position[],
+    targetPositions: Position[],
+    battleEffects: BattleEffect[],
+    fieldEffects: FieldEffect[],
+    families: number[],
+    actionCost: number,
+    outcomeStats: OutcomeStats,
+  ) {
+    super(name, description)
+    this.usablePositions = usablePositions;
+    this.targetPositions = targetPositions;
+    this.battleEffects = battleEffects;
+    this.fieldEffects = fieldEffects;
+    this.families = families;
+    this.actionCost = actionCost;
+    this.outcomeStats = outcomeStats;
+  }
 }
