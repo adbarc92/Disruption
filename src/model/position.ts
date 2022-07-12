@@ -1,34 +1,49 @@
-// DIRECTIONS = %w[UP RIGHT DOWN LEFT].freeze
-// POSITIONS = {
-//   SPOT_FRONT_TOP: Position.new(x: 0, y: 0),
-//   SPOT_FRONT_MID: Position.new(x: 0, y: 1),
-//   SPOT_FRONT_BOTTOM: Position.new(x: 0, y: 2),
-//   SPOT_MID_TOP: Position.new(x: 1, y: 0),
-//   SPOT_MID_MID: Position.new(x: 1, y: 1),
-//   SPOT_MID_BOTTOM: Position.new(x: 1, y: 2),
-//   SPOT_BACK_TOP: Position.new(x: 2, y: 0),
-//   SPOT_BACK_MID: Position.new(x: 2, y: 1),
-//   SPOT_BACK_BOTTOM: Position.new(x: 2, y: 2),
-// }.freeze
+import { Point2d, makePoint } from 'src/model/space'
 
-// ROWS = {
-//   TOP: [SPOT_FRONT_TOP, SPOT_MID_TOP, SPOT_BACK_TOP],
-//   MID: [SPOT_FRONT_MID, SPOT_MID_MID, SPOT_BACK_MID],
-//   BOTTOM: [SPOT_FRONT_BOTTOM, SPOT_MID_BOTTOM, SPOT_BACK_BOTTOM],
-// }.freeze
-
-// COLUMNS = {
-//   FRONT: [SPOT_FRONT_TOP, SPOT_FRONT_MID, SPOT_FRONT_BOTTOM],
-//   MID: [SPOT_MID_TOP, SPOT_MID_MID, SPOT_MID_BOTTOM],
-//   BACK: [SPOT_BACK_TOP, SPOT_BACK_MID, SPOT_BACK_BOTTOM],
-// }.freeze
+const MIN_POS = 0;
+const MAX_POS = 2;
 
 export class Position {
-  x: number;
-  y: number;
+  history: Point2d[];
+  currentPosition: Point2d;
+
 
   constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
+    this.currentPosition = makePoint(x,y);
+    this.history = [];
+  }
+
+  getResult(start: number, end: number) {
+    let result = start;
+    if(start > end) {
+      result = end >= MAX_POS ? MAX_POS : end;
+    } else if (start < end) {
+      result = end <= MIN_POS ? MIN_POS : end;
+    }
+    return result;
+  }
+
+  changePosition(newX?: number, newY?: number) {
+    this.history.push(this.currentPosition);
+    let {x: currentX, y: currentY} = this.currentPosition;
+    const resultX = newX ? this.getResult(currentX, newX) : currentX;
+    const resultY = newY ? this.getResult(currentY, newY) : currentY;
+    this.currentPosition = makePoint(resultX, resultY);
+  }
+
+  advance(degree:number) {
+    this.changePosition(this.currentPosition.x-degree, 0);
+  }
+
+  retreat(degree: number) {
+    this.changePosition(this.currentPosition.x+degree, 0);
+  }
+
+  strafeHigh(degree: number) {
+    this.changePosition(0, this.currentPosition.y-degree);
+  }
+
+  strafeLow(degree: number) {
+    this.changePosition(0, this.currentPosition.y+degree);
   }
 }

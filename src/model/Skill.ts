@@ -1,7 +1,18 @@
 import { BasicInfo } from 'src/model/basic-info';
-import { Position } from 'src/model/position';
+import { Animation } from 'src/model/animation';
+import { Point2d } from 'src/model/space';
 import { BattleEffect, FieldEffect } from 'src/model/effect';
 import { Stat } from 'src/model/stats';
+import { Family } from 'src/model/unit';
+
+/**
+ * The requisites for a skill to be enhanced by a partner.
+ */
+export interface PartnerRequirements {
+  turnProximity: number;
+  positionRange: Point2d;
+  family: Family;
+}
 
 /**
  * The type of damage done by a skill.
@@ -18,6 +29,9 @@ enum DamageType {
 	ENTROPIC = 'ENTROPIC',
 }
 
+/**
+ * The stats determining the outcome of a skill usage.
+ */
 export interface OutcomeStats {
   user_health_stat: Stat,
   target_health_stat: Stat,
@@ -33,26 +47,33 @@ export interface OutcomeStats {
  * A skill to be used in combat.
  */
 export class Skill extends BasicInfo {
-  usablePositions: Position[];
-  targetPositions: Position[];
+  usablePositions: Point2d[];
+  targetPositions: Point2d[];
   battleEffects: BattleEffect[];
   fieldEffects: FieldEffect[];
   families: number[];
   actionCost: number;
   outcomeStats: OutcomeStats;
-  // animation
-  // partner requirements
+  sets: string[];
+  equipCost: number;
+  damageType: DamageType;
+  animation: Animation;
+  partnerRequirements?: PartnerRequirements;
 
   constructor(
     name: string,
     description: string,
-    usablePositions: Position[],
-    targetPositions: Position[],
+    usablePositions: Point2d[],
+    targetPositions: Point2d[],
     battleEffects: BattleEffect[],
     fieldEffects: FieldEffect[],
     families: number[],
     actionCost: number,
     outcomeStats: OutcomeStats,
+    equipCost: number,
+    damageType: DamageType,
+    animation: Animation,
+    partnerRequirements?: PartnerRequirements,
   ) {
     super(name, description)
     this.usablePositions = usablePositions;
@@ -62,5 +83,10 @@ export class Skill extends BasicInfo {
     this.families = families;
     this.actionCost = actionCost;
     this.outcomeStats = outcomeStats;
+    this.equipCost = equipCost;
+    this.sets = [];
+    this.damageType = damageType;
+    this.animation = animation;
+    this.partnerRequirements = partnerRequirements;
   }
 }
