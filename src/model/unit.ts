@@ -6,9 +6,20 @@ import { BattleAI } from 'src/model/ai';
 import { DamageType } from 'src/model/skill';
 
 /**
+ * TODO: make use of this.
+ */
+export const enum BattleSize {
+  SMALL = '1x1',
+  MEDIUM = '1x2',
+  LARGE = '2x2',
+  MASSIVE = '2x3',
+  GARGANTUAN = '3x3'
+}
+
+/**
  * The category of a unit. This is used for damage-effectiveness.
  */
-export enum Category {
+export const enum Category {
 	HUMANOID = "humanoid",
 	BESTIAL = "bestial",
 	INSECT = "insect",
@@ -18,7 +29,7 @@ export enum Category {
 /**
  * The family of a unit. Used for assigning skills and equipment.
  */
-export enum FamilyName {
+export const enum FamilyName {
   STRIKER = 'STRIKER',
   BREAKER = 'BREAKER',
   HEALER = 'HEALER',
