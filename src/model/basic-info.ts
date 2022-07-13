@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
   /**
-   * An abstraction for the basic information shared by many classes.
+   * @class An abstraction for the basic information shared by many classes.
    * This class will generate UUIDs for the new instance.
    * @param name The name to be set.
    * @param description The description to be set.

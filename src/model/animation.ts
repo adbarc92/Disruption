@@ -1,7 +1,10 @@
 import { Sound } from 'src/model/sound';
 import { Sprite } from 'src/model/sprite';
 
-const enum Animations {
+/**
+ * The collection of basic animations shared by all agents.
+ */
+export const enum BasicAnimations {
   RUNNING,
   WALKING,
   STRIKING,
@@ -14,17 +17,28 @@ const enum Animations {
 }
 
 /**
- * An animation to accompany an action or skill.
+ * @class An animation to accompany an action or skill.
+ * @param sprites the series of images to be displayed.
+ * @param spriteDuration the length of time over which each sprite is displayed.
+ * @param sounds the sounds to be played.
+ * @param soundDuration the length of time over which each sound is played.
  */
 export class Animation {
   sprites: Sprite[];
-  duration: number[];
+  spriteDuration: number[];
   sounds: Sound[];
+  soundDuration: number[];
 
-  constructor(sprites: Sprite[], duration: number[], sounds: Sound[]) {
+  constructor(
+    sprites: Sprite[],
+    spriteDuration: number[],
+    sounds: Sound[],
+    soundDuration: number[]
+  ) {
     this.sprites = sprites;
-    this.duration = duration;
+    this.spriteDuration = spriteDuration;
     this.sounds = sounds;
+    this.soundDuration = soundDuration;
   }
 }
 

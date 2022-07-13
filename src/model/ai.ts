@@ -10,7 +10,8 @@ const enum FieldDirective {
 }
 
 /**
- * Defines how an agent traverses the field.
+ * @class Defines how an agent traverses the field.
+ * @param fieldDirective determines how an agent navigates the field.
  */
 export class FieldAI {
   fieldDirective: FieldDirective;

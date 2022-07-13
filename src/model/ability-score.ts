@@ -26,8 +26,13 @@ export interface AbilityScoreSet {
 };
 
 /**
- * Describes the ability scores belonging to a unit or piece of equipment.
+ * @class Describes the ability scores belonging to a unit or piece of equipment.
  * Includes both the current ability scores and their base values for ease of reset.
+ * @param VIG the vigor of a unit.
+ * @param STR the strength of a unit.
+ * @param DEX the dexterity of a unit.
+ * @param RES the resonance of a unit.
+ * @param AGI the agility of a unit.
  */
 export class AbilityScores {
   currentScores: AbilityScoreSet;
