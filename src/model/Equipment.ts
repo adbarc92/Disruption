@@ -2,6 +2,9 @@ import { BasicInfo } from 'src/model/basic-info';
 import { Stats } from 'src/model/stats';
 import { Family } from 'src/model/unit';
 
+/**
+ * The slots of equipment.
+ */
 const enum Slot {
 	HELM = 'HELM',
 	CHEST = 'CHEST',
@@ -11,6 +14,13 @@ const enum Slot {
 	ACCESSORY = 'ACCESSORY',
 }
 
+/**
+ * @class the equipment of a unit.
+ * @param families the families to which the equipment is available.
+ * @param slot the slot to which an equipment would be assigned.
+ * @param worn whether or not the equipment is worn.
+ * @param stats the stat changes of a piece of equipment.
+ */
 export class Equipment extends BasicInfo {
   families: Family[];
   slot: Slot;

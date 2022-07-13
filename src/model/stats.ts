@@ -1,5 +1,8 @@
 import { AbilityScores } from 'src/model/ability-score';
 
+/**
+ * A collection of unit stats.
+ */
 export const enum Stat {
   VITALITY = 'VITALITY',
 	DEFENSE = 'DEFENSE',
@@ -13,6 +16,9 @@ export const enum Stat {
   EVASION = 'EVASION',
 }
 
+/**
+ * A complete set of unit stats.
+ */
 export interface StatSet {
   vitality: number;
 	defense: number;
@@ -26,6 +32,11 @@ export interface StatSet {
   evasion: number;
 }
 
+/**
+ * @class the stats for a unit and equipment as well as associated utilities for management.
+ * @param baseStats a unit's normal stats.
+ * @param currentStats a unit's stats after adjustment for status effects.
+ */
 export class Stats {
   baseStats: StatSet;
   currentStats: StatSet;
@@ -46,6 +57,9 @@ export class Stats {
     this.baseStats = this.currentStats;
   }
 
+  /**
+   * @constructor an alternate constructor to be used when creating units.
+   */
   static fromAbilityScores(abilityScores: AbilityScores): Stats {
     const { VIG, STR, DEX, RES, AGI } = abilityScores.baseScores;
     return new this(

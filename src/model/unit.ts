@@ -3,6 +3,7 @@ import { AbilityScores } from 'src/model/ability-score';
 import { Stats } from 'src/model/stats';
 import { Equipment } from 'src/model/equipment';
 import { BattleAI } from 'src/model/ai';
+import { DamageType } from 'src/model/skill';
 
 /**
  * The category of a unit. This is used for damage-effectiveness.
@@ -17,7 +18,7 @@ export enum Category {
 /**
  * The family of a unit. Used for assigning skills and equipment.
  */
-export enum Family {
+export enum FamilyName {
   STRIKER = 'STRIKER',
   BREAKER = 'BREAKER',
   HEALER = 'HEALER',
@@ -25,6 +26,12 @@ export enum Family {
   ENTROPIST = 'ENTROPIST',
   STUNNER = 'STUNNER',
   MOVER = 'MOVER',
+}
+
+export interface Family {
+  name: FamilyName,
+  resistances: DamageType[];
+  weaknesses: DamageType[];
 }
 
 /**
@@ -51,9 +58,6 @@ export class Unit extends BasicInfo {
   challengeRating: number | null;
   ai?: BattleAI;
 
-  /** @constructor
-   *
-   */
   constructor(
     name: string,
     description: string,

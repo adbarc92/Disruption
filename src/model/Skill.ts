@@ -17,7 +17,7 @@ export interface PartnerRequirements {
 /**
  * The type of damage done by a skill.
  */
-enum DamageType {
+export const enum DamageType {
 	FLAME = 'FLAME',
 	RAIN = 'RAIN',
 	WIND = 'WIND',
@@ -44,7 +44,19 @@ export interface OutcomeStats {
 }
 
 /**
- * A skill to be used in combat.
+ * @class A skill to be used in combat.
+ * @param usablePositions the positions from which the skill can be used.
+ * @param targetPositions the positions targetable by the skill.
+ * @param battleEffects consequences associated with use of the skill in combat.
+ * @param fieldEffects consequences associated with use of the skill in the field.
+ * @param families the groups to which the skill is available.
+ * @param actionCost the cost of using the skill.
+ * @param outcomeStats the stats on which the skill outcome is dependent.
+ * @param sets the custom sets to which players have assigned the skill.
+ * @param equipCost the cost of equipping the skill.
+ * @param damageType the damage type associated with the skill.
+ * @param animation the animation associated with the position.
+ * @param partnerRequirements the requirements of teammates to enhance the skill.
  */
 export class Skill extends BasicInfo {
   usablePositions: Point2d[];

@@ -1,6 +1,9 @@
 import { BasicInfo } from 'src/model/basic-info';
 import { BattleEffectModifier, FieldEffectModifier } from 'src/model/effect';
 
+/**
+ * A collection of all status effect names.
+ */
 export const enum StatusEffectName {
   /* Health */
   REGENERATING = 'regenerating',
@@ -34,6 +37,9 @@ export const enum StatusEffectName {
   QUICKENED = 'quickened',
 }
 
+/**
+ * A collection of all status effect types.
+ */
 export const enum StatusEffectType {
   HEALTH = 'HEALTH',
   BENEFICIAL = 'BENEFICIAL',
@@ -44,6 +50,7 @@ export const enum StatusEffectType {
 
 /**
  * The time during which a status effect activates.
+ * TODO ROUNDS?
  */
 export const enum ActivationTime {
   PRE_TURN = 'pre-turn',
@@ -51,7 +58,14 @@ export const enum ActivationTime {
 }
 
 /**
- * A class for the creation and management of status effects.
+ * @class for creation and management of status effects.
+ * @param type self-explanatory.
+ * @param activationTime when the status effect activates.
+ * @param battleEffect the consequence of the status in battle.
+ * @param fieldEffect the consequence of the status in the field.
+ * @param degree the multiplier for the effect.
+ * @param priority the order in which status effects are activated.
+ * @param duration the time until the status effect expires.
  */
 export class StatusEffect extends BasicInfo {
   type: StatusEffectType;
