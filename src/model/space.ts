@@ -6,9 +6,9 @@ export type Point2d = {
 export const makePoint = (x: number, y: number): Point2d => { return { x,y } }
 
 export interface Size {
-	width: number;
-	height: number;
-	depth: number;
+  width: number;
+  height: number;
+  depth: number;
 }
 
 export const POSITIONS = {

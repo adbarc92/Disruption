@@ -20,10 +20,10 @@ export const enum BattleSize {
  * The category of a unit. This is used for damage-effectiveness.
  */
 export const enum Category {
-	HUMANOID = "humanoid",
-	BESTIAL = "bestial",
-	INSECT = "insect",
-	FLIER = "flier"
+  HUMANOID = "humanoid",
+  BESTIAL = "bestial",
+  INSECT = "insect",
+  FLIER = "flier"
 }
 
 /**
