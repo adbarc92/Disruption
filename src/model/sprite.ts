@@ -1,19 +1,23 @@
-// Sprite
-  // Width
-  // Height
+export type Sprite = {
+  img: HTMLCanvasElement | HTMLImageElement,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+};
 
-// Animation
-  // Duration
-  // Sprite array
-
-interface Image {
-  width: number;
-  height: number;
-}
-
-interface Sprite {
-  images: Image[];
-  maxWidth: number;
-  maxHeight: number;
-
-}
+export const createSprite = (
+  img: HTMLCanvasElement | HTMLImageElement,
+  x?: number,
+  y?: number,
+  w?: number,
+  h?: number,
+) => {
+  return {
+    img,
+    x: x ?? 0,
+    y: y ?? 0,
+    w: w ?? img.width,
+    h: h ?? img.height,
+  }
+};
