@@ -6,12 +6,12 @@ import { Family } from 'src/model/unit';
  * The slots of equipment.
  */
 const enum Slot {
-	HELM = 'HELM',
-	CHEST = 'CHEST',
-	GLOVES = 'GLOVES',
-	GREAVES = 'GREAVES',
-	BOOTS = 'BOOTS',
-	ACCESSORY = 'ACCESSORY',
+  HELM = 'HELM',
+  CHEST = 'CHEST',
+  GLOVES = 'GLOVES',
+  GREAVES = 'GREAVES',
+  BOOTS = 'BOOTS',
+  ACCESSORY = 'ACCESSORY',
 }
 
 /**

@@ -18,15 +18,15 @@ export interface PartnerRequirements {
  * The type of damage done by a skill.
  */
 export const enum DamageType {
-	FLAME = 'FLAME',
-	RAIN = 'RAIN',
-	WIND = 'WIND',
-	STONE = 'STONE',
-	LIGHTNING = 'LIGHTNING',
-	PIERCING = 'PIERCING',
-	BLUDGEONING = 'BLUDGEONING',
-	HOLY = 'HOLY',
-	ENTROPIC = 'ENTROPIC',
+  FLAME = 'FLAME',
+  RAIN = 'RAIN',
+  WIND = 'WIND',
+  STONE = 'STONE',
+  LIGHTNING = 'LIGHTNING',
+  PIERCING = 'PIERCING',
+  BLUDGEONING = 'BLUDGEONING',
+  HOLY = 'HOLY',
+  ENTROPIC = 'ENTROPIC',
 }
 
 /**
