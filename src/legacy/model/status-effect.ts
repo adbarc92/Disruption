@@ -53,6 +53,8 @@ export const enum StatusEffectType {
  * TODO ROUNDS?
  */
 export const enum ActivationTime {
+  COMBAT_START = 'combat-start',
+  COMBAT_END = 'combat-end',
   PRE_TURN = 'pre-turn',
   POST_TURN = 'post-turn',
 }

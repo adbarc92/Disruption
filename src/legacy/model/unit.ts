@@ -37,6 +37,7 @@ export const enum FamilyName {
   ENTROPIST = 'ENTROPIST',
   STUNNER = 'STUNNER',
   MOVER = 'MOVER',
+  GUARDIAN = 'GUARDIAN',
 }
 
 export interface Family {
