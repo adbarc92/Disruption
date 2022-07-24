@@ -13,8 +13,8 @@ class IComponent {
 export class Entity {
   components: IComponent[];
 
-  constructor() {
-    this.components = [];
+  constructor(components?: IComponent[]) {
+    this.components = components || [];
   }
 
   addComponent(component: IComponent): void {
