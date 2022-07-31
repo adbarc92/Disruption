@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-abstract class Component {};
+export abstract class Component {};
 
 type ComponentClass<T extends Component> = new (...args: unknown[]) => T;
 

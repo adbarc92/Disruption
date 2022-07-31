@@ -7,11 +7,12 @@
     "sourceMap": true,
     "lib": ["ESNext"],
     "baseUrl": "./",
+    "downlevelIteration": true,
     "paths": {
       "src/*": [
         "./src/*",
         "./src/legacy/*"
-      ],
+      ]
     }
   }
 }
