@@ -1,7 +1,10 @@
+import { Component } from 'src/core/component';
+
 /**
  * The entity has a position in the world.
  */
-export interface TransformType {
-  x: number;
-  y: number;
-};
+export class Transform extends Component {
+  constructor(public x: number, public y: number) {
+    super();
+  }
+}

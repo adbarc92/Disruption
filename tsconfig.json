@@ -5,7 +5,10 @@
     "strict": true,
     "outDir": "dist",
     "sourceMap": true,
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "baseUrl": "./",
     "downlevelIteration": true,
     "paths": {

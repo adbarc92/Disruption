@@ -1,7 +1,13 @@
+import { Component } from 'src/core/component';
+
 /**
  * Describes how an entity is moving.
  */
-export interface Motion {
-  velocity: [number, number]
-  acceleration: [number, number]
-};
+export class Motion extends Component {
+  constructor(
+    public velocity: [number, number],
+    public acceleration: [number, number]
+  ) {
+    super();
+  }
+}

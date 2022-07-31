@@ -1,5 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
-
+/**
+ * A Component is a bundle of state. Each instance of a Component is
+ * associated with a single Entity.
+ *
+ * Components have no API to fulfill.
+ */
 export abstract class Component {};
 
 type ComponentClass<T extends Component> = new (...args: unknown[]) => T;
