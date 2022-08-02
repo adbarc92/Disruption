@@ -1,5 +1,9 @@
+import { Component } from 'src/core/component';
 import { StatSet } from 'src/components/stats'
 
+/**
+ * The type of equipment
+ */
 const enum EquipmentSlot {
   HELM = 'HELM',
   CHEST = 'CHEST',
@@ -9,16 +13,15 @@ const enum EquipmentSlot {
   ACCESSORY = 'ACCESSORY',
 }
 
-interface EquipmentType {
-  name: string;
-  slot: EquipmentSlot;
-  statBonuses: StatSet;
-}
-
-export const makeEquipment = (name: string, slot: EquipmentSlot, statBonuses: StatSet): EquipmentType => {
-  return {
-    name,
-    slot,
-    statBonuses,
+/**
+ * Equipment serves to boost a unit's stats.
+ */
+export class Equipment extends Component {
+  constructor(
+    public name: string,
+    public slot: EquipmentSlot,
+    public statBonuses: StatSet,
+  ){
+    super();
   }
 };
