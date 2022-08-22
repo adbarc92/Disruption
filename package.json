@@ -2,6 +2,9 @@
   "name": "Disruption",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./src/index.ts"
+  },
   "repository": "https://github.com/adbarc92/Disruption.git",
   "author": "adbarc92 <adbarclay92@gmail.com>",
   "license": "MIT",

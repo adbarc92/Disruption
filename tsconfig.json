@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "moduleResolution": "classic",
     "strict": true,
     "outDir": "dist",
     "sourceMap": true,

@@ -1,5 +1,5 @@
 import { Entity } from 'src/core/entity';
-import { ComponentContainer } from 'src/core/component';
+import { ComponentContainer, ComponentClass } from 'src/core/component';
 import { System } from 'src/core/system';
 import { Component } from 'src/core/component';
 
@@ -24,6 +24,14 @@ export class ECS {
   public addComponent(entity: Entity, component: Component): void {
     this.entities.get(entity)?.add(component);
     this.checkEntity(entity);
+  }
+
+  public getComponent(entity: Entity, cClass: ComponentClass<T>)<T>: Component {
+    this.entities.get(entity)?.delete(cClass)
+  }
+
+  public removeComponent(entity: Entity, component: Component): Component | undefined {
+    return this.entities.get(entity)?.get(component.componentClass);
   }
 
   private destroyEntity(entity: Entity): void {

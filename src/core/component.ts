@@ -6,28 +6,28 @@
  */
 export abstract class Component {};
 
-type ComponentClass<T extends Component> = new (...args: unknown[]) => T;
+export type ComponentClass<T extends Component> = new (...args: unknown[]) => T;
 
 export class ComponentContainer {
-  private map = new Map<Function, Component>()
+  private components = new Map<Function, Component>()
 
   public add(component: Component): void {
-    this.map.set(component.constructor, component)
+    this.components.set(component.constructor, component)
   }
 
   public get<T extends Component>(
     componentClass: ComponentClass<T>
   ): T {
-    return this.map.get(componentClass) as T;
+    return this.components.get(componentClass) as T;
   }
 
   public has(componentClass: Function): boolean {
-    return this.map.has(componentClass);
+    return this.components.has(componentClass);
   }
 
   public hasAll(componentClasses: Iterable<Function>): boolean {
     for(let cls of componentClasses) {
-      if(!this.map.has(cls)) {
+      if(!this.components.has(cls)) {
         return false;
       }
     }
@@ -35,6 +35,6 @@ export class ComponentContainer {
   }
 
   public delete(componentClass: Function): void {
-    this.map.delete(componentClass);
+    this.components.delete(componentClass);
   }
 }

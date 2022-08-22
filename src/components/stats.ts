@@ -1,4 +1,5 @@
-import { AbilityScoreSet } from 'src/components/ability-score'
+import { Component } from 'src/core/component';
+import { AbilityScores } from 'src/components/ability-scores'
 /**
  * A collection of unit stats.
  */
@@ -57,5 +58,22 @@ export const makeStatSet = (abilityScores: AbilityScoreSet): StatSet => {
       initiative: AGI*3,
       evasion: AGI*2,
     }
+};
+
+export class StatSet extends Component {
+  constructor(
+    public vitality: number,
+    public defense: number,
+    public resistance: number,
+    public amplification: number,
+    public damage: number,
+    public critDamage: number,
+    public critRate: number,
+    public accuracy: number,
+    public initiative: number,
+    public evasion: number,
+  ) {
+    super();
+  }
 };
 
