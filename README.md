@@ -27,4 +27,4 @@
 * [Maxwell Forbes](https://maxwellforbes.com/posts/typescript-ecs-implementation/)
 * [Niko Savas](https://medium.com/@savas/nomad-game-engine-part-2-ecs-9132829188e5)
 * [Domagoj Cerjan](https://dev.t-matix.com/blog/platform/eimplementing-a-type-saf-ecs-with-typescript/)
-* Sprites: Chrono Trigger
+* Test Sprites: Crono from *Chrono Trigger*
