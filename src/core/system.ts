@@ -1,6 +1,9 @@
 import { Entity } from 'src/core/entity';
 import { ECS } from 'src/core/ecs';
 
+/**
+ * TODO: The menu stack and cursor position/visibility should be tracked here.
+ */
 export abstract class System {
     public abstract componentsRequired: Set<Function>;
     public abstract update(entities: Set<Entity>): void

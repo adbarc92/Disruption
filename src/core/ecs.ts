@@ -25,14 +25,14 @@ export class ECS {
     this.entities.get(entity)?.add(component);
     this.checkEntity(entity);
   }
-
-  public getComponent(entity: Entity, cClass: ComponentClass<T>)<T>: Component {
-    this.entities.get(entity)?.delete(cClass)
+  public getComponents(entity: Entity): ComponentContainer | undefined {
+    return this.entities.get(entity);
   }
 
-  public removeComponent(entity: Entity, component: Component): Component | undefined {
-    return this.entities.get(entity)?.get(component.componentClass);
-  }
+  public removeComponent(entity: Entity, componentClass: Function): void {
+    this.entities.get(entity)?.delete(componentClass);
+    this.checkEntity(entity);
+}
 
   private destroyEntity(entity: Entity): void {
     this.entities.delete(entity);

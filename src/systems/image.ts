@@ -1,7 +1,5 @@
-import { readdir } from 'fs/promises';
+import { promises as fsPromises } from 'fs';
 import { createCanvas } from 'src/systems/canvas';
-
-const IMAGES_SRC = 'assets/images';
 
 export const loadImage = async (fileSrc: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
@@ -17,7 +15,7 @@ export const loadImage = async (fileSrc: string): Promise<HTMLImageElement> => {
 };
 
 export const loadImages = async(basePath: string): Promise<HTMLImageElement[]> => {
-  const files = readdir(basePath);
+  const files = fsPromises.readdir(basePath);
   let imagesPromises: Promise<HTMLImageElement>[] = [];
   for(const file in files) {
     imagesPromises.push(loadImage(file))

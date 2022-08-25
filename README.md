@@ -6,7 +6,7 @@
 
 ## Requirements & Installation
 
-## Movitation
+## Motivation
 
 ## Demo
 
