@@ -15,6 +15,7 @@ export const loadImage = async (fileSrc: string): Promise<HTMLImageElement> => {
 };
 
 export const loadImages = async(basePath: string): Promise<HTMLImageElement[]> => {
+  console.log("Loading images...");
   const files = fsPromises.readdir(basePath);
   let imagesPromises: Promise<HTMLImageElement>[] = [];
   for(const file in files) {
@@ -22,6 +23,7 @@ export const loadImages = async(basePath: string): Promise<HTMLImageElement[]> =
   }
   return Promise.all(imagesPromises)
     .then((images) => {
+      console.log("Images loaded.");
       return images;
     })
     .catch((e) => {
