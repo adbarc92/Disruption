@@ -2,14 +2,21 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "moduleResolution": "classic",
     "strict": true,
     "outDir": "dist",
     "sourceMap": true,
+    "lib": [
+      "ESNext",
+      "dom"
+    ],
     "baseUrl": "./",
+    "downlevelIteration": true,
     "paths": {
       "src/*": [
-        "./src/*"
-      ],
+        "./src/*",
+        "./src/legacy/*"
+      ]
     }
   }
 }
