@@ -1,0 +1,4 @@
+- She’s reluctant to show deep affection, though surface-level bubblyness is her M.O.
+- She takes the loss of others extremely personally, and tries to protect herself by pretending not to care. She particularly hates causing harm to the people she loves.
+- She wants nothing more than to take revenge on Phoebe, and to dismantle the collective. In general, she has a serious problem with authority.
+- A lot of this is directed inwards to her “pet” stuffed lion, Nemius. She uses him as a safety blanket and never goes anywhere without him, despite him being from a person she now loathes.

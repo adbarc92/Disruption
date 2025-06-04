@@ -1,0 +1,40 @@
+# Status Effects
+
+- Buffs
+    - Physical Attack
+    - Exousia Attack
+    - Physical Defense
+        - Fortified
+    - Exousia Defense
+    - Initiative
+        - Haste
+    - Reflexes (Evasion)
+    - Critical Chance
+    - Critical Damage
+    - Hit Points
+    - Exousia Resonance
+- Debuffs
+    - Physical Attack
+        - Defanged
+        - 
+    - Exousia Attack
+        - Impugned
+    - Physical Defense
+        - Sundered
+        - Shattered
+        - Fragmented
+        - Ruptured
+    - Exousia Defense
+    - Initiative
+        - Cold
+        - Injured
+    - Reflexes (Evasion)
+    - Critical Chance
+    - Critical Damage
+    - Hit Points
+        - Exhausted
+        - Injured
+    - Exousia Resonance
+- Auras
+    - Euphen’s Nature
+- DOTs

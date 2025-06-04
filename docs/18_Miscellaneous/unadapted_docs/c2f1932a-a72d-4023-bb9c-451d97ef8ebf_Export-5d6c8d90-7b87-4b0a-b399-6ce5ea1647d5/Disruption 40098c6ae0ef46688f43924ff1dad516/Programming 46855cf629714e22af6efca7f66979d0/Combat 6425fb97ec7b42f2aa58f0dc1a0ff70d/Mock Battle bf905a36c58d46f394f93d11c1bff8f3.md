@@ -1,0 +1,45 @@
+# Mock Battle
+
+- The battle starts
+    - The sprites are loaded
+    - The background is loaded
+    - All participants do their startup animations
+    - The turn order is calculated
+    - Turn order and input UI are displayed on-screen
+- An example player turn:
+    - The turn starts
+    - Status effects activate if applicable
+    - The game presents a skill menu: Strike, Technique, Item, Defend, Dodge
+        - The player scrolls down to technique and confirms.
+        - The game determines the target type.
+            - If it is an AOE move, the player can select from an array of tiles.
+                - The blast radius should be displayed as highlighting the affected tiles in red.
+                - If the player selects a tile where the technique would not target any enemies, the player should be asked to confirm their decision.
+                    - This prompt should be togglable.
+                - These moves may also target rows or columns.
+            - If it is a targeted move, the player can select from an array of enemies.
+                - Some techniques may target multiple enemies.
+        - The game calls the effect function with the user and target (space||enemy) as inputs.
+            - Either actor may have their health, position, or status changed by this effect.
+        - After the function has run, the game checks if an actor was eliminated.
+        - If an actor has been eliminated, the game checks to see if their team has any remaining actors. If not, the battle ends.
+            - If the actor is eliminated, their sprite is removed from the screen and their turn from the order.
+        - The action point cost is deducted from the actor’s total. This change is displayed on-screen.
+        - If the function has influenced the speed of the actor or other participants, the turn order is adjusted.
+        - When either the action points have all been spent or the player has selected Defend or Dodge, the actor’s turn ends.
+    - Status effects activate if applicable.
+- An example enemy turn:
+    - The turn starts.
+    - Status effects activate if applicable.
+    - The enemy’s AI dictates that it tries to cause as much damage as possible.
+    - It looks through its technique set and selects the one that will do the most damage across party members (or to a single one).
+    - The action points are deducted.
+    - If the function has influenced the speed of the actor or other participants, the turn order is adjusted.
+    - If an actor has been eliminated, the game checks to see if their team has any remaining actors. If not, the battle ends.
+    - If the actor may continue to act, it does so.
+    - If the actor has used all of its action points, the turn ends.
+    - Status effects activate if applicable.
+- When all of one team’s actors have been eliminated, the battle ends.
+    - The winning side does their victory animation.
+    - If the winning side is that of the player, then the inventory of the enemy party is added to the player party’s inventory.
+    - If the winning side is that of the enemy, the game over screen is displayed and the player is given the option to restart from their last save (or checkpoint?)
