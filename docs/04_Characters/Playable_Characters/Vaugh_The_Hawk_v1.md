@@ -2,7 +2,8 @@
 
 ## Core
 
-Personality keywords: impulsive, outgoing, competent, determined
+- Personality keywords: impulsive, outgoing, competent, determined
+- Inspiration: Tatsumi (Akame Ga Kill), 
 
 Young Hothead
 

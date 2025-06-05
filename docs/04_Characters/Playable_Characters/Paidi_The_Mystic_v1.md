@@ -1,3 +1,10 @@
+# Background
+
+## Core
+- Personality keywords: bubbly, outgoing, kind
+- Inspiration: Leone (Akame Ga Kill)
+
+## History
 [Following their expulsion from Kuklos Anankes, the Order of Pious Sun](https://www.notion.so/The-Order-of-Pious-Sun-WIP-69a06a9c90154df98e9d2658d1c1dabd?pvs=21) existed in relative isolation for over a century. As a child, Paidi was exuberant and talkative.
 
 - Paidi has a happy childhood.
