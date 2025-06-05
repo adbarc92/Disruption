@@ -1,3 +1,0 @@
-# Creatures
-
-Corvus: Large crows

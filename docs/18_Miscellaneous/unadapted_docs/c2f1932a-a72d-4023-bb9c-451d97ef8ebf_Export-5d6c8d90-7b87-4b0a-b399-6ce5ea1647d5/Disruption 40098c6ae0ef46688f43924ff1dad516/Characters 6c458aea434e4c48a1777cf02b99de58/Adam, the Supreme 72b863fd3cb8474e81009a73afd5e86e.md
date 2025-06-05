@@ -1,1 +1,0 @@
-# Adam, the Supreme
