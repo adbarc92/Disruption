@@ -39,16 +39,19 @@ Sophia nodded, and withdrew the flow of Exousia. The knife appeared back in her 
 She moved to the door where a cloakrack stood, and donned her black overcloak, pulling the hood over her head. The cloak settled around her, the wireframe inside causing it to flare out slightly, making her look bigger and concealing her curves. With a final glance back--Lucius had paused from tidying up his surgical space to watch her as she went--she moved to the sturdy wooden door, grasped the knocker, and pulled it open.
 
 - Sophia speaks with her handler.
-- Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known
-- Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy
+- Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known. She sometimes ventures out into the forest alone.
+- Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy; the technology must be disruptive to society
 - Sophia struggles with this internally
 - Sophia uses her new power to get close to him
-- As she is about to strike, she learns he has a daughter
+- As she is about to strike, she learns he has a daughter - Leon the Professional; Sophia interacts more with the daughter and becomes invested in the daughter, she tries to save her--get her into the Collective?
 - She remembers her own father, working alongside him in his workshop; her pursuit of his craft got her here
 - She attempts to convince her target to give up inventing and go into hiding; she offers to help him
 - He thanks her, but does not want to let down his daughter and the people around him
 - Sophia kills him and is deeply tormented by this, but feels she has no other choice; she feels her will is broken
 - Sophia debriefs with her handler
-- Her handler informs Sophia that her target's daughter has also been killed--"no loose ends"
+- Her handler informs Sophia that her target's daughter has also been killed--"no loose ends"; Sophia is somehow complicit in the daughter's death
 - Back at her abode, Sophia produces one of her former target's prototypes--she impulsively used her enhancement to take it
-- She briefly considers truly giving up--she is alone and has no greater plan--but decides to at least try to disrupt the Collective's operations
+- She briefly considers truly giving up--she is alone and has no greater plan--but decides to at least try to disrupt the Collective's operations; Sophia considers suicide because she specifically tried to help the daughter and it led to her death (Kaladin)
+
+Side Notes
+- Flesh out the specifics of the locations; try to expand the setting wherever possible
