@@ -1,4 +1,5 @@
 # Technique List for Core Design Document
+***Adapted from TechniquePrototypes***
 
 ## Engorgent Thread
 - **Version**: 1
