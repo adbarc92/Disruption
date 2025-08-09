@@ -334,6 +334,8 @@ Final Damage = Base Damage × Positional Modifier × Resistance Modifier
 - **Mark:** Increases damage from specific sources
 - **Link:** Shares damage/effects with linked target
 - **Transformation:** Temporarily changes unit type/abilities
+- **Well-rested:** Increased XP gain at the end of battles
+- **Flow:** Increased ability XP gain at the end of battles.
 
 ### Status Effect Properties
 - **Duration:** Turns remaining, permanent, or condition-based
