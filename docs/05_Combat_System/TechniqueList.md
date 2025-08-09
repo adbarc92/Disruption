@@ -50,7 +50,7 @@
 - **Description**: Take hold of single target and inject heat, causing blood to boil
 - **Notes**: None
 
-## Storm's Guidance
+## Storm's Guidance (Guiding Bolt)
 - **Version**: 1
 - **User**: [Lightning User]
 - **Tooltip**: None
