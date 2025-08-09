@@ -12,6 +12,143 @@ This document outlines a turn-based tactical combat system emphasizing positioni
 
 ---
 
+## Burst Mode System (Trance/Overdrive Hybrid)
+
+### Core Design Philosophy
+The Burst system combines the best elements of FF7's Limit Breaks (powerful gauge-based abilities), FF9's Trance (transformative state changes), and FFX's Overdrives (player-controlled activation and customization) into a unified tactical resource.
+
+### Burst Gauge Mechanics
+**Gauge Properties:**
+- **Capacity:** 100 points (standardized across all characters)
+- **Persistence:** Gauge partially carries between combats (retains 25-40%)
+- **Visibility:** Always visible to players for strategic planning
+- **Decay:** No passive decay during combat
+
+### Customizable Charging Methods
+Each character can equip one primary charging method (selected outside combat):
+
+**Aggressive Charging Methods:**
+- **Berserker:** +15 points per enemy defeated, +5 per critical hit
+- **Executioner:** +20 points when reducing enemy to 25% health or below
+- **Chain Fighter:** +10 points per consecutive turn spent attacking
+
+**Defensive Charging Methods:**
+- **Guardian:** +12 points per damage absorbed for allies, +8 when taking damage while in front row
+- **Survivor:** +15 points when dropping below 50% health, +10 per turn survived at low health
+- **Protector:** +10 points per status effect cleansed from allies
+
+**Support Charging Methods:**
+- **Tactician:** +8 points per ally repositioned, +12 per enemy repositioned
+- **Medic:** +10 points per healing action, +15 per ally saved from incapacitation
+- **Buffer:** +8 points per beneficial status applied to allies
+
+**Technical Charging Methods:**
+- **Efficiency Expert:** +12 points per ability used at optimal resource cost
+- **Combo Master:** +15 points per multi-target ability, +20 per ability that triggers reactions
+- **Opportunist:** +10 points per weakness exploited, +15 per resistance overcome
+
+### Burst Mode Activation
+**Activation Requirements:**
+- Gauge must be at 100 points
+- Cannot be incapacitated or under specific control effects
+- Uses an action (or bonus action, depending on turn system variant)
+
+**Activation Effects:**
+- **Immediate:** Gauge depletes to 0, transformation begins
+- **Duration:** 4-6 turns (varies by character/customization)
+- **Action Economy:** Activation turn grants immediate bonus action
+
+### Transformation Effects Framework
+Each character has a unique Burst Mode with three categories of changes:
+
+**Stat Modifications (Applied for duration):**
+- **Damage Boost:** +40-60% to all damage output
+- **Speed Increase:** +2-3 positions in turn order
+- **Resistance Boost:** +1 level to all resistances (Vulnerable→Normal→Resistant)
+- **Special Stats:** Unique modifications per character archetype
+
+**Ability Transformations:**
+- **Basic Attack Enhancement:** Becomes area attack or gains additional effects
+- **Role Ability Upgrades:** Existing abilities gain additional effects or reduced costs
+- **MP Cost Reduction:** All abilities cost 1 less MP (minimum 1)
+
+**Exclusive Burst Abilities:**
+- **Ultimate Attack:** High-damage ability available only in Burst Mode
+- **Mass Effect:** Area-of-effect version of signature ability
+- **Emergency Protocol:** Defensive ability that can interrupt enemy turns
+
+### Example Burst Mode Profiles
+
+**Tank Character - "Fortress Mode":**
+- **Stats:** +50% damage reduction, +30% damage output, immunity to forced movement
+- **Transform:** Basic attack becomes area taunt, defensive abilities affect all allies
+- **Ultimate:** "Aegis Protocol" - Absorb all damage to allies for 2 turns
+
+**DPS Character - "Rampage Mode":**
+- **Stats:** +60% damage, +3 turn order positions, critical hits reduce ability cooldowns
+- **Transform:** All attacks gain cleave, movement abilities deal damage
+- **Ultimate:** "Devastation" - Massive area attack that repositions all enemies
+
+**Support Character - "Harmony Mode":**
+- **Stats:** +2 range to all abilities, all abilities affect additional targets
+- **Transform:** Healing abilities grant temporary buffs, buffs last twice as long
+- **Ultimate:** "Restoration Wave" - Full heal + status cleanse + buff to entire party
+
+### Strategic Depth Elements
+
+**Burst Timing Decisions:**
+- **Early Activation:** Control difficult encounters but lose late-game power
+- **Mid-Combat:** Turn tide of battle when momentum shifts
+- **Clutch Activation:** Last-resort power spike for comeback potential
+
+**Counter-Play Mechanics:**
+- **Gauge Disruption:** Some enemy abilities can reduce Burst Gauge
+- **Transformation Punishment:** Certain enemies deal extra damage to Burst Mode units
+- **Duration Manipulation:** Effects that can extend or shorten Burst duration
+
+**Team Coordination:**
+- **Staggered Bursts:** Maintain constant pressure with sequential activations
+- **Synchronized Bursts:** Overwhelming combo potential with multiple simultaneous activations
+- **Support Bursts:** Using support character Burst to enable DPS character setups
+
+### Balance Framework
+**Power Budget Guidelines:**
+- Burst Mode should feel significantly more powerful than base state
+- Total combat effectiveness increase should be 150-200% during Burst
+- Gauge charging should require 8-12 turns of focused play
+- One Burst activation per combat is standard, two is exceptional
+
+**Charging Rate Balance:**
+- Different charging methods should reach full gauge at similar rates
+- High-risk charging methods (taking damage) charge slightly faster
+- Support charging methods should be consistently reliable but not explosive
+
+### Technical Implementation Notes
+**Modular Transformation System:**
+```java
+interface BurstTransformation {
+    StatModifierSet getStatChanges();
+    AbilityTransformationSet getAbilityChanges();
+    List<BurstAbility> getExclusiveAbilities();
+    int getDuration();
+}
+```
+
+**Gauge Charging System:**
+```java
+interface GaugeCharger {
+    int calculateChargeGain(CombatEvent event, CombatContext context);
+    boolean isEventRelevant(CombatEvent event);
+}
+```
+
+**State Management:**
+- Clean separation between base character state and Burst modifications
+- Ability to preview Burst effects before activation
+- Rollback system for debugging transformation issues
+
+---
+
 ## System Architecture Overview
 
 ### Modular Component Structure
