@@ -178,11 +178,11 @@ All techniques are refactored to work within the established combat system archi
 
 ### Taunt and Control
 
-**Parental Authority**
+**Protective Instinct**
 - **Action Type**: Bonus Action
 - **MP Cost**: 2
 - **Range**: All allies
-- **Effect**: Set Counter trigger - if any ally takes damage, Phaidros immediately attacks the source (if in range)
+- **Effect**: Set Counter trigger - if any ally takes damage, counterattack the source (if in range)
 - **Status Applied**: Protective Instinct (Self)
 - **Duration**: 4 turns
 - **Burst Gauge**: +12 (Defensive: Guardian)
@@ -197,34 +197,7 @@ All techniques are refactored to work within the established combat system archi
 
 ### Earth Techniques
 
-**Stonefist**
-- **Action Type**: Action
-- **MP Cost**: 2
-- **Range**: Any enemy position
-- **Effect**: Launch stone projectile, 100% Earth damage, 30% chance to apply Knockdown (lose next action)
-- **Damage Type**: Earth
-- **Status Applied**: Knockdown (chance)
-- **Burst Gauge**: +10 (Aggressive: Chain Fighter)
 
-**Earthquake**
-- **Action Type**: Action
-- **MP Cost**: 5
-- **Equipment Charge**: 1 (Earth Gauntlets)
-- **Range**: All tiles
-- **Effect**: Ground tremor affects all units, 70% Earth damage, 25% chance to apply Knockdown
-- **Damage Type**: Earth
-- **Status Applied**: Knockdown (chance)
-- **Burst Gauge**: +25 (Technical: Multi-target)
-
-**Pitfall**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: Single enemy
-- **Effect**: Ground collapses beneath target, 80% Earth damage, apply Root (cannot move) for 3 turns
-- **Damage Type**: Earth
-- **Status Applied**: Root
-- **Positioning**: Creates difficult terrain
-- **Burst Gauge**: +12 (Technical: Status infliction)
 
 ### Advanced Techniques
 
