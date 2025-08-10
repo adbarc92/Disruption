@@ -10,6 +10,9 @@
 - **Strategic Use**: Counters stealth, hybrid utility.
 - **Notes**: None
 
+### Windrider
+TBD
+
 ### Hydrosage (Aquamancer)
 - **Primary Function**: Control/Support
 - **Description**: Commands water magic; torrents, mists, or ice for control and healing.
@@ -34,11 +37,32 @@
 - **Strategic Use**: Area damage, excels vs clusters.
 - **Notes**: None
 
+**Wide Swing**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Front enemy row
+- **Effect**: Strike all enemies in front row with 85% Slash damage
+- **Burst Gauge**: +15 (Technical: Multi-target)
+
 ### Chronovant (Time Mage)
 - **Primary Function**: Support/Control
 - **Description**: Manipulates time; hastens allies, slows enemies.
 - **Strategic Use**: Tempo control, fragile.
 - **Notes**: None
+
+### Hemaphile (Blood Manipulator)
+- **Primary Function**: Support/Control
+- **Description**: Manipulates time; hastens allies, slows enemies.
+- **Strategic Use**: Tempo control, fragile.
+- **Notes**: None
+
+**Crimson Bolt**
+- **Action Type**: Action
+- **MP Cost**: 1
+- **Range**: Any enemy position
+- **Target**: Single enemy
+- **Effect**: Deal 90% Pierce damage (blood projectile)
+- **Burst Gauge**: +8 (Aggressive: Chain Fighter)
 
 ## Core
 
@@ -48,11 +72,51 @@
 - **Strategic Use**: Precision DPS, counters leaders.
 - **Notes**: None
 
+**Heart Piercer**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: 2 tiles forward
+- **Effect**: Move forward 1 tile, deal 120% Pierce damage to single target
+- **Burst Gauge**: +10 (Aggressive: Chain Fighter)
+- **Notes**: Can target through allies
+
 ### Bladewarden (Warrior)
 - **Primary Function**: Damage
 - **Description**: Melee fighter with versatile close-quarters mastery.
 - **Strategic Use**: Frontline, adaptable.
 - **Notes**: None
+
+**Pommel Strike**
+- **Action Type**: Action
+- **MP Cost**: 1
+- **Range**: Adjacent enemy
+- **Effect**: Deal 70% Blunt damage, 50% chance to apply Dazed (cannot use abilities for 1 turn)
+- **Status Applied**: Dazed (chance)
+- **Burst Gauge**: +8 (Technical: Status infliction)
+
+**True Strike**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Any enemy position
+- **Effect**: Lunge forward to target (ignore intervening units), deal 130% Pierce damage, cannot be dodged
+- **Positioning**: Move to adjacent tile of target
+- **Burst Gauge**: +10 (Aggressive: Chain Fighter)
+
+**Raging Cyclone**
+- **Action Type**: Action
+- **MP Cost**: 4
+- **Range**: Front enemy column
+- **Effect**: Strike 5 times at 70% Physical damage each, 40% chance per strike to inflict Bleed
+- **Status Applied**: Bleed (chance)
+- **Burst Gauge**: +20 (Technical: Multi-target)
+
+**Unrequited Frenzy**
+- **Action Type**: Bonus Action
+- **MP Cost**: 2
+- **Range**: Self
+- **Effect**: Gain physical attack buff equal to (Missing HP% + 2% per 5% Bleed effect active)
+- **Status Applied**: Rage (variable strength)
+- **Burst Gauge**: +15 (Aggressive: Berserker)
 
 ### Stancebreaker (Monk)
 - **Primary Function**: Utility/Control
@@ -102,6 +166,96 @@
 - **Strategic Use**: Versatile, complex.
 - **Notes**: None
 
+**Autophagia**
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: Self
+- **Effect**: Heal 30% max HP, apply Bleed (20% max HP over 3 turns), gain Bloodlust (+50% damage on offensive techniques) for 3 turns
+- **Status Applied**: Bleed (Self), Bloodlust (Self)
+- **Burst Gauge**: +15 (Defensive: Survivor - dropping below 50% health)
+
+**Razor Step**
+- **Action Type**: Movement (Enhanced)
+- **MP Cost**: 1
+- **Range**: Self
+- **Effect**: Movement actions this turn can move up to 2 tiles in any direction, gain +10% Evasion for 2 turns
+- **Burst Gauge**: +8 (Technical: Efficiency Expert)
+
+Severance Symphony (Progressive Multi-Part Technique)
+
+**Embedded Razors** (Stanza 1)
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Self
+- **Effect**: Apply Razor Skin (enemies taking damage when attacking Chiranjivi) for 4 turns, self-inflict Bleed (20% over 1 turn)
+- **Status Applied**: Razor Skin (Self), Bleed (Self)
+- **Burst Gauge**: +10 (Technical: Combo Master)
+- **Prerequisite**: None
+
+**Hands of Knives** (Stanza 2)
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: Adjacent enemy
+- **Effect**: Leap to target, perform 2 attacks (4 if Enraged), each 80% Slash damage, self-inflict Bleed (30% over 1 turn)
+- **Status Applied**: Bleed (Self)
+- **Burst Gauge**: +15 (Aggressive: Chain Fighter)
+- **Prerequisite**: Embedded Razors active
+
+**Distant Reaper** (Stanza 3)
+- **Action Type**: Action
+- **MP Cost**: 4
+- **Range**: Column + Front enemy row
+- **Effect**: Strike all enemies in user's column, then all enemies in front row (or second row if front empty), 90% Slash damage each, self-inflict Bleed (40% over 1 turn)
+- **Status Applied**: Bleed (Self)
+- **Burst Gauge**: +20 (Technical: Multi-target ability)
+- **Prerequisite**: Hands of Knives used this combat
+
+**Maiden of Flesh** (Stanza 4 - Burst Mode Only)
+- **Action Type**: Ultimate (Burst Mode)
+- **MP Cost**: All remaining
+- **Range**: Single enemy
+- **Effect**: Leap to target, deal 300% Special (Necrotic) damage, heal self to 100% HP, remove all debuffs from self
+- **Status Applied**: Full Heal (Self), Cleanse (Self)
+- **Prerequisite**: Distant Reaper used this combat, Burst Mode active
+
+### Broken Symphony (Alternative Multi-Part Technique)
+
+**Marrow Coating** (Stanza 1)
+- **Action Type**: Bonus Action
+- **MP Cost**: 2
+- **Range**: Self
+- **Effect**: Gain Bone Armor (30% Physical damage reduction) for 4 turns
+- **Status Applied**: Bone Armor
+- **Burst Gauge**: +10 (Defensive: Guardian)
+
+**Bone Knuckles** (Stanza 2)
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: Adjacent enemy
+- **Effect**: Leap forward, perform 2 attacks with +20% damage, 60% chance to apply Sunder on each hit, self-inflict Weakness (40% physical damage) for 2 turns
+- **Status Applied**: Sunder (Enemy), Weakness (Self)
+- **Burst Gauge**: +15 (Aggressive: Chain Fighter)
+- **Prerequisite**: Marrow Coating active
+
+**Meteor Hammer** (Stanza 3)
+- **Action Type**: Action
+- **MP Cost**: 4
+- **Range**: Back enemy row
+- **Effect**: Leap into air, strike all back row enemies with +50% damage, knock back 1 tile if possible
+- **Positioning**: Knockback
+- **Burst Gauge**: +20 (Technical: Multi-target)
+- **Prerequisite**: Bone Knuckles used this combat
+
+**Knight of Blood** (Stanza 4 - Transformation)
+- **Action Type**: Action (Concentration)
+- **MP Cost**: 5
+- **Range**: Self
+- **Effect**: Transform - gain Bone Plate (+90% Physical Defense, +50% damage), apply stacking Bleed (15% per turn active) for 2 turns after transformation ends, gain Hemophilia (healing reduced by 50%) while active and 2 turns after
+- **Duration**: Concentration (max 5 turns)
+- **Status Applied**: Bone Plate, Hemophilia, Bleed (delayed)
+- **Burst Gauge**: +25 (Technical: Efficiency Expert)
+- **Prerequisite**: Meteor Hammer used this combat
+
 ## Support
 
 ### Ironskin (Tank)
@@ -147,6 +301,51 @@
 - **Description**: Links turns with allies for joint attacks or buffs.
 - **Strategic Use**: Combo enabler, team-reliant.
 - **Notes**: None
+
+**Gout of Flame** (Ignivox+Bladewarden)
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: 2 adjacent tiles
+- **Effect**: Slash in burning arc, deal 100% Fire damage to 2 targets, weapon gains Fire Enhancement (next 3 attacks deal additional Fire damage)
+- **Status Applied**: Fire Enhancement (Self)
+- **Damage Type**: Fire
+- **Burst Gauge**: +12 (Technical: Multi-target)
+
+**Luminous Tines** (Luminarch+Bladewarden)
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: Single enemy
+- **Effect**: Overhead Lightning strike, 120% Lightning damage, weapon gains Lightning Enhancement (next 3 attacks deal additional Lightning damage and may chain)
+- **Status Applied**: Lightning Enhancement (Self)
+- **Damage Type**: Lightning
+- **Burst Gauge**: +12 (Aggressive: Chain Fighter)
+
+**Frozen Thrust** (Hydrosage+Bladewarden)
+- **Action Type**: Action
+- **MP Cost**: 3
+- **Range**: Single enemy
+- **Effect**: Ice-enhanced thrust, 110% Ice damage, 40% chance to apply Frozen (cannot move for 2 turns), weapon gains Ice Enhancement
+- **Status Applied**: Ice Enhancement (Self), Frozen (chance)
+- **Damage Type**: Ice
+- **Burst Gauge**: +12 (Technical: Status infliction)
+
+**Northern Gale** (Windrider+Bladewarden)
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Single enemy
+- **Effect**: Wind-enhanced upward strike, 80% Wind damage, force enemy to move up 1 tile (toward back row)
+- **Positioning**: Forced movement
+- **Damage Type**: Wind
+- **Burst Gauge**: +10 (Technical: Repositioning)
+
+**Southern Breeze** (Windrider+Bladewarden)
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Single enemy
+- **Effect**: Wind-enhanced downward strike, 80% Wind damage, force enemy to move down 1 tile (toward front row)
+- **Positioning**: Forced movement
+- **Damage Type**: Wind
+- **Burst Gauge**: +10 (Technical: Repositioning)
 
 ### Gearmonger (Improviser)
 - **Primary Function**: Utility
@@ -276,6 +475,23 @@
 - **Strategic Use**: Versatile control, pursuit.
 - **Notes**: None
 
+### Steelskin (Metamorph+Bulwark)
+
+**Steelheart**
+- **Action Type**: Bonus Action
+- **MP Cost**: 1
+- **Range**: Self
+- **Effect**: Gain Bleed Resistance and Fortify (+20% Physical Defense) for 4 turns
+- **Status Applied**: Bleed Resistance, Fortify
+- **Burst Gauge**: +8 (Defensive: Protector)
+
+**Crystalline Bones**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Self
+- **Effect**: Move forward 1 tile, gain Fortify (+20% Physical Defense) for 3 turns, apply Mark to self (enemies more likely to target)
+- **Burst Gauge**: +12 (Defensive: Guardian - taking damage while in front row)
+
 ### Stanceshot (Stancebreaker+Farshot)
 - **Primary Function**: Damage/Utility
 - **Description**: Marksman shifting stances for status-inflicting shots.
@@ -300,4 +516,16 @@
 - **Strategic Use**: Offensive AoE/support, morale.
 - **Notes**: None
 
+### TimeWarden (Bladewarden + Chronovant)
+- **Primary Function**: Utility/Damage
+
+**Stance of Pitch**
+- **Action Type**: Bonus Action
+- **MP Cost**: 2
+- **Range**: Self
+- **Effect**: Enter prepared stance, next attack deals minimum 200% damage
+- **Status Applied**: Perfect Stance (Self)
+- **Burst Gauge**: +10 (Technical: Efficiency Expert)
+
 # Final Roles
+TBD
