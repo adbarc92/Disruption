@@ -1,4 +1,5 @@
 # **Roles**
+- Roles are beginning to serve more as "Ability Tags" than "Jobs"
 
 # Primitive Roles
 
@@ -201,6 +202,9 @@ TBD
 - Defensebreaker
 
 ## Specialist
+
+### Phantom
+- Euphen-specific. Allows for limited, short-range teleportation.
 
 ### Spellmirror (Red Mage)
 - **Primary Function**: Utility/Support
