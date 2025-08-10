@@ -18,6 +18,7 @@ This document outlines a turn-based tactical combat system emphasizing positioni
 The Burst system combines the best elements of FF7's Limit Breaks (powerful gauge-based abilities), FF9's Trance (transformative state changes), and FFX's Overdrives (player-controlled activation and customization) into a unified tactical resource.
 
 ### Burst Gauge Mechanics
+- AMENDMENT: A Burst Accumulation bonus should be applied that is inversely proportionate to CURRENT_MP/MAX_MP
 **Gauge Properties:**
 - **Capacity:** 100 points (standardized across all characters)
 - **Persistence:** Gauge partially carries between combats (retains 25-40%)

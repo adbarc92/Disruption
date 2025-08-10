@@ -31,30 +31,8 @@ TBD
 - **Strategic Use**: High-damage, reckless caster.
 - **Notes**: None
 
-### Gridreaver (Sweeper)
-- **Primary Function**: Damage
-- **Description**: Strikes rows/columns with sweeping attacks.
-- **Strategic Use**: Area damage, excels vs clusters.
-- **Notes**: None
-
-**Wide Swing**
-- **Action Type**: Action
-- **MP Cost**: 2
-- **Range**: Front enemy row
-- **Effect**: Strike all enemies in front row with 85% Slash damage
-- **Burst Gauge**: +15 (Technical: Multi-target)
-
-### Chronovant (Time Mage)
-- **Primary Function**: Support/Control
-- **Description**: Manipulates time; hastens allies, slows enemies.
-- **Strategic Use**: Tempo control, fragile.
-- **Notes**: None
-
 ### Hemaphile (Blood Manipulator)
-- **Primary Function**: Support/Control
-- **Description**: Manipulates time; hastens allies, slows enemies.
-- **Strategic Use**: Tempo control, fragile.
-- **Notes**: None
+TBD
 
 **Crimson Bolt**
 - **Action Type**: Action
@@ -64,7 +42,7 @@ TBD
 - **Effect**: Deal 90% Pierce damage (blood projectile)
 - **Burst Gauge**: +8 (Aggressive: Chain Fighter)
 
-## Core
+## Damage
 
 ### Shadowfang (Assassin)
 - **Primary Function**: Damage
@@ -124,22 +102,10 @@ TBD
 - **Strategic Use**: Debuff fighter, controls enemies.
 - **Notes**: None
 
-### Spellmirror (Red Mage)
-- **Primary Function**: Utility/Support
-- **Description**: Absorbs and reuses enemy abilities adaptively.
-- **Strategic Use**: Counter specialist, vs magic.
-- **Notes**: None
-
 ### Ravencut (Thief)
 - **Primary Function**: Utility
 - **Description**: Pilfers items, resources, or buffs from enemies.
 - **Strategic Use**: Resource denial, disruption.
-- **Notes**: None
-
-### Harmonist (Resonator)
-- **Primary Function**: Support
-- **Description**: Amplifies magical potency for self/allies.
-- **Strategic Use**: Magic support, boosts casters.
 - **Notes**: None
 
 ### Farshot (Marksman)
@@ -158,6 +124,88 @@ TBD
 - **Primary Function**: Damage/Utility
 - **Description**: Vanishes, becoming untargetable before striking.
 - **Strategic Use**: Evasive assassin, fragile.
+- **Notes**: None
+
+## Utility
+
+### Gridreaver (Sweeper)
+- **Primary Function**: Utility
+- **Description**: Strikes rows/columns with sweeping attacks.
+- **Strategic Use**: Moves enemies around, excels vs clusters.
+- **Notes**: Originally a Damage class
+
+**Shove**
+- **Action Type**: Bonus Action
+- **MP Cost**: 1
+- **Range**: Adjacent enemy
+- **Effect**: Push enemy backward 1 tile, no damage
+- **Positioning**: Knockback
+- **Burst Gauge**: +8 (Technical: Repositioning)
+
+**Wide Swing**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Front enemy row
+- **Effect**: Strike all enemies in front row with 85% Slash damage
+- **Burst Gauge**: +15 (Technical: Multi-target)
+
+### Chronovant (Time Mage)
+- **Primary Function**: Support/Control
+- **Description**: Manipulates time; hastens allies, slows enemies.
+- **Strategic Use**: Tempo control, fragile.
+- **Notes**: None
+
+### Harmonist (Resonator)
+- **Primary Function**: Support
+- **Description**: Amplifies magical potency for self/allies.
+- **Strategic Use**: Magic support, boosts casters.
+- **Notes**: None
+
+### Ironskin (Tank)
+- **Primary Function**: Defense
+- **Description**: Draws aggro, intercepts attacks with resilience.
+- **Strategic Use**: Protector, safeguards allies.
+- **Notes**: None
+
+### Bulwark (Fortifier)
+- **Primary Function**: Defense/Support
+- **Description**: Bolsters defenses with shields or wards for self/allies.
+- **Strategic Use**: Defensive support, endurance.
+- **Notes**: None
+
+### Dancemaster (Choreographer)
+- **Primary Function**: Support
+- **Description**: Enhances evasion with graceful movements for self/allies.
+- **Strategic Use**: Evasion support, counters hitters.
+- **Notes**: None
+
+### Mendicant (Healer)
+- **Primary Function**: Support
+- **Description**: Restores health and cures ailments with magic.
+- **Strategic Use**: Core support, vulnerable.
+- **Notes**: None
+
+### Zonemaster (Controller)
+- **Primary Function**: Control
+- **Description**: Denies areas with traps, barriers, or hazards.
+- **Strategic Use**: Battlefield control, splits foes.
+- **Notes**: None
+
+### Warcrier (Strike-leader)
+- **Primary Function**: Support/Damage
+- **Description**: Boosts attack power with rallying cries or aura.
+- **Strategic Use**: Offensive support, physical boost.
+- **Notes**: None
+
+### Gapthreader
+- Defensebreaker
+
+## Specialist
+
+### Spellmirror (Red Mage)
+- **Primary Function**: Utility/Support
+- **Description**: Absorbs and reuses enemy abilities adaptively.
+- **Strategic Use**: Counter specialist, vs magic.
 - **Notes**: None
 
 ### Metamorph (Transformer)
@@ -218,7 +266,7 @@ Severance Symphony (Progressive Multi-Part Technique)
 - **Status Applied**: Full Heal (Self), Cleanse (Self)
 - **Prerequisite**: Distant Reaper used this combat, Burst Mode active
 
-### Broken Symphony (Alternative Multi-Part Technique)
+Broken Symphony (Alternative Multi-Part Technique)
 
 **Marrow Coating** (Stanza 1)
 - **Action Type**: Bonus Action
@@ -255,46 +303,6 @@ Severance Symphony (Progressive Multi-Part Technique)
 - **Status Applied**: Bone Plate, Hemophilia, Bleed (delayed)
 - **Burst Gauge**: +25 (Technical: Efficiency Expert)
 - **Prerequisite**: Meteor Hammer used this combat
-
-## Support
-
-### Ironskin (Tank)
-- **Primary Function**: Defense
-- **Description**: Draws aggro, intercepts attacks with resilience.
-- **Strategic Use**: Protector, safeguards allies.
-- **Notes**: None
-
-### Bulwark (Fortifier)
-- **Primary Function**: Defense/Support
-- **Description**: Bolsters defenses with shields or wards for self/allies.
-- **Strategic Use**: Defensive support, endurance.
-- **Notes**: None
-
-### Dancemaster (Choreographer)
-- **Primary Function**: Support
-- **Description**: Enhances evasion with graceful movements for self/allies.
-- **Strategic Use**: Evasion support, counters hitters.
-- **Notes**: None
-
-### Mendicant (Healer)
-- **Primary Function**: Support
-- **Description**: Restores health and cures ailments with magic.
-- **Strategic Use**: Core support, vulnerable.
-- **Notes**: None
-
-### Zonemaster (Controller)
-- **Primary Function**: Control
-- **Description**: Denies areas with traps, barriers, or hazards.
-- **Strategic Use**: Battlefield control, splits foes.
-- **Notes**: None
-
-### Warcrier (Strike-leader)
-- **Primary Function**: Support/Damage
-- **Description**: Boosts attack power with rallying cries or aura.
-- **Strategic Use**: Offensive support, physical boost.
-- **Notes**: None
-
-## Specialist
 
 ### Synergist (Coordinator)
 - **Primary Function**: Support
@@ -378,6 +386,16 @@ Severance Symphony (Progressive Multi-Part Technique)
 - **Notes**: None
 
 # Higher Order (Hybrid) Roles
+
+### Breaker (Bladewarden+Gapthreader)
+
+**Flat Swing**
+- **Action Type**: Action
+- **MP Cost**: 2
+- **Range**: Single enemy
+- **Effect**: Broadside strike with flat of blade, 90% Blunt damage, apply Defense Break (-30% all defenses for 3 turns)
+- **Status Applied**: Defense Break
+- **Burst Gauge**: +12 (Technical: Status infliction)
 
 ### Huntsman (Marksman+Controller)
 - **Primary Function**: Control/Damage
@@ -526,6 +544,13 @@ Severance Symphony (Progressive Multi-Part Technique)
 - **Effect**: Enter prepared stance, next attack deals minimum 200% damage
 - **Status Applied**: Perfect Stance (Self)
 - **Burst Gauge**: +10 (Technical: Efficiency Expert)
+
+**Raging Blossom** (Burst Mode Enhanced)
+- **Action Type**: Action (Enhanced in Burst)
+- **MP Cost**: 5 (3 in Burst Mode)
+- **Range**: Single enemy
+- **Effect**: Series of obliterating strikes - 6 attacks at 60% damage each, final strike deals 150% damage
+- **Burst Gauge**: +25 (Aggressive: Chain Fighter)
 
 # Final Roles
 TBD
