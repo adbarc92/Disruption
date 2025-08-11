@@ -224,87 +224,15 @@ All techniques are refactored to work within the established combat system archi
 
 ### Water Manipulation
 
-**The Storm's Shrapnel**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: Same row as caster
-- **Effect**: Water projectiles along row, 90% Water damage to all enemies in row
-- **Damage Type**: Water
-- **Burst Gauge**: +15 (Technical: Multi-target)
 
-**Water Spout**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: Self + enemy in middle row
-- **Effect**: Launch into air on water jet, +100% Evasion for 1 turn, strike from above for 110% Water damage
-- **Positioning**: Aerial positioning
-- **Damage Type**: Water
-- **Status Applied**: Aerial (Self)
-- **Burst Gauge**: +12 (Technical: Opportunist)
-
-**Geyser**
-- **Action Type**: Action
-- **MP Cost**: 2
-- **Range**: Any tile
-- **Effect**: Water eruption from ground, 85% Water damage to any unit on target tile
-- **Damage Type**: Water
-- **Positioning**: Can target empty tiles for area denial
-- **Burst Gauge**: +10 (Technical: Multi-target)
 
 ### Ice Techniques
 
-**Frozen Layer**
-- **Action Type**: Action
-- **MP Cost**: 4
-- **Range**: All enemy positions
-- **Effect**: Wave of water drenches all enemies, then freezes - all enemies take 60% Ice damage and have 50% chance of Frozen status
-- **Damage Type**: Ice
-- **Status Applied**: Frozen (chance)
-- **Burst Gauge**: +20 (Technical: Multi-target)
 
-**Winter's Shards**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: All enemies
-- **Effect**: Frozen droplet bombardment, 70% Ice damage to all enemies
-- **Damage Type**: Ice
-- **Burst Gauge**: +15 (Technical: Multi-target)
-
-**Spire of Ice**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: Single enemy
-- **Effect**: Ice spike from ground, 120% Ice damage, 40% chance to apply Impaled (DOT + movement restriction)
-- **Damage Type**: Ice
-- **Status Applied**: Impaled (chance)
-- **Burst Gauge**: +12 (Technical: Status infliction)
 
 ### Support Techniques
 
-**Veil of Convalescence**
-- **Action Type**: Action
-- **MP Cost**: 3
-- **Range**: Single ally
-- **Effect**: Apply +20% Evasion and Regeneration (15% max HP per turn) for 3 turns
-- **Status Applied**: Misty Veil, Regeneration
-- **Burst Gauge**: +12 (Support: Medic)
 
-**Douse**
-- **Action Type**: Action
-- **MP Cost**: 2
-- **Range**: All allies
-- **Effect**: Clear all Burning effects, apply Enshrouded (+15% resistance to all damage types) for 2 turns
-- **Status Applied**: Enshrouded
-- **Status Removed**: Burning
-- **Burst Gauge**: +15 (Support: Status cleansing)
-
-**Aura of Mist**
-- **Action Type**: Bonus Action
-- **MP Cost**: 3
-- **Range**: All allies
-- **Effect**: +10% Evasion and 25% Exousia damage resistance for 4 turns
-- **Status Applied**: Mist Shroud
-- **Burst Gauge**: +12 (Support: Buffer)
 
 ### Ultimate Techniques
 
