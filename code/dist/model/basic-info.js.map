@@ -1,0 +1,1 @@
+{"version":3,"file":"basic-info.js","sourceRoot":"","sources":["../../src/model/basic-info.ts"],"names":[],"mappings":";;;AAAA,6BAAoC;AAElC;;;;;GAKG;AACL;IAKE,mBACE,IAAY,EACZ,WAAmB;QAEjB,IAAI,CAAC,EAAE,GAAG,IAAA,SAAM,GAAE,CAAC;QACnB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;QACjB,IAAI,CAAC,WAAW,GAAG,WAAW,CAAC;IACjC,CAAC;IAEL,gBAAC;AAAD,CAAC,AAdD,IAcC;AAdY,8BAAS"}
