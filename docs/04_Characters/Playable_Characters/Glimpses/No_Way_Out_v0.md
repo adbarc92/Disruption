@@ -39,6 +39,23 @@ Sophia nodded, and withdrew the flow of Exousia. The knife appeared back in her 
 She moved to the door where a cloakrack stood, and donned her black overcloak, pulling the hood over her head. The cloak settled around her, the wireframe inside causing it to flare out slightly, making her look bigger and concealing her curves. With a final glance back--Lucius had paused from tidying up his surgical space to watch her as she went--she moved to the sturdy wooden door, grasped the knocker, and pulled it open.
 
 - Sophia speaks with her handler.
+SCENE: A dusty back alley, ramshackle, poor district. Ruined, vaguely western town. The moon shines overhead, torches are placed erratically. Houses are composed of mismatched boards. A man sits on a crate, bent over and toying with something, tucked into a corner with a torch directly overhead.
+
+The stars shone bright overhead as Sophia stepped out of the lab. Slightly ahead, Legault sat, whittling away at a wood figurine. Using a knife for something so crude would draw attention in the daylight; at night, he worked with loving finesse by flickering torch and the shining Luna.
+"You're looking hale," he said without glancing up. The knife never stopped whisking across the wood.
+Sophia flexed her hands.
+"The flows coming off you seem denser than usual," he continued.
+"How are my replacements coming along?" Legault made passes at her occasionally, but had gradually grown more subtle. She did not want to discuss anything about herself with him.
+"The lady doctor's pets? I can't go into specifics, but those tykes are learning the ways."
+Sophia wanted to inquire into their master's plans or any other details, but Legault's loyalties were strictly to them. No one had loyalties to her except herself.
+"You do look so lovely in this light, you know?" He spoke so casually. The perpetual whisking paused. He reached out to her. "It favors your skin."
+Sophia turned aside from his touch, and he smiled.
+"Did you have a job for me?" She asked coldly.
+"Yes, an old man in the Southern Reach. He's on the verge of cracking Exousia conversion. He must meet with an accident--lab explosion, highwaymen, to your discretion. I left an envelope on your bed with further details."
+She suppressed a shiver at the thought of his hands on her bed, but privacy from the Collective was not afforded her.
+She turned and left unceremoniously.
+"Till next we meet, fair ice queen," he said, chuckling to himself as the whisking resumed.
+
 - Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known. She sometimes ventures out into the forest alone.
 - Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy; the technology must be disruptive to society
 - Sophia struggles with this internally
