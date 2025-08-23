@@ -39,7 +39,7 @@ Sophia nodded, and withdrew the flow of Exousia. The knife appeared back in her 
 She moved to the door where a cloakrack stood, and donned her black overcloak, pulling the hood over her head. The cloak settled around her, the wireframe inside causing it to flare out slightly, making her look bigger and concealing her curves. With a final glance back--Lucius had paused from tidying up his surgical space to watch her as she went--she moved to the sturdy wooden door, grasped the knocker, and pulled it open.
 
 - Sophia speaks with her handler.
-SCENE: A dusty back alley, ramshackle, poor district. Ruined, vaguely western town. The moon shines overhead, torches are placed erratically. Houses are composed of mismatched boards. A man sits on a crate, bent over and toying with something, tucked into a corner with a torch directly overhead.
+SCENE SCRAWL: A dusty back alley, ramshackle, poor district. Ruined, vaguely western town. The moon shines overhead, torches are placed erratically. Houses are composed of mismatched boards. A man sits on a crate, bent over and toying with something, tucked into a corner with a torch directly overhead.
 
 The stars shone bright overhead as Sophia stepped out of the lab. Slightly ahead, Legault sat, whittling away at a wood figurine. Using a knife for something so crude would draw attention in the daylight; at night, he worked with loving finesse by flickering torch and the shining Luna.
 "You're looking hale," he said without glancing up. The knife never stopped whisking across the wood.
@@ -57,6 +57,28 @@ She turned and left unceremoniously.
 "Till next we meet, fair ice queen," he said, chuckling to himself as the whisking resumed.
 
 - Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known. She sometimes ventures out into the forest alone.
+SCENE SCRAWL: Abandoned streets, Sophia walks alone, stiff-backed with her nose in the air. She walks briskly--not out of fear, but from a purposeful urgency. The houses grow more orderly and well structured, the wood becoming straight and neat and then polished. She stops before a relatively-modest looking one and then enters (locks?).
+
+Sophia retired to her home in the third district.
+She had never quite gotten used to all the wood. In the past, everything had been stone and metal. But quarries were distant, and the Collective held mining access in a tight and secretive grip.
+The only metal she saw was already forged into Glypheon, which these primitives regarded as sacred relics. None of them knew she could make them.
+Her house was small--three rooms. One for company, one for work, one for sleep. She'd been forced to become something of a socialite when she'd emerged from the freeze; she'd adopted the habit she'd despised in her mother, painting, and cultivated clientele, courting wealthy retired explorers or farmers' as patrons when necessary.
+It was all a front for her real work--killing for the Collective. Everyone trusted a beautiful woman, and no one suspected the local, timid paintress. She'd been given a choice--seduce for them or kill for them. The former had galled her. In this society, egalitarianism was not merely unknown, but unthinkable. Even as the society slowly died, women were needed primarily as childbearers, and she was rapidly becoming a pariah for not doing her part. She could not bring herself to contribute to this damned world, and only wished for her home.
+
+Sophia made her way through the parlor she disdained, and then the studio where her canvas art hung in wooden frames--the beast-skin painted with exotic colors depicted one tree rising over the forest in sunset, another depicting a forlorn child abandoned in the market place.
+The parlor offerred a peek into her painting room, with several easels and pallettes spattered with vibrant colors. She was working on a piece for a woman nearly depicting several hunters emerging from shadowed woods bearing an oversized beast carcass between them, all fur, claws, and neutered fury. It would be finished in a few days.
+And then through the heavy wooden door to her bedroom. She had a few paintings here, stashed behind her bed. They depicted the old world as she had known it--clean sands, rolling dunes, and the rushing river. Tall towers scraped the sky and man was truly the master of his environment.
+She recovered Legault's envelope from her pillow, broke the seal and opened it.
+Her target was a prolific inventor. A man who had pioneered rudimentary farming tools, he had made a name for himself restoring Glyphein and recombining them. He had turned his direction to the problem of energy. The Collective couldn't have that.
+She disrobed and pulled back her thin cotton sheets. Cotton was in short supply, but she had no shortage of men eager to win her favor.
+As she tucked in, she found herself wondering about her target. She tried to avoid that whenever possible. Killing regularly had not dulled the shock to her, the weight of ripping a life from the world. They had said that eventually it would become too much and she would lose the sense of it. That day had not come for her three years, and she doubted it ever would.
+Eventually, her thoughts began to grow hazier. She wondered about her parents--how they had lived the remainder of their days. Had they wondered about her? Had they just continued on, inexorable as the sands? Had they gotten any answers? Her mother had been closely involved with the Collective. Perhaps she had known. What about her father?
+She found herself thinking of Cyrus--still frozen, sequestered away from in the world in that deep, dark basement. The thawing was unpredictable; she wondered if they even guarded him now. She wondered if anything happened in his mind. Was there any sense of how many centuries had passed? Did he dream? Could he hear? She could not remember it if she had. Perhaps her mind had hidden it away from her. She did not feel as lucid now as she remembered when she had gone in. It had stolen something from her. She would never get it back.
+The darkness overtook her.
+
+She was covered in Ice and walked the endless dunes of the desert. There were puddles of water in her wake, and from them sprouted limbs that turned the water red.
+Her parents stood on a nearby hill.
+
 - Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy; the technology must be disruptive to society
 - Sophia struggles with this internally
 - Sophia uses her new power to get close to him
