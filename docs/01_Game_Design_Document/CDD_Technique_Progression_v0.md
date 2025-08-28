@@ -1,0 +1,3 @@
+- Techniques develop through usage
+- Techniques will naturally grow in power
+- Techniques can also grow in extra effects--status infliction (gradual), range (cast from any row, target any row), AOE (effect additional slots), 
