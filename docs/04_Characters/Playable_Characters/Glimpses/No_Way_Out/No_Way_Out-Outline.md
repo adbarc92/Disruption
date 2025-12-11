@@ -1,0 +1,17 @@
+- Sophia awakens with a new enhancement
+- Sophia speaks with her handler.
+- Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known. She sometimes ventures out to be among the people
+    - This scene establishes the world, the people, and how Sophia relates to them.
+- Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy; the technology must be 
+- Sophia struggles with this internally
+- Sophia uses her new power to get close to him
+- As she is about to strike, she learns he has a daughter - Leon the Professional; Sophia interacts more with the daughter and becomes invested in the daughter, 
+- She remembers her own father, working alongside him in his workshop; her pursuit of his craft got her here
+- She attempts to convince her target to give up inventing and go into hiding; she offers to help him
+- He thanks her, but does not want to let down his daughter and the people around him
+- Sophia kills him and is deeply tormented by this, but feels she has no other choice; she feels her will is broken
+- Sophia debriefs with her handler
+- Her handler informs Sophia that her target's daughter has also been killed--"no loose ends"; Sophia is somehow complicit in the daughter's death
+- Back at her abode, Sophia produces one of her former target's prototypes--she impulsively used her enhancement to take it
+- She briefly considers truly giving up--she is alone and has no greater plan--but decides to at least try to disrupt the Collective's operations; Sophia considers 
+- Flesh out the specifics of the locations; try to expand the setting wherever possible
