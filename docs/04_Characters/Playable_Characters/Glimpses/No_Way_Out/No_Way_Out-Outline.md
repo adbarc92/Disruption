@@ -2,6 +2,9 @@
 - Sophia speaks with her handler.
 - Sophia new life--she lives mostly anonymously, but makes art for a living; she is approached and propositioned often, but never known. She sometimes ventures out to be among the people
     - This scene establishes the world, the people, and how Sophia relates to them.
+    - What are young children doing?
+    - What does the economy of Anankes actually look like?
+    - How does Sophia relate to the people? What does she contribute?
 - Sophia receives a new assignment: kill an inventor working on technology that will convert latent safe-zone Exousia into usable energy; the technology must be 
 - Sophia struggles with this internally
 - Sophia uses her new power to get close to him
