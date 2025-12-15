@@ -1,7 +1,7 @@
 # Background
 
 ## Core
-- Personality keywords: haughty, goal-oriented, analytical
+- Personality keywords: aloof, haughty, goal-oriented, analytical, calloused
 - Inspiration: Lulu (FFX), Akame (Akame Ga Kill)
 
 ## History
