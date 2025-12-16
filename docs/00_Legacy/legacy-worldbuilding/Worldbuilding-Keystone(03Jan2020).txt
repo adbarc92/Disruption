@@ -1,0 +1,176 @@
+
+============================== Section Title ==============================
+
+========================== Ergastiri (ΕΡΓΑΣΤΗΡΙ) ==========================
+
+Pre-Disruption Workshops out of which Aligners operated; privated-owned, but strictly regulated. Each Ergastiri consists of a foundry, and a series of different divisions: Conflux, Theory, Recombination, and Testing.
+
+Conflux: study effects of Devices when used together
+Theory: study Devices from an abstract standpoint, philosophically and economically
+Recombination: similar to conflux, except on a macro-level; focused on the interactions between Device sets
+Testing: focuses on experimentation to ensure eligible Devices are ready for the market
+
+
+=============================== Kyanós ===============================
+
+============================ Saragossa ============================
+
+A famous fabricator of Devices during the Pre-Disruption. Possessed an usual affinity and preference for Chiseling, the art of stone manipulation. Disintegrating Doors are one of his most prolific accomplishments.
+
+============================ Kuklos Anankes ============================
+Meaning: "City of Fate." 
+The Post-Disruption name for the city previously called Kyanós.
+
+============================ Public Ignorance ============================
+Ref: ()
+The Collective works diligently to strictly control knowledge. The topic of Devices is particularly laden with social stigma--the zealous fear resulting from assiduous ignorance. If questioned, most of the local populace would consider Devices to be "demonic," as they manipulate forces beyond the scope of human understanding. If asked for a specific reason, each would give the same answer, or one of its many variants: Devices are what have caused us to be trapped in this predicament--"Trapped in the Forest, without any hope of escape or safety." If pressed for arguments or evidence supporting this assertion, they would flounder; it has long since been adopted into the zeitgeist, and is more cultural mantra than opinion.
+
+========================== The Augmented (Auxano) ==========================
+Ref: ()
+Augmented individuals--such as many among the scouts--are viewed by the general populace with open contempt, derision, and disgust. Given a halfway plausible excuse, a mob would rally at a moment's notice to lynch one of the Augmented. For this reason, augmentations are nearly universally concealed and never openly discussed. There is an implicit understanding between Scouts that the Forest is merciless, indifferent to public opinion--death does not discriminate, and to turn down any advantage would be beyond foolish.
+
+That said, the Augmentations embedded within Scouts are not akin to similar efforts by the Collective and their highly-trained surgeons. The Scouts do not have surgeons, and many of the procedures take place in literal back-alleys. Implanting augmentations is a messy and dangerous process, highly prone to complications. 
+
+============================== Phaidros ==============================
+Ref(Academy): Adeptus Mechanicus (Warhammer 40k)
+Phaidros' involvement in [the Academy] enhanced the degree to which he cherishes knowledge, which he views as an end in itself, although he would never admit it. His community would never understand something so abstract and esoteric, and as much as he embraces and plays up his reputation as standoffish, antagonistic, and stubborn, he truly values both the community and his place in it. They perpetually remind him of his own value, which he feels he needs to counteract the self-contempt he has struggled with since his fall from favor with and subsequent ejection from the Academy, many decades ago. He pretends that they are mere nuisances to him, but he is always there when they most desperately need it.
+
+Attitude(Augmentations): To sum in short: confused. For a significant portion of his life, he has served as a local expert in Devices and, more generally, Exousia. He has performed many, many surgeries over the course of his life, both while in the Scouts and since leaving. He is widely-known to be both competent and discrete, and to never turn down those in dire need--although this is not to say he is easily fooled and manipulated.
+
+Phaidros does not begrudge others their augmentations, but weighty questions remain in the back of his mind regarding the fusion of man and machine. And he knows that it is something to which he would never accede--he needs to know that the mind thinking and creating is him, and only him. Modifications--robotic, chemical, or otherwise--would never be acceptable.
+
+============================== Exousia ==============================
+Ref: Dust (His Dark Materials)
+Meaning: "Authority", "Power"
+
+The 
+
+The metaphysical fabric of the universe, manifested in a number of different ways. While magic suffuses the world to a certain degree, it is particularly vibrant within humans, who can use their conscious minds to guide it. The list below details the existing categories of Exousia application, but is always subject to expansion. Because each category is derived from a different "deity" not all magics are equally viable at all times and in all places; viability is essentially limited to the extent of a source god's degree of metaphysical influence. Affinities for different categories of magic vary significantly between individuals, some times resulting in anamolous powers called "quirks" or "knacks."
+
+Foresight: Abilities relating to the reading of causality's flow. Strongly related to logic and reasoning.
+
+Elemental (Classical): The ability to manipulate the classical elements--earth, water, air, and fire.
+
+SpaceTime: Abilities relating to the creation of pocket dimensions, as well as compressing or expanding time's passage.
+
+Alignment: Abilities related to inscription and runic language, allowing one to impart magic and/or will to inanimate objects.
+	
+	Conduits: A biologically-deviant aligner whose magical vessels have grown porous (inbreeding is one cause of this); this allows the user to embed fragments of one's magical engine--their metaphysical "soul"--into objects. This is the only means of creating self-activating objects. The essential instability of Conduits impairs their ability to properly guide the flows of magic; thus, even the proper inscription of runes fails to metaphysically alter the object, and the Exousia cannot flow along the desired channels (resulting in destabilization of the object). Because Conduits have historically commanded tremendous social clout, they consider it beneath their station to breed with common Aligners.
+	
+	Glyphein: The offspring of a proper Conduit with a common Aligner. Quite rare and highly stigmatized.
+
+Stance: Abilities derived from the combination of one's body with the environment
+
+Reinforcement: Abilities relating to the manipulation of one's body. Strongly related to emotion. Berserker rages is an application of this. Intellectual cultures consider this category to be cursed.
+
+============================== Drugs ==============================
+Ref: Joy (Lisa), Pearl Dust (First Law), The Witcher (), Jet/Psycho/etc. (Fallout), Disco Elysium, Denner Resin (Kingkiller), 
+
+============================== Armaments ==============================
+Refs: Caster (Outlaw Star), Caster (Chika the Coffin Princess), 
+Several different categories of firearm currently exist. The broadest categories would include: bows/crossbows, railguns, combustive arms, and beam weapons. (Pneumatic Armaments and biological armaments--derived from Forest creatures or else--are also options)
+
+While bows and crossbows are obviously the most primitive category, they are also easily the most widely-used. This is in part due to the relative ease of acquiring the necessary materials, but also because these are the only publicly-acceptable armaments to wield. Railguns are powered by ampoules, and are thus highly stigmatized--although it is highly likely that as many rural folk who can muster the funds with sufficient subtlety are hiding at least one railgun somewhere on their property. 
+
+Railguns are openly carried by Scouts, for whom social stigma provides inadequate incentives relative to the Forest's threat of death--although Scouts are subject to strongly-negative social pressure simply by virtue of their profession, regardless of armament.
+
+The existence of combustive armaments--what we would identify as "firearms"--is entirely concealed from the public at-large. The Collective has worked with equal parts alacrity and obsequiousness in spreading their influence across the area since the Disruption, and has attained effectively-complete control over the market, broadly-speaking. As a result of this, gunpowder is unknown to everyone outside the Collective's R&D teams. The Collective originally discovered gunpowder over 300 years prior to the events of the game, and has had plenty of time to experiment. The primary advantage of these weapons over railguns is their rate of fire; where railguns fire roughly at the rate of a real-life bolt-action rifle--requiring both the reloading of the projectile and the replacement of the ampoule power source--combustive armaments lack similar limitations. However, the Collective has yet to be forced into a situation where the revelation of their proprietary technology has seemed necessary.
+
+The last category, beam weapons, are also unknown to the public. Unlike combustive armaments, the vast majority of the Collective are also blind to the existence of beam weaponry, as development of the technology has been exclusively advanced by Adam. Many of the highest members--those privileged enough to communicate directly with Adam--are aware of beam weaponry, and have made many futile attempts to acquire knowledge of it through thievery, coercion, or by more diplomatic avenues. The majority of the Collective remains ignorant to Adam's technology because, in the leadership's estimation, the underlings' faith in the Collective's absolute power and control is what fuels their blind devotion to its cause.
+
+============================== Ampoules ==============================
+
+Size
+
+============================== Device ==============================
+A Device is comprised of four key components: the Germ, the Source, the Set, and the Form. 
+
+The Germ is a container made from exousium (refined exousite/syssorite), which serves as the central site of power imbuement. Germ-creation was a process exclusive to Pre-Disruption Glyphs until the advent of mass production.
+
+The Source is the charge contained within the Germ. Without the initial investment of Exousia, called the Spark, the Germ is less than a husk or shell because the Spark bestows the capacity to contain Exousia. Because Sparks can only be imparted by Conduits, and compelling their compliance caused the resulting Spark to be twisted and ineffectual, Conduits controlled the flow of power in Kyanós.
+
+The Set is the combination of runic symbols which serve as instructions, controlling the flow of Exousia.
+
+The Form, or Shell, is the part of the Device which serves as its physical container. While there is nothing that would distinguish a Shell currently acting as part of a Device from an exact copy--apart from the fact that the latter would not contain a Sparked Germ--the Form serves a vital function: the context for the execution of the Set. If any individual runes in the Set call for relative measurements of space or other physical details (density, arrangement of multiple parts, etc.), these will be executed on the basis of the Form's physical parameters.
+
+========================== The Runic Seirá (Set) ==========================
+
+A collection of runic symbols used to command the flow of Exousia. They correspond directly from the objective world, and have been painstakingly derived by Glyphs over the course of centuries. The methods of derivation have varied--meditation, induced hallucinations by way of desert plants, study and intellectual enlightenment, and many others--but records of their experiences all state that the individuals reported achieving a "true understanding of the world" and that "the symbol IS its meaning."
+
+Initially, the application of runes seemed fairly limited and rudimentary. By inscribing a rune upon an object (through carving or writing, as long as the rune's shape exists on the object whether through the subtraction of mass or the addition of ink), gathering the flow of one's Exousia in the hands, and laying them upon the object, the Exousia would drain into the object. The object is then guided by the combination of the runic instruction and the intention embedded in the Exousia bestowed by the Activator.
+
+Over time, as runic breakthroughs mounted, increasingly complex commands became possible. However, the Activator was still a required aspect of the process. This changed when exousite was first mined from the [Northern Mountains], and discovered to be Exousia-conducive. Shortly thereafter, it became possible to create inanimate Activators, with which the first--primitive--Devices were created.
+
+============================== Device List ==============================
+
+Compendium:
+	Confirmed:
+		Cyrus' [Shifting Sword]: a [1.5,2] hand sword once owned by Phaidros and used to test Cyrus' Alignment skills. Attach/slide one of the single-use cartridges to/in the pommel/guard to channel its elemental properties through the blade (a rechargeable battery can be acquired later on; certain skills might refill, or it could be acquired from monsters in a few ways)
+
+		Soulknead: a [pea-sized] bead which radiates pearlescent light; on closer inspection, one can discern hundreds of tiny, distinct glimmers, as though it contains a galaxy; tooltip{a tiny bead which hosts a magnificent light}; when pressed against a body part, the bead will merge into the flesh, and the corresponding attribute will be improved (legs=>agility, dominant hand=>dexterity, chest=>strength,head=>resonance, back=>constitution); the body cannot incorporate more than one bead; a creation of Adam: "A life given to become something greater"
+
+		Exousia Distribution Apparatus (EDA): a macro-machine, or series of such machines, used to distribute exousia across a wide network; akin to a real-world electrical grid
+
+		[Power Armor]: Exousia-powered suits which impart significant enhancements to strength; highly durable; more elaborate variants exist which allow for operators to be neurologically wired into their suits, which also improve reaction speed and impair sensations of pain, but operators must be permanently wired in (at the current level of technological development)
+
+		[Will Sentiment]: systems of magnetic forces which configure the arrangement of metallic grains into letters, typically displayed on a stone tablet. Permanent records are created by carving divots into primary tablets, which are stored offsite in a central location. When information needs to be retrieved, the system locates the desired tablet--using an extremely complicated series of organizational processes--and then replicates the magnetic configuration onto the requesting tablet
+
+		Accumulator of Stone: 
+
+		Accumulator of Water:
+
+	Tentative List:
+		Air filtration gear
+		Gramophone
+		Propulsion
+
+============================== [The Sickness] ==============================
+
+============================== The Collective ==============================
+
+Ostensibly, a group devoted to ascension to a higher state of existence--unity.
+
+While the Collective does not have a singular goal in the strictest sense, their general goal could be defined as "humanity's ascension," which they believe is achievable by way of absolute unification into a singular being of omniscience. They intend to achieve this by expanding the Domain of each god to the entire planet, which they believe would cause a melding of the sources of human traits.
+
+============================== The Outsiders ==============================
+
+============================== Vdélygma ==============================
+Meaning: “Abomination”; Pronunciation: “ved-mah”
+The cohort of children serving as subjects for the Collective's experiments to create the perfect weapon by combining augmentation technology and human physiology. Also called "creatus" (euphemistically).
+
+============================== The Pantheon ==============================
+
+=========================== Ethnic Relations ===========================
+
+Slurs
+
+=========================== Legendary Creatures ===========================
+
+Several beasts of the Disruption zones have been rumored to persist for centuries. These beasts have garnered mythological reputations among the populace.
+
+======================== Questions & Theory-crafting ========================
+
+Clan/Family Names
+Kinematics of Magic: Light => Heat (Thermo-expansion)
+Psionics
+The Rate of the Seed's Decay: mathematical model
+Influences which might alter the Decay rate;
+Party Members have specific responsibilities (One Piece)?
+Currency
+World Resources
+The specific deities related to each period, the specifics of the periods, and the characteristics associated with each god and each period
+Religions: Worship of Devices, Worship of the Forest
+Geographical/Astrological conditions necessary for the Disruption
+Harnassing the Wind or Fire using Runic Inscription (Devices)
+Substance Conversion (Device)
+
+
+======================== Side Notes ========================
+The planet is Earth analogous, but not 1:1
+Religion: Forest-worshipping
+The Head Constable of the Aegis is similar to Fuhrer Bradley
+
+
+
+
+

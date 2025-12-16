@@ -1,0 +1,22 @@
+# Features
+	# Growth Hexagram
+	# Threat Level: 
+
+# Intuitive Visual Design for Position
+	# People should definitively belong
+
+* Colors bleaching as power increases
+	* Scaled every ten levels
+	* Formula Scaling:
+		* Degree will influence the extent to which strategy > numbers
+		* What would the higher-level potential strats be for our system?
+
+* The degree of the players' control of the system is dependent on the degree to which numbers are required to win the day.
+
+* On the other hand, the sense of power and accomplishment can often be associated with larger increases in damage values, and when you see that your health has been increased by an order of magnitude, the player feels hardier.
+
+* The superior accomplishment is to design a system in which the player feels powerful because they have learned to manipulate the system well, using it to solve extremely difficult--but possible--combat challenges.
+
+* Is it simply a matter of average damage numbers per round? Is that what balance is? 
+
+* Accomplishment can be derived from two places in this genre: preparation and combat innovation.

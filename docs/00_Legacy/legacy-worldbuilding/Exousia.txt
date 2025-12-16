@@ -1,0 +1,44 @@
+
+Exousia is the fabric of the universe, ephemeral and largely mysterious to its residents. Exousia is inexorably connected to life, and sentient life most of all. Exousia exists in particles, small enough that they are of essentially negligible mass and weight. It exists ubiquitously across space-time, albeit in varied concentrations. Exousia is drawn to the Soul, something possessed by all living beings be they plant, animal, or human--although this is not to say that all Souls are equal or interchangeable. Exousia is perpetually moving, seeking out new hosts; Exousia cannot be created nor destroyed; when channeled, it becomes inert for a variable period before regaining its light and seeking a new host. It could be said that the universe will be complete when every particle of Exousia has passed through the possession of every soul. When drawn to a soul, Exousia accumulates around a particular soul evenly, until a shell has formed. At this point, no further accumulation is possible until some of the shell has been expended.
+
+Exousia is governed, to some degree, by the primal forces of the universe commonly called "gods." These gods each represent a specific set of characteristics of sentient beings--although instinct is among them--and on this basis Domains exist. Based on the concentration of sentient characteristics, coupled with the pressures social animals apply to one another, a corresponding Domain is created. Although Domains can overlap with one another to a degree, one always reigns supreme--if raw numbers and degree are equivalent, then the most dominant or authoritarian set of traits wins out.
+
+Domains govern the strands of Exousia present in an area. Different types of magic are associated with different gods, and have varying compatibility with different strands of Exousia. Similarly, the wielders' personality governs their compatibility with certain types of magic. Furthermore, souls have varying resonance, which is determined by innate tendencies but is shaped by social pressure and experience.
+
+Exousia is the most generic term for power derived from the gods. Different strands exist for different gods.
+
+Exousia is drawn to souls, and naturally accumulates around them over time.
+
+An Exousia strand requires a specific soul resonance in order to be properly accumulated.
+
+Souls within a particular deity's Domain--sphere of divine influence--are naturally attuned to that deity.
+
+The Disruption has created a Domain for a different deity within the previous' Domain. 
+
+This has resulted in the previous deity's Domain "layering", meaning that the Exousia concentration has been compounded outside Kuklos.
+
+The overabundance of this power has caused plants and animals to grow and evolve rapidly.
+
+The animals and plants are atypically hostile and aggressive because of the unnaturally-high concentration of Exousia.
+
+Kuklos-native humans are adversely affected by the Forest because the resonance of their souls was forcibly altered by the Disruption. Thus, the Exousia attempts to rapidly accumulate around their souls, but the disharmonious frequencies cause insanity and uncontrolled cellular replication. Exousia is not usable by these individuals.
+
+Humans with a Kyanos-native resonance can "metabolize" Exousia properly, and simply feel an abundance of power.
+
+If a soul's resonance is altered artificially, it could properly accumulate Exousia once again.
+
+The Exousia-deity's Domain does not entail the entire planet.
+
+Different magical powers correspond to different source deities.
+
+Magical-affinities are the result of different personality traits, as well as different social pressures and conditions.
+
+Each deity possesses a specific set of traits which describe human character, collectively.
+
+The rigidity of Deific Domains is dependent upon the rigidity of their corresponding traits. Thus, in some places, more types of magic can be used than others, and with varying degrees of efficacy per type, per place.
+
+
+
+Unrelated:
+
+Why can't weapons of roughly the same size and shape be swapped out for combat animations without creating an entirely new set of sprites? If the animations of the characters were to functionally remain the same, couldn't the held weapon just be swapped out according to what is equipped?
