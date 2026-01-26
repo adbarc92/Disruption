@@ -1,0 +1,168 @@
+{
+  "_FIXME": "Values need tweaking - placeholder data for vertical slice",
+  "skills": [
+    {
+      "id": "basic_attack",
+      "name": "Attack",
+      "description": "A basic physical attack.",
+      "action_type": "action",
+      "mp_cost": 0,
+      "damage": {
+        "base": 100,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent"
+      },
+      "usable_positions": ["any"],
+      "target_positions": ["front", "middle"],
+      "burst_gauge_gain": 5,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "edge_shift",
+      "name": "Edge Shift",
+      "description": "Reconfigure weapon element for next 3 attacks.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "elemental_attunement",
+        "duration": 3,
+        "choose_element": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "usable_positions": ["any"],
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["synergist"]
+    },
+    {
+      "id": "true_strike",
+      "name": "True Strike",
+      "description": "Lunge to target, deal piercing damage that cannot be dodged.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 130,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "strength",
+        "cannot_dodge": true
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any"
+      },
+      "movement": {
+        "type": "to_target",
+        "ignore_intervening": true
+      },
+      "usable_positions": ["any"],
+      "target_positions": ["any"],
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "hamstring",
+      "name": "Hamstring",
+      "description": "Deal damage and reduce enemy speed.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 60,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "hamstrung",
+        "stat_modifier": { "speed": -0.5 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent"
+      },
+      "usable_positions": ["front", "middle"],
+      "target_positions": ["front", "middle"],
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "leadership",
+      "name": "Leadership",
+      "description": "Inspire allies with stat bonuses.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "party_buff",
+        "status": "inspired",
+        "stat_modifier": {
+          "strength": 0.05,
+          "constitution": 0.05,
+          "evasion": 0.05
+        },
+        "duration": 4,
+        "stackable": true,
+        "max_stacks": 4
+      },
+      "targeting": {
+        "type": "all_allies"
+      },
+      "usable_positions": ["any"],
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "support",
+      "roles": ["warcrier"]
+    },
+    {
+      "id": "ironflesh",
+      "name": "Ironflesh",
+      "description": "Grant an ally physical damage reduction.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "ally_buff",
+        "status": "iron_skin",
+        "damage_reduction": { "physical": 0.5 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_ally",
+        "range": "any"
+      },
+      "usable_positions": ["any"],
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "support",
+      "roles": ["ironskin", "bulwark"]
+    },
+    {
+      "id": "derisive_snort",
+      "name": "Derisive Snort",
+      "description": "Taunt all enemies to attack you.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "enemy_debuff",
+        "status": "taunted",
+        "duration": 1,
+        "attacks_redirected": 3
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "usable_positions": ["front"],
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
+    }
+  ]
+}

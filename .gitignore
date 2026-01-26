@@ -1,1 +1,19 @@
 node_modules
+
+# Godot 4 specific ignores
+godot/.godot/
+
+# Godot export templates and builds
+godot/export/
+godot/build/
+*.pck
+*.zip
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+*.swp
+*.swo

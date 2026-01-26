@@ -1,0 +1,77 @@
+{
+  "_FIXME": "Values need tweaking - these are placeholder stats for vertical slice",
+  "characters": [
+    {
+      "id": "cyrus",
+      "name": "Cyrus",
+      "title": "The Seeker",
+      "description": "A warrior who harnesses entropic blade techniques and elemental weapon enhancement.",
+      "base_stats": {
+        "vigor": 6,
+        "strength": 7,
+        "dexterity": 6,
+        "resonance": 5,
+        "agility": 6
+      },
+      "starting_abilities": ["basic_attack", "edge_shift", "true_strike"],
+      "burst_mode": {
+        "name": "Elemental Mastery",
+        "duration": 5,
+        "effects": {
+          "damage_multiplier": 1.5,
+          "speed_bonus": 0.4,
+          "special": "all_attacks_gain_random_element"
+        }
+      },
+      "roles": ["bladewarden", "synergist"]
+    },
+    {
+      "id": "vaughn",
+      "name": "Vaughn",
+      "title": "The Hawk",
+      "description": "A tactical rogue specializing in debuffs and team leadership.",
+      "base_stats": {
+        "vigor": 5,
+        "strength": 6,
+        "dexterity": 8,
+        "resonance": 4,
+        "agility": 7
+      },
+      "starting_abilities": ["basic_attack", "hamstring", "leadership"],
+      "burst_mode": {
+        "name": "Master Tactician",
+        "duration": 5,
+        "effects": {
+          "crit_rate_bonus": 0.45,
+          "speed_bonus": 0.5,
+          "special": "allies_gain_extra_action"
+        }
+      },
+      "roles": ["shadowfang", "warcrier"]
+    },
+    {
+      "id": "phaidros",
+      "name": "Phaidros",
+      "title": "Second Gnosis",
+      "description": "An earth guardian who excels at protecting allies and controlling the battlefield.",
+      "base_stats": {
+        "vigor": 9,
+        "strength": 7,
+        "dexterity": 4,
+        "resonance": 6,
+        "agility": 4
+      },
+      "starting_abilities": ["basic_attack", "ironflesh", "derisive_snort"],
+      "burst_mode": {
+        "name": "Mountain King",
+        "duration": 6,
+        "effects": {
+          "damage_reduction": 0.7,
+          "damage_multiplier": 1.4,
+          "special": "immune_to_forced_movement"
+        }
+      },
+      "roles": ["ironskin", "geovant"]
+    }
+  ]
+}

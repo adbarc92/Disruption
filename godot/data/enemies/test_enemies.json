@@ -1,0 +1,68 @@
+{
+  "_FIXME": "Values need tweaking - placeholder enemies for vertical slice",
+  "enemies": [
+    {
+      "id": "grunt_a",
+      "name": "Corrupted Scout",
+      "description": "A fast but fragile enemy that attacks frequently.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 4,
+        "strength": 5,
+        "dexterity": 6,
+        "resonance": 2,
+        "agility": 7
+      },
+      "hp": 45,
+      "mp": 10,
+      "resistances": {},
+      "weaknesses": ["lightning"],
+      "abilities": ["basic_attack"],
+      "ai_behavior": "aggressive",
+      "challenge_rating": 1,
+      "preferred_position": "front"
+    },
+    {
+      "id": "grunt_b",
+      "name": "Corrupted Brute",
+      "description": "A slow but powerful enemy with high defense.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 7,
+        "strength": 7,
+        "dexterity": 3,
+        "resonance": 3,
+        "agility": 3
+      },
+      "hp": 80,
+      "mp": 5,
+      "resistances": ["physical"],
+      "weaknesses": ["fire"],
+      "abilities": ["basic_attack", "heavy_swing"],
+      "ai_behavior": "defensive",
+      "challenge_rating": 2,
+      "preferred_position": "front"
+    },
+    {
+      "id": "grunt_c",
+      "name": "Corrupted Caster",
+      "description": "A fragile enemy that attacks from range with magic.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 3,
+        "strength": 2,
+        "dexterity": 5,
+        "resonance": 7,
+        "agility": 5
+      },
+      "hp": 35,
+      "mp": 30,
+      "resistances": ["arcane"],
+      "weaknesses": ["physical"],
+      "abilities": ["basic_attack", "dark_bolt"],
+      "ai_behavior": "support",
+      "challenge_rating": 2,
+      "preferred_position": "back"
+    }
+  ]
+}

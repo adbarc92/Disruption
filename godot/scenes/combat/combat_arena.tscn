@@ -1,0 +1,104 @@
+[gd_scene load_steps=2 format=3 uid="uid://combat_arena"]
+
+[ext_resource type="Script" path="res://scripts/presentation/combat/combat_manager.gd" id="1_combat"]
+
+[node name="CombatArena" type="Node2D"]
+script = ExtResource("1_combat")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0.15, 0.12, 0.2, 1)
+
+[node name="BattleGrid" type="Node2D" parent="."]
+position = Vector2(960, 540)
+
+[node name="AllyGrid" type="Node2D" parent="BattleGrid"]
+position = Vector2(-300, 0)
+
+[node name="EnemyGrid" type="Node2D" parent="BattleGrid"]
+position = Vector2(300, 0)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TurnOrderPanel" type="Panel" parent="UI"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 210.0
+offset_bottom = 300.0
+
+[node name="Label" type="Label" parent="UI/TurnOrderPanel"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 190.0
+offset_bottom = 30.0
+text = "Turn Order"
+horizontal_alignment = 1
+
+[node name="TurnList" type="VBoxContainer" parent="UI/TurnOrderPanel"]
+offset_left = 10.0
+offset_top = 40.0
+offset_right = 190.0
+offset_bottom = 290.0
+
+[node name="ActionPanel" type="Panel" parent="UI"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ActionButtons" type="HBoxContainer" parent="UI/ActionPanel"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 580.0
+offset_bottom = 60.0
+
+[node name="AttackButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Attack"
+
+[node name="SkillButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Skills"
+
+[node name="ItemButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Items"
+
+[node name="MoveButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Move"
+
+[node name="DefendButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Defend"
+
+[node name="StatusLabel" type="Label" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+text = "Combat Started"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="UI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 40.0
+grow_horizontal = 0
+text = "End Combat (Test)"
