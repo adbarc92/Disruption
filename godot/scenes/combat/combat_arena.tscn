@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://combat_arena"]
+[gd_scene load_steps=4 format=3 uid="uid://combat_arena"]
 
 [ext_resource type="Script" path="res://scripts/presentation/combat/combat_manager.gd" id="1_combat"]
+[ext_resource type="Script" path="res://scripts/presentation/combat/skill_panel.gd" id="2_skill_panel"]
+[ext_resource type="Script" path="res://scripts/presentation/combat/target_selector.gd" id="3_target_selector"]
 
 [node name="CombatArena" type="Node2D"]
 script = ExtResource("1_combat")
@@ -19,18 +21,21 @@ position = Vector2(-300, 0)
 [node name="EnemyGrid" type="Node2D" parent="BattleGrid"]
 position = Vector2(300, 0)
 
+[node name="TargetSelector" type="Node2D" parent="."]
+script = ExtResource("3_target_selector")
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="TurnOrderPanel" type="Panel" parent="UI"]
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 210.0
-offset_bottom = 300.0
+offset_right = 260.0
+offset_bottom = 350.0
 
 [node name="Label" type="Label" parent="UI/TurnOrderPanel"]
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 190.0
+offset_right = 240.0
 offset_bottom = 30.0
 text = "Turn Order"
 horizontal_alignment = 1
@@ -38,8 +43,8 @@ horizontal_alignment = 1
 [node name="TurnList" type="VBoxContainer" parent="UI/TurnOrderPanel"]
 offset_left = 10.0
 offset_top = 40.0
-offset_right = 190.0
-offset_bottom = 290.0
+offset_right = 240.0
+offset_bottom = 340.0
 
 [node name="ActionPanel" type="Panel" parent="UI"]
 anchors_preset = 7
@@ -97,6 +102,42 @@ offset_top = 110.0
 offset_right = 580.0
 offset_bottom = 160.0
 text = "Next turn in: -- ticks"
+
+[node name="SkillPanel" type="Panel" parent="UI"]
+visible = false
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 10.0
+offset_top = -200.0
+offset_right = 330.0
+offset_bottom = 200.0
+grow_vertical = 2
+script = ExtResource("2_skill_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/SkillPanel"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 310.0
+offset_bottom = 390.0
+
+[node name="TitleLabel" type="Label" parent="UI/SkillPanel/VBoxContainer"]
+text = "Skills"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="UI/SkillPanel/VBoxContainer"]
+
+[node name="SkillList" type="VBoxContainer" parent="UI/SkillPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+
+[node name="HSeparator2" type="HSeparator" parent="UI/SkillPanel/VBoxContainer"]
+
+[node name="DescriptionLabel" type="Label" parent="UI/SkillPanel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 100)
+autowrap_mode = 2
+
+[node name="CancelButton" type="Button" parent="UI/SkillPanel/VBoxContainer"]
+text = "Cancel"
 
 [node name="StatusLabel" type="Label" parent="UI"]
 anchors_preset = 5

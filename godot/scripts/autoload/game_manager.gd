@@ -2,6 +2,8 @@ extends Node
 ## GameManager - Global game state management
 ## Handles scene transitions, game state, and high-level game flow
 
+const DataLoaderClass = preload("res://scripts/data/data_loader.gd")
+
 enum GameState {
 	MAIN_MENU,
 	EXPLORATION,
@@ -33,7 +35,7 @@ func _ready() -> void:
 
 func _initialize_party() -> void:
 	# Load party from data files
-	var character_data = DataLoader.load_characters()
+	var character_data = DataLoaderClass.load_characters()
 
 	# Initialize with vertical slice party: Cyrus, Vaughn, Phaidros
 	var party_ids = ["cyrus", "vaughn", "phaidros"]
