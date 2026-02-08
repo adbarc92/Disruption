@@ -58,6 +58,8 @@ func apply_status(unit_id: String, status_name: String, duration: int, effect_da
 		new_effect["max_stacks"] = effect_data.max_stacks
 	if effect_data.has("attacks_redirected"):
 		new_effect["attacks_redirected"] = effect_data.attacks_redirected
+	if effect_data.has("taunter_id"):
+		new_effect["taunter_id"] = effect_data.taunter_id
 
 	effects_list.append(new_effect)
 	return true

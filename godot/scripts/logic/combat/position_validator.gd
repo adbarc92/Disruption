@@ -121,20 +121,24 @@ static func _filter_by_position(targets: Array, position_names: Array, check_col
 	return filtered
 
 
-## Filter targets by range (adjacent means front column only from attacker's perspective)
+## Filter targets by range (adjacent targets the frontmost occupied column)
 static func _filter_by_range(targets: Array, user: Dictionary, range_type: String) -> Array:
 	if range_type == "any":
 		return targets.duplicate()
 
-	# For "adjacent" range, only front column enemies can be targeted
+	# For "adjacent" range, find the frontmost occupied column among targets
+	# and only allow targeting units in that column
 	if range_type == "adjacent":
+		var min_col = 3  # Higher than any valid column
+		for target in targets:
+			var col = target.get("grid_position", Vector2i(0, 0)).x
+			if col < min_col:
+				min_col = col
+
 		var filtered: Array = []
 		for target in targets:
-			var grid_pos = target.get("grid_position", Vector2i(0, 0))
-			# Adjacent means front row (column 0) on enemy side
-			if grid_pos.x == POSITION_FRONT:
+			if target.get("grid_position", Vector2i(0, 0)).x == min_col:
 				filtered.append(target)
-			# Or middle row if front is empty (checked elsewhere)
 		return filtered
 
 	return targets.duplicate()

@@ -9,6 +9,9 @@ const StatusEffectManagerClass = preload("res://scripts/logic/combat/status_effe
 const DamageCalculatorClass = preload("res://scripts/logic/combat/damage_calculator.gd")
 const PositionValidatorClass = preload("res://scripts/logic/combat/position_validator.gd")
 const CombatAIClass = preload("res://scripts/logic/combat/combat_ai.gd")
+const UnitVisualClass = preload("res://scripts/presentation/combat/unit_visual.gd")
+const FloatingTextClass = preload("res://scripts/presentation/combat/floating_text.gd")
+const CombatResultsClass = preload("res://scripts/presentation/combat/combat_results.gd")
 
 # Grid configuration (3x3 per side)
 const GRID_SIZE = Vector2i(3, 3)
@@ -50,6 +53,17 @@ var skills_data: Dictionary = {}
 # Status effect manager instance
 var status_manager = StatusEffectManagerClass.new()
 
+# Persistent unit visuals (unit_id -> UnitVisual)
+var unit_visuals: Dictionary = {}
+
+# Turn highlight node
+var turn_highlight: Polygon2D = null
+
+# Action log
+var action_log_scroll: ScrollContainer
+var action_log_container: VBoxContainer
+const ACTION_LOG_MAX_ENTRIES = 50
+
 # Node references
 @onready var ally_grid_node: Node2D = $BattleGrid/AllyGrid
 @onready var enemy_grid_node: Node2D = $BattleGrid/EnemyGrid
@@ -58,6 +72,15 @@ var status_manager = StatusEffectManagerClass.new()
 @onready var action_panel: Panel = $UI/ActionPanel
 @onready var skill_panel = $UI/SkillPanel
 @onready var target_selector = $TargetSelector
+
+# Turn highlight pulse state
+var _highlight_pulse_time: float = 0.0
+
+
+## Convert a grid position to visual position (mirrors ally columns so front=closest to enemies)
+static func grid_to_visual_pos(grid_pos: Vector2i, is_ally: bool) -> Vector2:
+	var visual_col = (2 - grid_pos.x) if is_ally else grid_pos.x
+	return Vector2(visual_col, grid_pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
 
 
 func _ready() -> void:
@@ -83,8 +106,19 @@ func _ready() -> void:
 	target_selector.targeting_cancelled.connect(_on_targeting_cancelled)
 	target_selector.move_position_selected.connect(_on_move_position_selected)
 
+	# Create action log
+	_setup_action_log()
+
 	# Initialize combat
 	_initialize_combat()
+
+
+func _process(delta: float) -> void:
+	# Pulse the turn highlight
+	if turn_highlight != null and is_instance_valid(turn_highlight):
+		_highlight_pulse_time += delta * 3.0
+		var alpha = 0.15 + 0.15 * sin(_highlight_pulse_time)
+		turn_highlight.color = Color(1.0, 1.0, 0.0, alpha)
 
 
 func _initialize_combat() -> void:
@@ -113,6 +147,8 @@ func _initialize_combat() -> void:
 	_draw_grids()
 	print("Grids drawn. Ally grid children: %d, Enemy grid children: %d" % [ally_grid_node.get_child_count(), enemy_grid_node.get_child_count()])
 
+	_log_action("Combat started: %d allies vs %d enemies" % [ally_units.size(), enemy_units.size()])
+
 	# Start first turn
 	_start_next_turn()
 
@@ -135,10 +171,27 @@ func _load_enemy_units() -> void:
 	enemy_units.clear()
 	var enemy_data = GameManager.story_flags.get("_combat_enemies", [])
 
+	# Track occupied positions to avoid collisions
+	var occupied: Dictionary = {}
+
 	for i in range(enemy_data.size()):
 		var enemy = enemy_data[i].duplicate(true)
 		enemy["is_ally"] = false
-		enemy["grid_position"] = _get_default_enemy_position(i)
+
+		# Respect preferred_position from enemy data
+		var pref = enemy.get("preferred_position", "")
+		var pos = _get_default_enemy_position(i)
+		if pref == "back":
+			pos = Vector2i(2, i % 3)
+		elif pref == "middle":
+			pos = Vector2i(1, i % 3)
+
+		# Resolve collision
+		while occupied.has(pos):
+			pos.y = (pos.y + 1) % 3
+		occupied[pos] = true
+		enemy["grid_position"] = pos
+
 		enemy["current_hp"] = enemy.get("hp", 50)
 		enemy["max_hp"] = enemy.get("hp", 50)
 		enemy["current_mp"] = enemy.get("mp", 10)
@@ -152,16 +205,15 @@ func _load_enemy_units() -> void:
 
 
 func _get_default_ally_position(index: int) -> Vector2i:
-	# Back column by default
+	# Front column by default
 	match index:
-		0: return Vector2i(2, 1)  # Back middle
-		1: return Vector2i(2, 0)  # Back top
-		2: return Vector2i(2, 2)  # Back bottom
+		0: return Vector2i(0, 1)  # Front middle
+		1: return Vector2i(0, 0)  # Front top
+		2: return Vector2i(0, 2)  # Front bottom
 		_: return Vector2i(1, index % 3)
 
 
 func _get_default_enemy_position(index: int) -> Vector2i:
-	# Front column by default
 	match index:
 		0: return Vector2i(0, 1)  # Front middle
 		1: return Vector2i(0, 0)  # Front top
@@ -200,8 +252,10 @@ func _update_turn_order_ui() -> void:
 	for child in turn_list.get_children():
 		child.queue_free()
 
-	# Add turn order entries
-	for i in range(min(turn_order.size(), 8)):
+	# Show 8 entries (wraps around the turn order)
+	for i in range(8):
+		if turn_order.is_empty():
+			break
 		var unit = turn_order[(current_turn_index + i) % turn_order.size()]
 		var label = Label.new()
 
@@ -215,18 +269,19 @@ func _update_turn_order_ui() -> void:
 		turn_list.add_child(label)
 
 
+# --- Grid Drawing ---
+
 func _draw_grids() -> void:
-	# Draw ally grid
-	_draw_grid_cells(ally_grid_node, true)
-
-	# Draw enemy grid
-	_draw_grid_cells(enemy_grid_node, false)
+	_draw_grid_background(ally_grid_node, true)
+	_draw_grid_background(enemy_grid_node, false)
+	_update_unit_visuals()
 
 
-func _draw_grid_cells(grid_node: Node2D, is_ally: bool) -> void:
-	# Clear existing
+func _draw_grid_background(grid_node: Node2D, is_ally: bool) -> void:
+	# Remove only non-UnitVisual children (grid cells, old highlights)
 	for child in grid_node.get_children():
-		child.queue_free()
+		if not child is UnitVisual:
+			child.queue_free()
 
 	var base_color = Color(0.2, 0.4, 0.6, 0.5) if is_ally else Color(0.6, 0.2, 0.2, 0.5)
 	var cell_size = CELL_SIZE - Vector2(4, 4)
@@ -238,52 +293,167 @@ func _draw_grid_cells(grid_node: Node2D, is_ally: bool) -> void:
 				Vector2(0, 0), Vector2(cell_size.x, 0),
 				Vector2(cell_size.x, cell_size.y), Vector2(0, cell_size.y)
 			])
-			cell.position = Vector2(x, y) * CELL_SIZE - (CELL_SIZE * 1.5) + Vector2(2, 2)
+			# Mirror ally columns so front (col 0) is closest to enemies (right side)
+			var visual_pos = grid_to_visual_pos(Vector2i(x, y), is_ally)
+			cell.position = visual_pos + Vector2(2, 2)
 			cell.color = base_color
 			grid_node.add_child(cell)
 
-	# Draw units using Polygon2D for proper Node2D rendering
-	var units = ally_units if is_ally else enemy_units
-	for unit in units:
-		var unit_visual = Polygon2D.new()
-		# Create a rectangle polygon
-		unit_visual.polygon = PackedVector2Array([
-			Vector2(0, 0), Vector2(40, 0), Vector2(40, 60), Vector2(0, 60)
-		])
-		unit_visual.color = Color.BLUE if is_ally else Color.RED
-		var grid_pos = unit.get("grid_position", Vector2i(1, 1))
-		var pos = Vector2(grid_pos.x, grid_pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
-		unit_visual.position = pos + Vector2(20, 10)
-		unit_visual.name = str(unit.id)
-		print("Drawing unit %s at grid %s, screen pos %s" % [unit.name, grid_pos, unit_visual.position])
 
-		# Show name and HP
-		var label = Label.new()
-		label.text = unit.name.substr(0, 3)
-		label.position = Vector2(-10, -20)
-		unit_visual.add_child(label)
+func _update_unit_visuals() -> void:
+	# Track which unit IDs are still alive
+	var alive_ids: Dictionary = {}
 
-		var hp_label = Label.new()
-		hp_label.text = "%d" % unit.current_hp
-		hp_label.position = Vector2(5, 62)
-		hp_label.add_theme_font_size_override("font_size", 12)
-		unit_visual.add_child(hp_label)
+	# Update ally visuals
+	for unit in ally_units:
+		alive_ids[unit.id] = true
+		_create_or_update_visual(unit, true, ally_grid_node)
 
-		# Show status effects
-		var statuses = status_manager.get_statuses(unit.id)
-		if not statuses.is_empty():
-			var status_text = Label.new()
-			var status_names = []
-			for s in statuses:
-				status_names.append(s.status.substr(0, 3))
-			status_text.text = ",".join(status_names)
-			status_text.position = Vector2(-10, 74)
-			status_text.add_theme_font_size_override("font_size", 10)
-			status_text.add_theme_color_override("font_color", Color.YELLOW)
-			unit_visual.add_child(status_text)
+	# Update enemy visuals
+	for unit in enemy_units:
+		alive_ids[unit.id] = true
+		_create_or_update_visual(unit, false, enemy_grid_node)
 
-		grid_node.add_child(unit_visual)
+	# Remove visuals for defeated units
+	var to_remove: Array = []
+	for uid in unit_visuals:
+		if not alive_ids.has(uid):
+			to_remove.append(uid)
 
+	for uid in to_remove:
+		var visual = unit_visuals[uid]
+		if is_instance_valid(visual):
+			visual.queue_free()
+		unit_visuals.erase(uid)
+
+
+func _create_or_update_visual(unit: Dictionary, is_ally: bool, grid_node: Node2D) -> void:
+	var uid = unit.get("id", "")
+	var grid_pos = unit.get("grid_position", Vector2i(1, 1))
+	var pos = grid_to_visual_pos(grid_pos, is_ally) + Vector2(12, 5)
+
+	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
+		# Update existing
+		var visual: UnitVisual = unit_visuals[uid]
+		visual.position = pos
+		visual.update_stats(unit)
+		visual.update_statuses(status_manager.get_statuses(uid))
+	else:
+		# Create new
+		var visual = UnitVisualClass.new()
+		visual.position = pos
+		visual.setup(unit, is_ally)
+		visual.update_statuses(status_manager.get_statuses(uid))
+		grid_node.add_child(visual)
+		unit_visuals[uid] = visual
+
+
+# --- Turn Highlight ---
+
+func _highlight_current_unit() -> void:
+	_clear_turn_highlight()
+
+	if current_unit.is_empty():
+		return
+
+	var grid_pos = current_unit.get("grid_position", Vector2i(1, 1))
+	var is_ally = current_unit.get("is_ally", true)
+	var grid_node = ally_grid_node if is_ally else enemy_grid_node
+
+	turn_highlight = Polygon2D.new()
+	var cell_size = CELL_SIZE - Vector2(4, 4)
+	turn_highlight.polygon = PackedVector2Array([
+		Vector2(0, 0), Vector2(cell_size.x, 0),
+		Vector2(cell_size.x, cell_size.y), Vector2(0, cell_size.y)
+	])
+	turn_highlight.position = grid_to_visual_pos(grid_pos, is_ally) + Vector2(2, 2)
+	turn_highlight.color = Color(1.0, 1.0, 0.0, 0.2)
+	_highlight_pulse_time = 0.0
+
+	grid_node.add_child(turn_highlight)
+
+
+func _clear_turn_highlight() -> void:
+	if turn_highlight != null and is_instance_valid(turn_highlight):
+		turn_highlight.queue_free()
+		turn_highlight = null
+
+
+# --- Floating Damage Numbers ---
+
+func _spawn_floating_text(text: String, color: Color, target: Dictionary, large: bool = false) -> void:
+	var grid_pos = target.get("grid_position", Vector2i(1, 1))
+	var is_ally = target.get("is_ally", true)
+	var grid_node = ally_grid_node if is_ally else enemy_grid_node
+
+	var pos = grid_to_visual_pos(grid_pos, is_ally) + Vector2(CELL_SIZE.x / 2, 0)
+	var world_pos = grid_node.global_position + pos
+
+	var ft = FloatingTextClass.create(text, color, world_pos, large)
+	get_tree().current_scene.add_child(ft)
+
+
+# --- Action Log ---
+
+func _setup_action_log() -> void:
+	var ui_layer = $UI
+
+	var panel = Panel.new()
+	panel.offset_left = 1660
+	panel.offset_top = 10
+	panel.offset_right = 1910
+	panel.offset_bottom = 700
+	ui_layer.add_child(panel)
+
+	var title = Label.new()
+	title.text = "Action Log"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.offset_left = 5
+	title.offset_top = 5
+	title.offset_right = 245
+	title.offset_bottom = 25
+	panel.add_child(title)
+
+	action_log_scroll = ScrollContainer.new()
+	action_log_scroll.offset_left = 5
+	action_log_scroll.offset_top = 28
+	action_log_scroll.offset_right = 245
+	action_log_scroll.offset_bottom = 685
+	panel.add_child(action_log_scroll)
+
+	action_log_container = VBoxContainer.new()
+	action_log_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_log_scroll.add_child(action_log_container)
+
+
+func _log_action(text: String, color: Color = Color.WHITE) -> void:
+	if action_log_container == null:
+		return
+
+	var label = Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("font_size", 11)
+	label.add_theme_color_override("font_color", color)
+	label.custom_minimum_size = Vector2(230, 0)
+	action_log_container.add_child(label)
+
+	# Trim old entries
+	while action_log_container.get_child_count() > ACTION_LOG_MAX_ENTRIES:
+		var old = action_log_container.get_child(0)
+		action_log_container.remove_child(old)
+		old.queue_free()
+
+	# Auto-scroll to bottom (deferred so layout updates first)
+	_scroll_log_to_bottom.call_deferred()
+
+
+func _scroll_log_to_bottom() -> void:
+	if action_log_scroll != null:
+		action_log_scroll.scroll_vertical = action_log_scroll.get_v_scroll_bar().max_value
+
+
+# --- Turn Flow ---
 
 func _start_next_turn() -> void:
 	if _check_combat_end():
@@ -292,6 +462,9 @@ func _start_next_turn() -> void:
 	current_unit = turn_order[current_turn_index]
 	current_phase = CombatPhase.TURN_START
 
+	# Clear defending status at start of each unit's turn
+	current_unit["is_defending"] = false
+
 	# Apply stat modifiers from status effects
 	var modifiers = status_manager.get_stat_modifiers(current_unit.id)
 	if not modifiers.is_empty():
@@ -299,11 +472,18 @@ func _start_next_turn() -> void:
 
 	status_label.text = "%s's turn" % current_unit.name
 	_update_turn_order_ui()
+	_highlight_current_unit()
+
+	var pos_name = PositionValidatorClass.get_position_name(current_unit.get("grid_position", Vector2i(0, 0)).x)
+	_log_action("--- %s's turn (%s row) ---" % [current_unit.name, pos_name], Color.CYAN if current_unit.is_ally else Color(1.0, 0.5, 0.5))
 
 	EventBus.turn_started.emit(current_unit.id)
 
 	# Regenerate MP at turn start (2 MP per turn)
 	_regenerate_mp(current_unit)
+
+	# Update visuals after MP regen
+	_update_unit_visuals()
 
 	# If AI controlled, handle AI turn
 	if not current_unit.is_ally:
@@ -377,12 +557,20 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	if skill.has("damage"):
 		var result = DamageCalculatorClass.calculate_damage(skill, user, target)
 
-		# Apply damage reduction from status effects
+		# Apply damage reduction from status effects (including defending)
 		var reductions = status_manager.get_damage_reductions(target.get("id", ""))
 		if not reductions.is_empty():
 			result.damage = DamageCalculatorClass.apply_damage_reduction(
 				result.damage, result.damage_type, reductions
 			)
+
+		# Apply front row protection
+		var target_is_ally = target.get("is_ally", true)
+		var target_grid = ally_grid if target_is_ally else enemy_grid
+		var target_pos = target.get("grid_position", Vector2i(0, 0))
+		var protection_mult = DamageCalculatorClass.get_front_row_protection(target_pos, target_grid)
+		if protection_mult < 1.0:
+			result.damage = int(floor(result.damage * protection_mult))
 
 		_apply_damage(target, result.damage)
 
@@ -394,13 +582,53 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 		elif result.effectiveness < 1.0:
 			eff_text = " (Resist)"
 
-		status_label.text = "%s uses %s on %s for %d damage!%s%s" % [
-			user.name, skill_name, target.name, result.damage, crit_text, eff_text
+		var prot_text = ""
+		if protection_mult < 1.0:
+			prot_text = " (Protected)"
+
+		status_label.text = "%s uses %s on %s for %d damage!%s%s%s" % [
+			user.name, skill_name, target.name, result.damage, crit_text, eff_text, prot_text
 		]
+
+		# Action log entry
+		var log_extras = ""
+		if result.is_critical:
+			log_extras += " CRIT!"
+		if result.effectiveness > 1.0:
+			log_extras += " Weak!"
+		elif result.effectiveness < 1.0:
+			log_extras += " Resist"
+		if protection_mult < 1.0:
+			log_extras += " Protected"
+
+		var log_color = Color.WHITE
+		if user.get("is_ally", true):
+			log_color = Color(0.7, 0.9, 1.0)
+		else:
+			log_color = Color(1.0, 0.7, 0.7)
+		_log_action("%s -> %s: %s for %d dmg%s" % [user.name, target.name, skill_name, result.damage, log_extras], log_color)
+
+		# Floating damage number
+		var float_color = Color.WHITE
+		var large = false
+		if result.is_critical:
+			float_color = Color(1.0, 0.9, 0.1)  # Yellow for crit
+			large = true
+		elif result.effectiveness > 1.0:
+			float_color = Color(1.0, 0.3, 0.3)  # Red for weakness
+		elif result.effectiveness < 1.0:
+			float_color = Color(0.6, 0.6, 0.6)  # Gray for resist
+
+		_spawn_floating_text(str(result.damage), float_color, target, large)
+
+		# Flash the target unit visual
+		if unit_visuals.has(target.id) and is_instance_valid(unit_visuals[target.id]):
+			unit_visuals[target.id].flash_damage()
 
 		EventBus.unit_damaged.emit(target.id, result.damage, result.damage_type)
 	else:
 		status_label.text = "%s uses %s!" % [user.name, skill_name]
+		_log_action("%s uses %s" % [user.name, skill_name], Color(0.8, 0.8, 0.5))
 
 	# Handle effects
 	if skill.has("effect"):
@@ -411,7 +639,7 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	user["burst_gauge"] = min(100, user.get("burst_gauge", 0) + burst_gain)
 	EventBus.burst_gauge_changed.emit(user.id, user.burst_gauge)
 
-	_draw_grids()
+	_update_unit_visuals()
 	await get_tree().create_timer(1.0).timeout
 
 
@@ -426,11 +654,13 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 			status_manager.apply_status(user.id, status_name, duration, effect)
 			EventBus.status_applied.emit(user.id, status_name)
 			status_label.text += " %s gains %s!" % [user.name, status_name]
+			_log_action("  +%s on %s (%d turns)" % [status_name, user.name, duration], Color(0.5, 1.0, 0.5))
 
 		"ally_buff":
 			status_manager.apply_status(target.id, status_name, duration, effect)
 			EventBus.status_applied.emit(target.id, status_name)
 			status_label.text += " %s gains %s!" % [target.name, status_name]
+			_log_action("  +%s on %s (%d turns)" % [status_name, target.name, duration], Color(0.5, 1.0, 0.5))
 
 		"party_buff":
 			var allies = ally_units if user.is_ally else enemy_units
@@ -438,6 +668,7 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 				status_manager.apply_status(ally.id, status_name, duration, effect)
 				EventBus.status_applied.emit(ally.id, status_name)
 			status_label.text += " Party gains %s!" % status_name
+			_log_action("  +%s on party (%d turns)" % [status_name, duration], Color(0.5, 1.0, 0.5))
 
 		"debuff", "enemy_debuff":
 			if effect_type == "enemy_debuff":
@@ -455,11 +686,13 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 						status_manager.apply_status(enemy.id, status_name, duration, effect)
 					EventBus.status_applied.emit(enemy.id, status_name)
 				status_label.text += " Enemies are %s!" % status_name
+				_log_action("  -%s on all enemies (%d turns)" % [status_name, duration], Color(1.0, 0.5, 0.5))
 			else:
 				# Apply to single target
 				status_manager.apply_status(target.id, status_name, duration, effect)
 				EventBus.status_applied.emit(target.id, status_name)
 				status_label.text += " %s is %s!" % [target.name, status_name]
+				_log_action("  -%s on %s (%d turns)" % [status_name, target.name, duration], Color(1.0, 0.5, 0.5))
 
 
 func _apply_damage(target: Dictionary, damage: int) -> void:
@@ -468,15 +701,18 @@ func _apply_damage(target: Dictionary, damage: int) -> void:
 
 	if target.current_hp <= 0:
 		EventBus.unit_defeated.emit(target.id)
+		_log_action("  %s defeated!" % target.name, Color(1.0, 0.3, 0.3))
 
 
 func _end_turn() -> void:
 	current_phase = CombatPhase.TURN_END
+	_clear_turn_highlight()
 
 	# Process status effect tick
 	var expired = status_manager.tick_turn_end(current_unit.id)
 	for status_name in expired:
 		EventBus.status_removed.emit(current_unit.id, status_name)
+		_log_action("  %s expired on %s" % [status_name, current_unit.name], Color(0.6, 0.6, 0.6))
 		# Reset stats if needed
 		if current_unit.has("original_stats"):
 			current_unit["base_stats"] = current_unit["original_stats"].duplicate()
@@ -509,6 +745,8 @@ func _remove_defeated_units() -> void:
 	if current_turn_index >= turn_order.size():
 		current_turn_index = 0
 
+	# Rebuild grids
+	_place_units_on_grid()
 	_draw_grids()
 
 
@@ -524,18 +762,30 @@ func _check_combat_end() -> bool:
 
 func _end_combat(victory: bool) -> void:
 	current_phase = CombatPhase.VICTORY if victory else CombatPhase.DEFEAT
-	status_label.text = "Victory!" if victory else "Defeat..."
 	action_panel.visible = false
 	skill_panel.hide_panel()
+	_clear_turn_highlight()
 
 	# Clear all status effects
 	status_manager.clear_all()
 
 	EventBus.combat_ended.emit(victory)
 
-	await get_tree().create_timer(2.0).timeout
+	# Show results screen
+	var results = CombatResultsClass.new()
+	add_child(results)
 
-	GameManager.end_combat(victory)
+	if victory:
+		status_label.text = "Victory!"
+		_log_action("=== VICTORY ===", Color(1.0, 0.85, 0.2))
+		results.show_victory(ally_units)
+		results.continue_pressed.connect(func(): GameManager.end_combat(true))
+	else:
+		status_label.text = "Defeat..."
+		_log_action("=== DEFEAT ===", Color(0.8, 0.2, 0.2))
+		results.show_defeat()
+		results.retry_pressed.connect(func(): get_tree().reload_current_scene())
+		results.menu_pressed.connect(func(): GameManager.end_combat(false))
 
 
 func _find_unit_by_id(unit_id: String) -> Dictionary:
@@ -559,14 +809,15 @@ func _on_attack_pressed() -> void:
 	status_label.text = "Select target..."
 	action_panel.visible = false
 
-	# Start target selection
+	# Start target selection (pass status_manager for taunt enforcement)
 	target_selector.start_targeting(
 		selected_skill,
 		current_unit,
 		ally_units,
 		enemy_units,
 		ally_grid_node,
-		enemy_grid_node
+		enemy_grid_node,
+		status_manager
 	)
 
 
@@ -585,14 +836,15 @@ func _on_skill_selected(skill_id: String) -> void:
 	current_phase = CombatPhase.SELECTING_TARGET
 	status_label.text = "Select target for %s..." % selected_skill.get("name", skill_id)
 
-	# Start target selection
+	# Start target selection (pass status_manager for taunt enforcement)
 	target_selector.start_targeting(
 		selected_skill,
 		current_unit,
 		ally_units,
 		enemy_units,
 		ally_grid_node,
-		enemy_grid_node
+		enemy_grid_node,
+		status_manager
 	)
 
 
@@ -603,6 +855,14 @@ func _on_skill_cancelled() -> void:
 
 func _on_target_selected(target_id: String) -> void:
 	var target = _find_unit_by_id(target_id)
+
+	# Consume taunt charge when player executes an action targeting enemies
+	if current_unit.get("is_ally", true):
+		var target_type = PositionValidatorClass.get_targeting_type(selected_skill)
+		if target_type in ["single_enemy", "all_enemies"]:
+			# get_taunt_target already decrements in AI path; for player, we consume here
+			# The taunt was already peeked in target_selector, so consume now
+			status_manager.get_taunt_target(current_unit.get("id", ""))
 
 	# Handle "all" targeting
 	var target_type = PositionValidatorClass.get_targeting_type(selected_skill)
@@ -664,6 +924,7 @@ func _on_move_position_selected(position: Vector2i) -> void:
 	# Get position name for status message
 	var col_name = PositionValidatorClass.get_position_name(position.x)
 	status_label.text = "%s moves to %s row!" % [current_unit.name, col_name]
+	_log_action("%s moves to %s row" % [current_unit.name, col_name], Color(0.7, 0.9, 1.0))
 
 	EventBus.position_changed.emit(unit_id, old_pos, position)
 
@@ -678,9 +939,18 @@ func _on_defend_pressed() -> void:
 		return
 
 	current_unit["is_defending"] = true
-	status_label.text = "%s defends!" % current_unit.name
 
-	# Could apply a temporary defense buff here
+	# Apply defending status with 50% all damage reduction
+	# Duration 2 so it survives this turn's end-tick and protects until next turn
+	status_manager.apply_status(current_unit.id, "defending", 2, {
+		"damage_reduction": {"all": 0.5}
+	})
+	EventBus.status_applied.emit(current_unit.id, "defending")
+
+	status_label.text = "%s defends!" % current_unit.name
+	_log_action("%s defends (50%% DR)" % current_unit.name, Color(0.5, 0.7, 1.0))
+	_update_unit_visuals()
+
 	await get_tree().create_timer(0.5).timeout
 	_end_turn()
 

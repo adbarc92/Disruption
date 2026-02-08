@@ -24,16 +24,25 @@ var highlight_nodes: Array[ColorRect] = []
 # References set by CombatManager
 var ally_grid_node: Node2D
 var enemy_grid_node: Node2D
+var status_manager = null
 
 const CELL_SIZE = Vector2(80, 80)
 
 
+## Convert grid position to visual position (mirrors ally columns)
+static func _grid_to_visual(grid_pos: Vector2i, is_ally: bool) -> Vector2:
+	var visual_col = (2 - grid_pos.x) if is_ally else grid_pos.x
+	return Vector2(visual_col, grid_pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
+
+
 ## Start target selection for a skill
-func start_targeting(skill: Dictionary, user: Dictionary, allies: Array, enemies: Array, ally_grid: Node2D, enemy_grid: Node2D) -> void:
+func start_targeting(skill: Dictionary, user: Dictionary, allies: Array, enemies: Array, ally_grid: Node2D, enemy_grid: Node2D, p_status_manager = null) -> void:
 	current_skill = skill
 	current_user = user
 	ally_grid_node = ally_grid
 	enemy_grid_node = enemy_grid
+	if p_status_manager != null:
+		status_manager = p_status_manager
 	is_active = true
 
 	# Determine which side to target
@@ -52,6 +61,14 @@ func start_targeting(skill: Dictionary, user: Dictionary, allies: Array, enemies
 			valid_targets = PositionValidatorClass.get_valid_targets(skill, user, enemies, true)
 		else:
 			valid_targets = PositionValidatorClass.get_valid_targets(skill, user, allies, false)
+
+	# Enforce taunt: if player is taunted and targeting enemies, restrict to taunter
+	if user_is_ally and targets_enemies and status_manager != null:
+		var taunt_data = status_manager.get_status_data(user.get("id", ""), "taunted")
+		if not taunt_data.is_empty() and taunt_data.get("attacks_redirected", 0) > 0:
+			var taunter_id = taunt_data.get("taunter_id", "")
+			if taunter_id != "":
+				valid_targets = valid_targets.filter(func(t): return t.get("id", "") == taunter_id)
 
 	# Check if skill targets all (no selection needed)
 	if PositionValidatorClass.targets_all(skill):
@@ -118,7 +135,7 @@ func _check_target_click(click_pos: Vector2) -> void:
 			return
 
 
-## Get the screen rect for a target
+## Get the screen rect for a target (uses visual mirroring for allies)
 func _get_target_rect(target: Dictionary) -> Rect2:
 	var grid_pos = target.get("grid_position", Vector2i(0, 0))
 	var is_ally = target.get("is_ally", false)
@@ -127,7 +144,7 @@ func _get_target_rect(target: Dictionary) -> Rect2:
 	if grid_node == null:
 		return Rect2()
 
-	var pos = Vector2(grid_pos.x, grid_pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
+	var pos = _grid_to_visual(grid_pos, is_ally)
 	var global_pos = grid_node.global_position + pos
 
 	return Rect2(global_pos, CELL_SIZE)
@@ -155,7 +172,7 @@ func _select_target(target: Dictionary) -> void:
 	target_selected.emit(target.get("id", ""))
 
 
-## Show highlights on valid targets
+## Show highlights on valid targets (uses visual mirroring)
 func _show_target_highlights(target_enemy_side: bool) -> void:
 	_clear_highlights()
 
@@ -165,7 +182,8 @@ func _show_target_highlights(target_enemy_side: bool) -> void:
 
 	for target in valid_targets:
 		var grid_pos = target.get("grid_position", Vector2i(0, 0))
-		var pos = Vector2(grid_pos.x, grid_pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
+		var is_ally = target.get("is_ally", false)
+		var pos = _grid_to_visual(grid_pos, is_ally)
 
 		var highlight = ColorRect.new()
 		highlight.size = CELL_SIZE - Vector2(4, 4)
@@ -205,13 +223,13 @@ func is_targeting() -> bool:
 	return is_active
 
 
-## Check if a click hit a valid move position
+## Check if a click hit a valid move position (always ally, so always mirrored)
 func _check_move_click(click_pos: Vector2) -> void:
 	if ally_grid_node == null:
 		return
 
 	for pos in valid_move_positions:
-		var cell_pos = Vector2(pos.x, pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
+		var cell_pos = _grid_to_visual(pos, true)  # Move is always ally side
 		var global_pos = ally_grid_node.global_position + cell_pos
 		var rect = Rect2(global_pos, CELL_SIZE)
 		if rect.has_point(click_pos):
@@ -228,12 +246,12 @@ func _select_move_position(pos: Vector2i) -> void:
 	move_position_selected.emit(pos)
 
 
-## Show highlights on valid move positions
+## Show highlights on valid move positions (always ally, so always mirrored)
 func _show_move_highlights(grid_node: Node2D) -> void:
 	_clear_highlights()
 
 	for pos in valid_move_positions:
-		var cell_pos = Vector2(pos.x, pos.y) * CELL_SIZE - (CELL_SIZE * 1.5)
+		var cell_pos = _grid_to_visual(pos, true)  # Move is always ally side
 
 		var highlight = ColorRect.new()
 		highlight.size = CELL_SIZE - Vector2(4, 4)

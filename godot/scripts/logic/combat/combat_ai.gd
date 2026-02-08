@@ -17,6 +17,12 @@ class AIDecision:
 
 ## Make a decision for an AI-controlled unit
 static func make_decision(unit: Dictionary, allies: Array, enemies: Array, skills_data: Dictionary, status_manager) -> AIDecision:
+	# Check for taunt - if taunted, must attack the taunter
+	var taunt_target_id = status_manager.get_taunt_target(unit.get("id", ""))
+	if taunt_target_id != "":
+		var attack_skill_id = _get_best_attack_skill(unit, skills_data)
+		return AIDecision.new(attack_skill_id, [taunt_target_id])
+
 	var behavior = unit.get("ai_behavior", "aggressive")
 
 	match behavior:
@@ -167,3 +173,20 @@ static func _get_random_target(targets: Array) -> String:
 	if targets.is_empty():
 		return ""
 	return targets[randi() % targets.size()].get("id", "")
+
+
+## Get the best damage-dealing skill the unit can use (for forced attacks like taunt)
+static func _get_best_attack_skill(unit: Dictionary, skills_data: Dictionary) -> String:
+	var usable = _get_usable_skills(unit, skills_data)
+	var best_id = "basic_attack"
+	var best_damage = 0
+
+	for skill_id in usable:
+		var skill = skills_data.get(skill_id, {})
+		if skill.has("damage"):
+			var base = skill.damage.get("base", 0)
+			if base > best_damage:
+				best_damage = base
+				best_id = skill_id
+
+	return best_id

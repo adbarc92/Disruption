@@ -55,6 +55,17 @@ static func calculate_damage(skill: Dictionary, attacker_stats: Dictionary, defe
 	result.damage = int(floor(after_defense * result.effectiveness * crit_multiplier))
 	result.damage = max(1, result.damage)  # Minimum 1 damage
 
+	# Debug: log damage breakdown
+	var attacker_name = attacker_stats.get("name", "???")
+	var defender_name = defender.get("name", "???")
+	print("[DMG] %s -> %s: base=%d, %s=%d, scaled=%.0f, def=%.0f(vig=%d), afterDef=%.0f, eff=%.1fx, crit=%s(%.0f%%), final=%d" % [
+		attacker_name, defender_name, int(base_damage),
+		scaling_stat, int(stat_value), scaled_damage,
+		defender_defense, defender.get("base_stats", {}).get("vigor", 5), after_defense,
+		result.effectiveness, "YES" if result.is_critical else "no", crit_chance * 100,
+		result.damage
+	])
+
 	return result
 
 
@@ -133,6 +144,21 @@ static func calculate_derived_stats(base_stats: Dictionary) -> Dictionary:
 	}
 
 
+## Calculate front row protection multiplier
+## If target is in column 1 or 2 (middle/back) and an ally occupies column 0 (front)
+## in the same row, the target receives 25% damage reduction (returns 0.75).
+static func get_front_row_protection(target_position: Vector2i, allies_grid: Dictionary) -> float:
+	if target_position.x == 0:
+		return 1.0  # Front row units don't get protection
+
+	# Check if an ally is in column 0 (front) on the same row
+	var front_pos = Vector2i(0, target_position.y)
+	if allies_grid.has(front_pos):
+		print("[DMG]   front row protection: target at col %d protected by ally at col 0, row %d (x0.75)" % [target_position.x, target_position.y])
+		return 0.75  # 25% damage reduction
+	return 1.0
+
+
 ## Apply damage reduction from status effects (e.g., iron_skin)
 static func apply_damage_reduction(damage: int, damage_type: String, reductions: Dictionary) -> int:
 	var reduction_multiplier = 1.0
@@ -146,4 +172,7 @@ static func apply_damage_reduction(damage: int, damage_type: String, reductions:
 		reduction_multiplier -= reductions["all"]
 
 	reduction_multiplier = max(0.0, reduction_multiplier)
-	return int(floor(damage * reduction_multiplier))
+	var reduced = int(floor(damage * reduction_multiplier))
+	if reduction_multiplier < 1.0:
+		print("[DMG]   status DR: %d -> %d (mult=%.2f, reductions=%s)" % [damage, reduced, reduction_multiplier, str(reductions)])
+	return reduced

@@ -18,7 +18,7 @@ config/name="Disruption"
 config/description="A turn-based tactical RPG with positioning-based combat"
 config/version="0.1.0"
 run/main_scene="res://scenes/main.tscn"
-config/features=PackedStringArray("4.6", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -114,4 +114,5 @@ pause={
 
 [rendering]
 
+environment/defaults/default_clear_color=Color(0.15, 0.12, 0.2, 1)
 textures/canvas_textures/default_texture_filter=0

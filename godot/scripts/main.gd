@@ -26,6 +26,7 @@ func _on_test_combat_pressed() -> void:
 	var test_enemies = [
 		enemies_data.get("grunt_a", {"id": "grunt_a", "name": "Scout", "hp": 45}),
 		enemies_data.get("grunt_b", {"id": "grunt_b", "name": "Brute", "hp": 80}),
+		enemies_data.get("grunt_c", {"id": "grunt_c", "name": "Caster", "hp": 35}),
 	]
 	GameManager.start_combat(test_enemies, "res://scenes/main.tscn")
 

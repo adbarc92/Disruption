@@ -18,7 +18,7 @@
         "range": "adjacent"
       },
       "usable_positions": ["any"],
-      "target_positions": ["front", "middle"],
+      "target_positions": ["any"],
       "burst_gauge_gain": 5,
       "burst_charge_type": "aggressive"
     },
@@ -92,7 +92,7 @@
         "range": "adjacent"
       },
       "usable_positions": ["front", "middle"],
-      "target_positions": ["front", "middle"],
+      "target_positions": ["any"],
       "burst_gauge_gain": 10,
       "burst_charge_type": "technical",
       "roles": ["shadowfang"]
@@ -181,7 +181,28 @@
         "range": "adjacent"
       },
       "usable_positions": ["front", "middle"],
-      "target_positions": ["front", "middle"],
+      "target_positions": ["any"],
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "dark_bolt",
+      "name": "Dark Bolt",
+      "description": "A bolt of occult energy that strikes from any distance.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 90,
+        "type": "magical",
+        "subtype": "occult",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any"
+      },
+      "usable_positions": ["any"],
+      "target_positions": ["any"],
       "burst_gauge_gain": 8,
       "burst_charge_type": "aggressive"
     }
