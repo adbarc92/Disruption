@@ -1,0 +1,29 @@
+{
+  "grid": {
+    "columns": 7,
+    "rows": 5,
+    "cell_size": [48, 48],
+    "cell_gap": 4
+  },
+  "movement": {
+    "base_range": 1,
+    "agility_divisor": 2
+  },
+  "balance": {
+    "hp_per_vigor": 60,
+    "mp_per_resonance": 5,
+    "defense_per_vigor": 5,
+    "stat_scaling_factor": 0.15,
+    "crit_rate_per_dexterity": 0.05,
+    "crit_multiplier": 1.5,
+    "speed_per_agility": 2,
+    "mp_regen_per_turn": 2,
+    "base_damage_multiplier": 0.75,
+    "min_damage": 1
+  },
+  "opportunity_attacks": {
+    "enabled": true,
+    "damage_multiplier": 0.5,
+    "max_per_move": 3
+  }
+}

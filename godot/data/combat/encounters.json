@@ -1,0 +1,16 @@
+{
+  "encounters": {
+    "test_battle": {
+      "ally_positions": {
+        "cyrus": [1, 2],
+        "vaughn": [1, 1],
+        "phaidros": [0, 3]
+      },
+      "enemy_spawns": [
+        { "enemy_id": "grunt_a", "position": [5, 1] },
+        { "enemy_id": "grunt_b", "position": [6, 3] },
+        { "enemy_id": "grunt_c", "position": [6, 4] }
+      ]
+    }
+  }
+}

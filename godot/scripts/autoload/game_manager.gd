@@ -3,6 +3,7 @@ extends Node
 ## Handles scene transitions, game state, and high-level game flow
 
 const DataLoaderClass = preload("res://scripts/data/data_loader.gd")
+const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
 
 enum GameState {
 	MAIN_MENU,
@@ -48,20 +49,23 @@ func _initialize_party() -> void:
 
 
 func _create_party_member_from_data(char_data: Dictionary) -> Dictionary:
-	# Calculate derived stats from base stats
+	# Calculate derived stats from base stats using config values
 	var stats = char_data.get("base_stats", {})
 	var vigor = stats.get("vigor", 5)
 	var resonance = stats.get("resonance", 5)
+
+	var hp_per_vigor = CombatConfigLoaderClass.get_balance("hp_per_vigor", 40.0)
+	var mp_per_resonance = CombatConfigLoaderClass.get_balance("mp_per_resonance", 5.0)
 
 	return {
 		"id": char_data.get("id", "unknown"),
 		"name": char_data.get("name", "Unknown"),
 		"title": char_data.get("title", ""),
 		"level": 1,
-		"current_hp": vigor * 20,  # FIXME: Use proper formula from progression system
-		"max_hp": vigor * 20,
-		"current_mp": resonance * 5,
-		"max_mp": resonance * 5,
+		"current_hp": int(vigor * hp_per_vigor),
+		"max_hp": int(vigor * hp_per_vigor),
+		"current_mp": int(resonance * mp_per_resonance),
+		"max_mp": int(resonance * mp_per_resonance),
 		"burst_gauge": 0,
 		"abilities": char_data.get("starting_abilities", []),
 		"equipment": {},
@@ -106,10 +110,11 @@ func transition_to_scene(scene_path: String) -> void:
 	get_tree().change_scene_to_file(scene_path)
 
 
-func start_combat(enemy_data: Array, return_scene: String) -> void:
+func start_combat(enemy_data: Array, return_scene: String, encounter_id: String = "") -> void:
 	# Store return point
 	story_flags["_combat_return_scene"] = return_scene
 	story_flags["_combat_enemies"] = enemy_data
+	story_flags["_combat_encounter_id"] = encounter_id
 	change_state(GameState.COMBAT)
 	transition_to_scene("res://scenes/combat/combat_arena.tscn")
 

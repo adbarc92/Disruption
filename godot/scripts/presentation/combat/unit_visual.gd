@@ -2,13 +2,14 @@ extends Node2D
 class_name UnitVisual
 ## UnitVisual - Persistent visual representation of a combat unit
 ## Includes colored border, HP/MP bars, status dots, and damage flash
+## Scaled for 48x48 cell grid
 
-const UNIT_WIDTH = 56.0
-const UNIT_HEIGHT = 70.0
-const BAR_HEIGHT = 6.0
-const BAR_WIDTH = 52.0
+const UNIT_WIDTH = 36.0
+const UNIT_HEIGHT = 42.0
+const BAR_HEIGHT = 4.0
+const BAR_WIDTH = 32.0
 const BAR_OFFSET_X = 2.0
-const STATUS_DOT_SIZE = 6.0
+const STATUS_DOT_SIZE = 4.0
 
 var unit_id: String = ""
 var is_ally: bool = true
@@ -58,14 +59,14 @@ func setup(unit: Dictionary, ally: bool) -> void:
 	name_label = Label.new()
 	name_label.text = unit.get("name", "???")
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 11)
+	name_label.add_theme_font_size_override("font_size", 9)
 	name_label.add_theme_color_override("font_color", Color.WHITE)
-	name_label.position = Vector2(-2, -16)
-	name_label.size = Vector2(UNIT_WIDTH + 4, 16)
+	name_label.position = Vector2(-2, -13)
+	name_label.size = Vector2(UNIT_WIDTH + 4, 13)
 	add_child(name_label)
 
 	# HP bar background
-	var hp_y = UNIT_HEIGHT - BAR_HEIGHT * 2 - 4
+	var hp_y = UNIT_HEIGHT - BAR_HEIGHT * 2 - 3
 	hp_bar_bg = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
 	add_child(hp_bar_bg)
 
@@ -74,7 +75,7 @@ func setup(unit: Dictionary, ally: bool) -> void:
 	add_child(hp_bar_fill)
 
 	# MP bar background
-	var mp_y = UNIT_HEIGHT - BAR_HEIGHT - 2
+	var mp_y = UNIT_HEIGHT - BAR_HEIGHT - 1
 	mp_bar_bg = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
 	add_child(mp_bar_bg)
 
@@ -93,7 +94,7 @@ func setup(unit: Dictionary, ally: bool) -> void:
 
 	# Status effect container
 	status_container = Node2D.new()
-	status_container.position = Vector2(0, UNIT_HEIGHT + 2)
+	status_container.position = Vector2(0, UNIT_HEIGHT + 1)
 	add_child(status_container)
 
 	update_stats(unit)
@@ -129,7 +130,7 @@ func update_statuses(statuses: Array) -> void:
 	for i in range(statuses.size()):
 		var status = statuses[i]
 		var dot = Polygon2D.new()
-		var x = i * (STATUS_DOT_SIZE + 2)
+		var x = i * (STATUS_DOT_SIZE + 1)
 		dot.polygon = PackedVector2Array([
 			Vector2(x, 0), Vector2(x + STATUS_DOT_SIZE, 0),
 			Vector2(x + STATUS_DOT_SIZE, STATUS_DOT_SIZE), Vector2(x, STATUS_DOT_SIZE)

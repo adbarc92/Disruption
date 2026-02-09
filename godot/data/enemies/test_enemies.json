@@ -19,8 +19,7 @@
       "weaknesses": ["lightning"],
       "abilities": ["basic_attack"],
       "ai_behavior": "aggressive",
-      "challenge_rating": 1,
-      "preferred_position": "front"
+      "challenge_rating": 1
     },
     {
       "id": "grunt_b",
@@ -40,8 +39,7 @@
       "weaknesses": ["fire"],
       "abilities": ["basic_attack", "heavy_swing"],
       "ai_behavior": "defensive",
-      "challenge_rating": 2,
-      "preferred_position": "front"
+      "challenge_rating": 2
     },
     {
       "id": "grunt_c",
@@ -61,8 +59,7 @@
       "weaknesses": ["physical"],
       "abilities": ["basic_attack", "dark_bolt"],
       "ai_behavior": "support",
-      "challenge_rating": 2,
-      "preferred_position": "back"
+      "challenge_rating": 2
     }
   ]
 }

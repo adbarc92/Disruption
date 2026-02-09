@@ -28,7 +28,7 @@ func _on_test_combat_pressed() -> void:
 		enemies_data.get("grunt_b", {"id": "grunt_b", "name": "Brute", "hp": 80}),
 		enemies_data.get("grunt_c", {"id": "grunt_c", "name": "Caster", "hp": 35}),
 	]
-	GameManager.start_combat(test_enemies, "res://scenes/main.tscn")
+	GameManager.start_combat(test_enemies, "res://scenes/main.tscn", "test_battle")
 
 
 func _on_test_exploration_pressed() -> void:

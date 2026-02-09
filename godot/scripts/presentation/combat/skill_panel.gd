@@ -1,7 +1,7 @@
 extends Panel
 class_name SkillPanel
 ## SkillPanel - Skill selection UI for combat
-## Lists available skills with MP costs, disables unusable skills
+## Lists available skills with MP costs, shows range info
 
 const PositionValidatorClass = preload("res://scripts/logic/combat/position_validator.gd")
 
@@ -16,16 +16,24 @@ var current_unit: Dictionary = {}
 var skills_data: Dictionary = {}
 var skill_buttons: Array[Button] = []
 
+# Unified grid references for can_use_skill checks
+var _all_units: Dictionary = {}
+var _grid: Dictionary = {}
+var _grid_size: Vector2i = Vector2i(10, 6)
+
 
 func _ready() -> void:
 	cancel_button.pressed.connect(_on_cancel_pressed)
 	visible = false
 
 
-## Show skills for a unit
-func show_skills(unit: Dictionary, all_skills: Dictionary) -> void:
+## Show skills for a unit (unified grid version)
+func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6)) -> void:
 	current_unit = unit
 	skills_data = all_skills
+	_all_units = all_units
+	_grid = grid
+	_grid_size = grid_size
 
 	_populate_skill_list()
 	visible = true
@@ -42,7 +50,6 @@ func _populate_skill_list() -> void:
 
 	var abilities = current_unit.get("abilities", [])
 	var current_mp = current_unit.get("current_mp", 0)
-	var position = current_unit.get("grid_position", Vector2i(0, 0))
 
 	for ability_id in abilities:
 		# Skip basic attack (handled by Attack button)
@@ -75,10 +82,9 @@ func _populate_skill_list() -> void:
 		if current_mp < mp_cost:
 			can_use = false
 			disable_reason = "Not enough MP"
-		elif not PositionValidatorClass.can_use_skill_from_position(skill, position):
+		elif not _all_units.is_empty() and not PositionValidatorClass.can_use_skill(skill, current_unit, _all_units, _grid, _grid_size):
 			can_use = false
-			var usable_positions = skill.get("usable_positions", [])
-			disable_reason = "Requires: %s" % ", ".join(usable_positions)
+			disable_reason = "No valid targets in range"
 
 		button.disabled = not can_use
 
@@ -117,14 +123,10 @@ func _on_skill_hover(skill_id: String) -> void:
 	var target_type = targeting.get("type", "single_enemy")
 	extra_info += "\nTarget: %s" % _format_target_type(target_type)
 
-	# Add position requirements
-	var usable_positions = skill.get("usable_positions", ["any"])
-	if "any" not in usable_positions:
-		extra_info += "\nUse from: %s" % ", ".join(usable_positions)
-
-	var target_positions = skill.get("target_positions", ["any"])
-	if "any" not in target_positions:
-		extra_info += "\nTargets: %s row" % ", ".join(target_positions)
+	# Add range info
+	var range_type = skill.get("range_type", "melee")
+	var skill_range = PositionValidatorClass.get_skill_range(skill)
+	extra_info += "\nRange: %s" % _format_range(range_type, skill_range)
 
 	# Add damage info if applicable
 	if skill.has("damage"):
@@ -162,3 +164,23 @@ func _format_target_type(target_type: String) -> String:
 			return "Self"
 		_:
 			return target_type.capitalize()
+
+
+func _format_range(range_type: String, skill_range: int) -> String:
+	match range_type:
+		"melee":
+			return "Melee (adjacent)"
+		"self":
+			return "Self"
+		"all_allies", "all_enemies":
+			return "All"
+		"ranged":
+			if skill_range == 0:
+				return "Unlimited"
+			else:
+				return "%d cells" % skill_range
+		_:
+			if skill_range == 0:
+				return "Unlimited"
+			else:
+				return "%d cells" % skill_range
