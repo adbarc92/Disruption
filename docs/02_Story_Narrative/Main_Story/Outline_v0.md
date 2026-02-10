@@ -29,6 +29,7 @@
     4. The three proceed to the forest’s edge to formally test Cyrus’ skills. During an introductory battle, Cyrus’ strange perception of time in combat is explored. The party will not yet accept his commands, but they will accept suggestions.
     5. After their short foray, they head back to the tavern. More information about the new world is conveyed.
     6. The next day, Cyrus is given a tour of the marketplace and is introduced to the weapon forging and item systems. Later, he is introduced to the weather system. He has the opportunity to go on several expeditions and becomes familiar with the sickness. After a difficult battle, Vaughn and Phaidros decide to take orders from Cyrus in combat.
+    7. IMPORTANT: At this point, Cyrus can start developing bonds with the populace of Kuklos. This will be relevant later.
 4. Cyrus explores the Forest and has an encounter with Paidi.
     1. One day, Cyrus notices a strangely-dressed woman among the market. Instantly intrigued, he befriends her against the wishes of his party. The onlookers all give her distance. After she leaves, Cyrus receives a visitor from the Collective, instructing him to follow her.
 5. Cyrus has a confrontation with the Collective and Adam.
@@ -38,7 +39,8 @@
     3. The party begins planning to use Paidi’s monk hideaway as a second base of operations.
 7. On returning to Kuklos, the group decides to engage with the Collective more actively. Phaidros has been keeping tabs on a number of their outposts, and the group decides to begin covertly sabotaging them.
 8. During one of the sabotage trips, they come across Lione, a weaponized, Exousia-mutated human, and recruit her to the cause.
-9. Tensions escalate with the Collective. Adam makes his second appearance, and the group encounters a masked figure (Sophia), with whom they fight.
+9. Tensions escalate with the Collective. Adam makes his second appearance, and the group encounters a masked figure (Sophia), with whom they fight. **They are forced to flee from the city, and stop for a night in the destroyed Monk Village (fireside chat). The group decides to use it as a temporary home base. If Cyrus has existing relationships with vendors, they will set up temporary shops there. The group decides their next objective is the Outsider Village, since they are the only known group not under the Collective's direct control.**
+    1. Visiting Kuklos proper from this point onward requires a disguise and risks confrontation.
 10. During any excursions from now on, Sophia can ambush them on the return trip.
     1. Cyrus could also start having visions of the past at this point.
 11. Euphen joins the party. He is unaffected by the Forest Sickness, but also possesses no magical powers.
@@ -48,16 +50,28 @@
 13. Chiranjeevi joins the party.
 14. Sophia joins the party.
 15. Final confrontation with Adam. He may join the party.
-16. The endgame commences. The city is no longer a safe refuge.
+16. The endgame commences. The city is no longer accessible to the party.
+    1.
 17. The party ventures out into the death swamps, the desert, and finally, faces the Mistwall.
-18. The party is required to find four keys in four towers, located in the cardinal directions at the Mistwall.
+    1. If the party has one of the Crossing devices, Cyrus can opt to defect for a bad ending here.
+18. ~~The party is required to find four keys in four towers, located in the cardinal directions at the Mistwall.~~
 19. Consultation with Elder Sophia. She cryptically informs them that if they can gather the Shades from the Eight Points of the Shell (Disruption), they can confront its Bearer.
-20. The party returns to the city. They fight through legions of Collective soldiers as well as some adventurers who have become propagandized.
-21. The party confronts the head of the Collective.
-22. If they have gathered all of the necessary pieces, they can proceed into the Realm of Twilight to challenge the Harvester and speak to the Echo of Skyne.
+    1. These are four Knots that must be unraveled to defeat the Collective properly. Each of them is located in a Collective Stronghold.
+    2. There is an optional quest here to go claim Empowered Weapons from the Aeonic Refractions (angels/demons, basically). **If the party has no support from the populace, this is a requirement.**
+20. The party returns to the city to fight their way to the center. If the party has support from the populace, there will be uprisings and fewer required fights. If not, the city is simply under martial law and the fights are more numerous and difficult.
+21. The party confronts the head of the Collective. If the populace supports the Collective, the Head has properly ascended.
+22X. If they have gathered all of the necessary pieces, they can proceed into the Realm of Twilight to challenge the Harvester and speak to the Echo of Skyne.
 
 ---
 
 Liz's Questions:
 - Ancient Egypt was the religious Mecca; Jordan was a center of trade
 - Kyanos is the Nile
+
+Underlying Worldbuilding Rules:
+1. Kuklos is a wooden, rural, and isolated world with decaying knowledge.
+2. The Collective has the ability to leave and re-enter the Mistwall at any time.
+3. The Collective has been kidnapping children both for Exousia experimentation and for blood sacrifices to their Aeon for power.
+4. Wisdom (Elder Sophia) bestows time manipulation; attempts to travel backward in time result in multiverses, not a deterministic timeline.
+    A. An important corrollary of this is that the native Kyanosians are not Wisdom's people. **She is an interloper**.
+5. Blood and Soil: the land has its own magic that resonates with the people; each tribe has their own aeon. Aeons can merge and be subsumed, and the land can change over time.
