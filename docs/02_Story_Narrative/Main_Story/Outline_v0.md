@@ -64,9 +64,18 @@
 
 ---
 
-Liz's Questions:
+Liz's Feedback:
 - Ancient Egypt was the religious Mecca; Jordan was a center of trade
 - Kyanos is the Nile
+- Desert tribe - Earth powers? Patron?
+- What are the powers of a patron?
+- What are the specific conditions of the Supercession?
+    - The land?
+    - Time
+    - People
+- Number of the Collective; number of elders?
+    - Elders = Forsaken
+- Strong linguistic drift in the interim
 
 Underlying Worldbuilding Rules:
 1. Kuklos is a wooden, rural, and isolated world with decaying knowledge.
