@@ -80,6 +80,24 @@ text = "Move"
 custom_minimum_size = Vector2(100, 40)
 text = "Defend"
 
+[node name="EndTurnButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "End Turn"
+
+[node name="APLabel" type="Label" parent="UI/ActionPanel"]
+offset_left = 20.0
+offset_top = 70.0
+offset_right = 200.0
+offset_bottom = 100.0
+text = "AP: 3 / 3"
+
+[node name="TurnPreviewLabel" type="Label" parent="UI/ActionPanel"]
+offset_left = 20.0
+offset_top = 110.0
+offset_right = 580.0
+offset_bottom = 160.0
+text = "Next turn in: -- ticks"
+
 [node name="StatusLabel" type="Label" parent="UI"]
 anchors_preset = 5
 anchor_left = 0.5
