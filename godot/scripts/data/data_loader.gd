@@ -58,6 +58,12 @@ static func get_skill(skill_id: String) -> Dictionary:
 	return {}
 
 
+## Load all encounter presets
+static func load_encounters() -> Array:
+	var data = _load_json_file(DATA_PATH + "combat/encounters.json")
+	return data.get("encounters", [])
+
+
 ## Load a specific enemy by ID
 static func get_enemy(enemy_id: String) -> Dictionary:
 	var enemies = load_enemies()

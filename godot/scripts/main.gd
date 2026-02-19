@@ -1,8 +1,6 @@
 extends Node
 ## Main menu and entry point for the game
 
-const DataLoaderClass = preload("res://scripts/data/data_loader.gd")
-
 
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.MAIN_MENU)
@@ -20,14 +18,7 @@ func _on_start_pressed() -> void:
 
 
 func _on_test_combat_pressed() -> void:
-	print("Testing combat")
-	# Load proper enemy data from JSON
-	var enemies_data = DataLoaderClass.load_enemies()
-	var test_enemies = [
-		enemies_data.get("grunt_a", {"id": "grunt_a", "name": "Scout", "hp": 45}),
-		enemies_data.get("grunt_b", {"id": "grunt_b", "name": "Brute", "hp": 80}),
-	]
-	GameManager.start_combat(test_enemies, "res://scenes/main.tscn")
+	GameManager.open_combat_configurator("res://scenes/main.tscn")
 
 
 func _on_test_exploration_pressed() -> void:

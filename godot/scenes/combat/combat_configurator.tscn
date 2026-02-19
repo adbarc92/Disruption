@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://combat_configurator"]
+
+[ext_resource type="Script" path="res://scripts/presentation/combat/combat_configurator.gd" id="1_cfgscript"]
+
+[node name="CombatConfigurator" type="Node"]
+script = ExtResource("1_cfgscript")
