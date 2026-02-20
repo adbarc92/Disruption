@@ -11,6 +11,8 @@ const PositionValidatorClass = preload("res://scripts/logic/combat/position_vali
 const CombatAIClass = preload("res://scripts/logic/combat/combat_ai.gd")
 const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
 const GridPathfinderClass = preload("res://scripts/logic/combat/grid_pathfinder.gd")
+const CTBTurnManagerClass = preload("res://scripts/logic/combat/ctb_turn_manager.gd")
+const APSystemClass = preload("res://scripts/logic/combat/ap_system.gd")
 const UnitVisualClass = preload("res://scripts/presentation/combat/unit_visual.gd")
 const FloatingTextClass = preload("res://scripts/presentation/combat/floating_text.gd")
 const CombatResultsClass = preload("res://scripts/presentation/combat/combat_results.gd")
@@ -44,8 +46,8 @@ var selected_action: String = ""
 var selected_skill: Dictionary = {}
 
 # Core systems (CTB turn order + AP economy)
-var _ctb_manager: CTBTurnManager
-var _ap_system: APSystem
+var _ctb_manager = null  # CTBTurnManager instance
+var _ap_system = null    # APSystem instance
 
 # Skills data (loaded once)
 var skills_data: Dictionary = {}
@@ -93,8 +95,8 @@ func _ready() -> void:
 	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
 
 	# Initialize logic systems
-	_ctb_manager = CTBTurnManager.new()
-	_ap_system = APSystem.new()
+	_ctb_manager = CTBTurnManagerClass.new()
+	_ap_system = APSystemClass.new()
 
 	# Load skills data
 	skills_data = DataLoaderClass.load_skills()
@@ -389,7 +391,7 @@ func _draw_grid() -> void:
 func _draw_grid_background() -> void:
 	# Remove only non-UnitVisual children (grid cells, highlights)
 	for child in grid_node.get_children():
-		if not child is UnitVisual:
+		if not child is UnitVisualClass:
 			child.queue_free()
 
 	var cell_visual_size = CELL_SIZE - Vector2(CELL_GAP, CELL_GAP)
@@ -442,7 +444,7 @@ func _create_or_update_visual(unit: Dictionary) -> void:
 	var pos = grid_to_visual_pos(grid_pos) + Vector2(CELL_GAP / 2 + 2, CELL_GAP / 2 + 1)
 
 	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
-		var visual: UnitVisual = unit_visuals[uid]
+		var visual = unit_visuals[uid]
 		visual.position = pos
 		visual.update_stats(unit)
 		visual.update_statuses(status_manager.get_statuses(uid))

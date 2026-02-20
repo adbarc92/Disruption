@@ -8,8 +8,8 @@ var elapsed: float = 0.0
 var label: Label
 
 
-static func create(text: String, color: Color, pos: Vector2, large: bool = false) -> FloatingText:
-	var instance = FloatingText.new()
+static func create(text: String, color: Color, pos: Vector2, large: bool = false) -> Node2D:
+	var instance = load("res://scripts/presentation/combat/floating_text.gd").new()
 	instance.position = pos
 
 	instance.label = Label.new()
