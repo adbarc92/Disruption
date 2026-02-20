@@ -13,13 +13,9 @@ offset_bottom = 1080.0
 color = Color(0.15, 0.12, 0.2, 1)
 
 [node name="BattleGrid" type="Node2D" parent="."]
-position = Vector2(960, 540)
+position = Vector2(120, 200)
 
-[node name="AllyGrid" type="Node2D" parent="BattleGrid"]
-position = Vector2(-300, 0)
-
-[node name="EnemyGrid" type="Node2D" parent="BattleGrid"]
-position = Vector2(300, 0)
+[node name="Grid" type="Node2D" parent="BattleGrid"]
 
 [node name="TargetSelector" type="Node2D" parent="."]
 script = ExtResource("3_target_selector")
@@ -62,7 +58,7 @@ grow_vertical = 0
 [node name="ActionButtons" type="HBoxContainer" parent="UI/ActionPanel"]
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 580.0
+offset_right = 680.0
 offset_bottom = 60.0
 
 [node name="AttackButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
@@ -101,7 +97,7 @@ offset_left = 20.0
 offset_top = 110.0
 offset_right = 580.0
 offset_bottom = 160.0
-text = "Next turn in: -- ticks"
+text = "End turn now: -- ticks"
 
 [node name="SkillPanel" type="Panel" parent="UI"]
 visible = false

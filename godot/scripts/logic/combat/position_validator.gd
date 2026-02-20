@@ -1,67 +1,113 @@
 class_name PositionValidator
 extends RefCounted
-## PositionValidator - Validates skill usage and targeting based on grid positions
+## PositionValidator - Validates skill usage and targeting on unified combat grid
 ## No engine dependencies - portable game rules
 ##
-## Grid Layout (per side):
-##   Column 0 = Front, Column 1 = Middle, Column 2 = Back
-##   Row 0 = Top, Row 1 = Middle, Row 2 = Bottom
+## Unified Grid: columns x rows, allies on left, enemies on right
+## Range is measured via Manhattan distance
 
-const POSITION_FRONT = 0
-const POSITION_MIDDLE = 1
-const POSITION_BACK = 2
+const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+const GridPathfinderClass = preload("res://scripts/logic/combat/grid_pathfinder.gd")
 
 
-## Check if a skill can be used from the user's current position
-static func can_use_skill_from_position(skill: Dictionary, user_position: Vector2i) -> bool:
-	var usable_positions = skill.get("usable_positions", ["any"])
-
-	if "any" in usable_positions:
-		return true
-
-	var user_column = user_position.x
-	return _column_matches_position(user_column, usable_positions)
-
-
-## Get valid targets for a skill based on targeting rules
-## Returns array of unit dictionaries that are valid targets
-static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_targets: Array, user_is_ally: bool) -> Array:
+## Get valid targets for a skill based on range (Manhattan distance)
+## For melee skills, includes targets reachable via movement + 1 adjacent cell
+## all_units: Dictionary of unit_id -> unit Dict
+## grid: Dictionary of Vector2i -> unit_id
+## grid_size: Vector2i(columns, rows)
+static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_targets: Array, all_units: Dictionary, grid: Dictionary, grid_size: Vector2i) -> Array:
 	var targeting = skill.get("targeting", {})
 	var target_type = targeting.get("type", "single_enemy")
-	var target_range = targeting.get("range", "any")
-	var target_positions = skill.get("target_positions", ["any"])
-
-	var valid_targets: Array = []
 
 	match target_type:
 		"self":
 			return [user]
-		"single_ally", "all_allies":
-			if user_is_ally:
-				valid_targets = _filter_by_position(potential_targets, target_positions, true)
-			else:
-				valid_targets = _filter_by_position(potential_targets, target_positions, false)
-		"single_enemy", "all_enemies":
-			valid_targets = _filter_by_position(potential_targets, target_positions, true)
+		"all_allies", "all_enemies":
+			return potential_targets.duplicate()
 		_:
-			valid_targets = potential_targets.duplicate()
+			pass
 
-	# Apply range filtering if needed
-	if target_range != "any":
-		valid_targets = _filter_by_range(valid_targets, user, target_range)
+	var skill_range = get_skill_range(skill)
+	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
+	var range_type = skill.get("range_type", "melee")
+	var valid: Array = []
 
-	return valid_targets
+	for target in potential_targets:
+		var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+
+		if skill_range == 0:
+			# Unlimited range
+			valid.append(target)
+		elif range_type == "melee":
+			# Melee: either adjacent already, or can path to an adjacent cell
+			if is_in_range(user_pos, target_pos, skill_range):
+				valid.append(target)
+			else:
+				# Check if unit can move to a cell adjacent to target
+				var move_range = get_movement_range(user)
+				if _can_reach_adjacent(user_pos, target_pos, move_range, grid, grid_size):
+					valid.append(target)
+		else:
+			# Ranged: simple Manhattan distance check
+			if is_in_range(user_pos, target_pos, skill_range):
+				valid.append(target)
+
+	return valid
 
 
-## Check if a target can be hit based on position rules
-static func can_target_position(skill: Dictionary, target_position: Vector2i) -> bool:
-	var target_positions = skill.get("target_positions", ["any"])
+## Check if any valid target exists for a skill
+static func can_use_skill(skill: Dictionary, user: Dictionary, all_units: Dictionary, grid: Dictionary, grid_size: Vector2i) -> bool:
+	var target_type = get_targeting_type(skill)
 
-	if "any" in target_positions:
+	match target_type:
+		"self":
+			return true
+		"all_allies", "single_ally":
+			var allies = _get_units_by_side(user.get("is_ally", true), all_units)
+			return not get_valid_targets(skill, user, allies, all_units, grid, grid_size).is_empty()
+		"all_enemies", "single_enemy":
+			var enemies = _get_units_by_side(not user.get("is_ally", true), all_units)
+			return not get_valid_targets(skill, user, enemies, all_units, grid, grid_size).is_empty()
+		_:
+			return true
+
+
+## Get the range value from a skill (with migration for old format)
+static func get_skill_range(skill: Dictionary) -> int:
+	# New format: explicit "range" field
+	if skill.has("range"):
+		return skill.get("range", 1)
+
+	# Old format migration
+	var targeting = skill.get("targeting", {})
+	var old_range = targeting.get("range", "any")
+	match old_range:
+		"adjacent":
+			return 1
+		"any":
+			return 0
+		_:
+			return 1
+
+
+## Check if target is within range (Manhattan distance, 0 = unlimited)
+static func is_in_range(user_pos: Vector2i, target_pos: Vector2i, skill_range: int) -> bool:
+	if skill_range == 0:
 		return true
+	return GridPathfinderClass.manhattan_distance(user_pos, target_pos) <= skill_range
 
-	var target_column = target_position.x
-	return _column_matches_position(target_column, target_positions)
+
+## Get movement range for a unit based on agility
+static func get_movement_range(unit: Dictionary) -> int:
+	var agility = unit.get("base_stats", {}).get("agility", 5)
+	return CombatConfigLoaderClass.get_movement_range(agility)
+
+
+## Get valid movement positions for a unit (delegates to GridPathfinder)
+static func get_valid_move_positions(unit: Dictionary, grid: Dictionary, grid_size: Vector2i) -> Array[Vector2i]:
+	var origin: Vector2i = unit.get("grid_position", Vector2i(0, 0))
+	var move_range = get_movement_range(unit)
+	return GridPathfinderClass.get_cells_in_range(origin, move_range, grid, grid_size)
 
 
 ## Get the targeting type for a skill
@@ -88,102 +134,33 @@ static func targets_all(skill: Dictionary) -> bool:
 	return target_type in ["self", "all_allies", "all_enemies"]
 
 
-## Check if a position name matches a column index
-static func _column_matches_position(column: int, position_names: Array) -> bool:
-	for pos_name in position_names:
-		match pos_name:
-			"front":
-				if column == POSITION_FRONT:
-					return true
-			"middle":
-				if column == POSITION_MIDDLE:
-					return true
-			"back":
-				if column == POSITION_BACK:
-					return true
-			"any":
-				return true
+## Check if a unit can reach a cell adjacent to the target within movement range
+static func _can_reach_adjacent(user_pos: Vector2i, target_pos: Vector2i, move_range: int, grid: Dictionary, grid_size: Vector2i) -> bool:
+	# Get all cells adjacent to the target
+	var adjacent_cells = GridPathfinderClass._get_neighbors(target_pos, grid_size)
+
+	for adj in adjacent_cells:
+		# Skip occupied cells (can't stand there)
+		if grid.has(adj):
+			continue
+		# Check if we can path there within movement range
+		var path = GridPathfinderClass.find_path(user_pos, adj, grid, grid_size)
+		if not path.is_empty() and path.size() - 1 <= move_range:
+			return true
+
 	return false
 
 
-## Filter targets by their grid position
-static func _filter_by_position(targets: Array, position_names: Array, check_column: bool) -> Array:
-	if "any" in position_names:
-		return targets.duplicate()
-
-	var filtered: Array = []
-	for target in targets:
-		var grid_pos = target.get("grid_position", Vector2i(0, 0))
-		var column = grid_pos.x
-		if _column_matches_position(column, position_names):
-			filtered.append(target)
-
-	return filtered
+## Filter units by side (ally/enemy)
+static func _get_units_by_side(is_ally: bool, all_units: Dictionary) -> Array:
+	var result: Array = []
+	for unit_id in all_units:
+		var unit = all_units[unit_id]
+		if unit.get("is_ally", true) == is_ally:
+			result.append(unit)
+	return result
 
 
-## Filter targets by range (adjacent means front column only from attacker's perspective)
-static func _filter_by_range(targets: Array, user: Dictionary, range_type: String) -> Array:
-	if range_type == "any":
-		return targets.duplicate()
-
-	# For "adjacent" range, only front column enemies can be targeted
-	if range_type == "adjacent":
-		var filtered: Array = []
-		for target in targets:
-			var grid_pos = target.get("grid_position", Vector2i(0, 0))
-			# Adjacent means front row (column 0) on enemy side
-			if grid_pos.x == POSITION_FRONT:
-				filtered.append(target)
-			# Or middle row if front is empty (checked elsewhere)
-		return filtered
-
-	return targets.duplicate()
-
-
-## Get a human-readable position name from column index
-static func get_position_name(column: int) -> String:
-	match column:
-		POSITION_FRONT:
-			return "Front"
-		POSITION_MIDDLE:
-			return "Middle"
-		POSITION_BACK:
-			return "Back"
-		_:
-			return "Unknown"
-
-
-## Get valid adjacent positions a unit can move to
-## Returns empty cells orthogonally adjacent within the 3x3 grid
-static func get_valid_move_positions(unit: Dictionary, grid: Dictionary) -> Array[Vector2i]:
-	var current_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
-	var unit_id: String = unit.get("id", "")
-	var valid: Array[Vector2i] = []
-
-	# Orthogonal directions only
-	var directions = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
-
-	for dir in directions:
-		var candidate = current_pos + dir
-		# Check bounds (0-2 for both axes)
-		if candidate.x < 0 or candidate.x > 2 or candidate.y < 0 or candidate.y > 2:
-			continue
-		# Check occupancy
-		if grid.has(candidate) and grid[candidate] != unit_id:
-			continue
-		valid.append(candidate)
-
-	return valid
-
-
-## Convert position name to column index
-static func get_column_from_name(position_name: String) -> int:
-	match position_name.to_lower():
-		"front":
-			return POSITION_FRONT
-		"middle":
-			return POSITION_MIDDLE
-		"back":
-			return POSITION_BACK
-		_:
-			return -1
+## Legacy helpers kept for backward compatibility
+static func can_use_skill_from_position(skill: Dictionary, position: Vector2i) -> bool:
+	return true  # Unified grid: position-based restrictions handled by get_valid_targets
