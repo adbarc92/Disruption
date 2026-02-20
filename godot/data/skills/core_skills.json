@@ -163,6 +163,27 @@
       "burst_gauge_gain": 10,
       "burst_charge_type": "defensive",
       "roles": ["ironskin"]
+    },
+    {
+      "id": "heavy_swing",
+      "name": "Heavy Swing",
+      "description": "A brutal overhead slam that crushes armor.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 150,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent"
+      },
+      "usable_positions": ["front", "middle"],
+      "target_positions": ["front", "middle"],
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "aggressive"
     }
   ]
 }

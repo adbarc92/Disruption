@@ -58,6 +58,23 @@ static func get_skill(skill_id: String) -> Dictionary:
 	return {}
 
 
+## Load all encounter presets (array format for UI listing)
+static func load_encounters() -> Array:
+	var data = _load_json_file(DATA_PATH + "combat/encounters.json")
+	return data.get("encounters", [])
+
+
+## Load a specific named encounter by ID (object-keyed format)
+## Returns {} if not found; combat_manager falls back to legacy _combat_enemies loading
+static func get_encounter(encounter_id: String) -> Dictionary:
+	var data = _load_json_file(DATA_PATH + "combat/encounters.json")
+	var encounters = data.get("encounters", {})
+	# Support both array format and object-keyed format
+	if encounters is Dictionary:
+		return encounters.get(encounter_id, {})
+	return {}
+
+
 ## Load a specific enemy by ID
 static func get_enemy(enemy_id: String) -> Dictionary:
 	var enemies = load_enemies()

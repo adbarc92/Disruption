@@ -2,13 +2,16 @@ extends Node
 ## GameManager - Global game state management
 ## Handles scene transitions, game state, and high-level game flow
 
+const DataLoaderClass = preload("res://scripts/data/data_loader.gd")
+
 enum GameState {
 	MAIN_MENU,
 	EXPLORATION,
 	COMBAT,
 	DIALOG,
 	CUTSCENE,
-	PAUSED
+	PAUSED,
+	COMBAT_CONFIG,
 }
 
 var current_state: GameState = GameState.MAIN_MENU
@@ -33,7 +36,7 @@ func _ready() -> void:
 
 func _initialize_party() -> void:
 	# Load party from data files
-	var character_data = DataLoader.load_characters()
+	var character_data = DataLoaderClass.load_characters()
 
 	# Initialize with vertical slice party: Cyrus, Vaughn, Phaidros
 	var party_ids = ["cyrus", "vaughn", "phaidros"]
@@ -102,6 +105,12 @@ func get_consequence(key: String, default: int = 0) -> int:
 func transition_to_scene(scene_path: String) -> void:
 	# Simple scene transition - can be enhanced with loading screen later
 	get_tree().change_scene_to_file(scene_path)
+
+
+func open_combat_configurator(return_scene: String) -> void:
+	story_flags["_combat_return_scene"] = return_scene
+	change_state(GameState.COMBAT_CONFIG)
+	transition_to_scene("res://scenes/combat/combat_configurator.tscn")
 
 
 func start_combat(enemy_data: Array, return_scene: String) -> void:

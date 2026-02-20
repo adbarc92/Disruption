@@ -18,13 +18,7 @@ func _on_start_pressed() -> void:
 
 
 func _on_test_combat_pressed() -> void:
-	print("Testing combat")
-	var test_enemies = [
-		{"id": "enemy_1", "name": "Test Enemy A", "hp": 50},
-		{"id": "enemy_2", "name": "Test Enemy B", "hp": 50},
-		{"id": "enemy_3", "name": "Test Enemy C", "hp": 50},
-	]
-	GameManager.start_combat(test_enemies, "res://scenes/main.tscn")
+	GameManager.open_combat_configurator("res://scenes/main.tscn")
 
 
 func _on_test_exploration_pressed() -> void:
