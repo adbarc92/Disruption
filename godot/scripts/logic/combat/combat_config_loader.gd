@@ -79,24 +79,3 @@ static func get_movement_range(agility: int) -> int:
 	var base_range = movement.get("base_range", 1)
 	var divisor = movement.get("agility_divisor", 2)
 	return int(floor(float(agility) / divisor)) + base_range
-
-
-## Get opportunity attack damage multiplier
-static func get_oa_damage_mult() -> float:
-	_ensure_loaded()
-	var oa = _config.get("opportunity_attacks", {})
-	return oa.get("damage_multiplier", 0.5)
-
-
-## Check if opportunity attacks are enabled
-static func is_oa_enabled() -> bool:
-	_ensure_loaded()
-	var oa = _config.get("opportunity_attacks", {})
-	return oa.get("enabled", true)
-
-
-## Get max opportunity attacks per move
-static func get_oa_max_per_move() -> int:
-	_ensure_loaded()
-	var oa = _config.get("opportunity_attacks", {})
-	return oa.get("max_per_move", 3)

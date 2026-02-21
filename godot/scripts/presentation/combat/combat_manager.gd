@@ -957,7 +957,7 @@ func _auto_move_to_target(user: Dictionary, target: Dictionary) -> void:
 	await _execute_movement(user, best_adj, path)
 
 
-## Execute movement along a path with opportunity attack detection
+## Execute movement along a path
 func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vector2i] = []) -> void:
 	var unit_id = unit.get("id", "")
 	var old_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
@@ -967,14 +967,6 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 
 	if path.is_empty():
 		return
-
-	# Detect opportunity attackers
-	var oa_attackers: Array[String] = []
-	if CombatConfigLoaderClass.is_oa_enabled():
-		oa_attackers = GridPathfinderClass.get_opportunity_attackers(path, unit_id, all_units, grid)
-		var max_oa = CombatConfigLoaderClass.get_oa_max_per_move()
-		if oa_attackers.size() > max_oa:
-			oa_attackers.resize(max_oa)
 
 	# Animate step-by-step
 	for i in range(1, path.size()):
@@ -986,39 +978,8 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 		_update_unit_visuals()
 		await get_tree().create_timer(0.15).timeout
 
-	# Execute opportunity attacks after movement
-	for attacker_id in oa_attackers:
-		await _execute_opportunity_attack(attacker_id, unit_id)
-
 	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), target_pos.x, target_pos.y], Color(0.7, 0.9, 1.0))
 	EventBus.position_changed.emit(unit_id, old_pos, target_pos)
-
-
-func _execute_opportunity_attack(attacker_id: String, target_id: String) -> void:
-	var attacker = _find_unit_by_id(attacker_id)
-	var target = _find_unit_by_id(target_id)
-
-	if attacker.is_empty() or target.is_empty():
-		return
-
-	var result = DamageCalculatorClass.calculate_opportunity_attack_damage(attacker, target, skills_data)
-
-	var reductions = status_manager.get_damage_reductions(target_id)
-	if not reductions.is_empty():
-		result.damage = DamageCalculatorClass.apply_damage_reduction(
-			result.damage, result.damage_type, reductions
-		)
-
-	_apply_damage(target, result.damage)
-
-	_log_action("  OA! %s strikes %s for %d dmg" % [attacker.get("name", "?"), target.get("name", "?"), result.damage], Color(1.0, 0.6, 0.2))
-	_spawn_floating_text("OA %d" % result.damage, Color(1.0, 0.6, 0.2), target)
-
-	if unit_visuals.has(target_id) and is_instance_valid(unit_visuals[target_id]):
-		unit_visuals[target_id].flash_damage()
-
-	_update_unit_visuals()
-	await get_tree().create_timer(0.5).timeout
 
 
 func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:

@@ -8,7 +8,7 @@
       "action_type": "action",
       "mp_cost": 0,
       "damage": {
-        "base": 100,
+        "base": 10000,
         "type": "physical",
         "subtype": "slash",
         "stat_scaling": "strength"

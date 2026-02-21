@@ -20,10 +20,5 @@
     "mp_regen_per_turn": 2,
     "base_damage_multiplier": 0.75,
     "min_damage": 1
-  },
-  "opportunity_attacks": {
-    "enabled": true,
-    "damage_multiplier": 0.5,
-    "max_per_move": 3
   }
 }
