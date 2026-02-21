@@ -67,6 +67,7 @@ var action_log_container: VBoxContainer
 const ACTION_LOG_MAX_ENTRIES = 50
 
 # Node references
+@onready var battle_grid_container: Node2D = $BattleGrid
 @onready var grid_node: Node2D = $BattleGrid/Grid
 @onready var turn_list: VBoxContainer = $UI/TurnOrderPanel/TurnList
 @onready var status_label: Label = $UI/StatusLabel
@@ -85,13 +86,45 @@ func grid_to_visual_pos(grid_pos: Vector2i) -> Vector2:
 	return Vector2(grid_pos.x, grid_pos.y) * (CELL_SIZE + Vector2(CELL_GAP, CELL_GAP))
 
 
+## Calculate centered unit position within a cell
+func get_centered_unit_position(grid_pos: Vector2i) -> Vector2:
+	# Calculate actual unit size (85% of cell, constrained by aspect ratio)
+	var available_width = CELL_SIZE.x * 0.85
+	var available_height = CELL_SIZE.y * 0.85
+	var width_scale = available_width / 56.0  # BASE_UNIT_WIDTH
+	var height_scale = available_height / 70.0  # BASE_UNIT_HEIGHT
+	var scale_factor = min(width_scale, height_scale)
+	var actual_unit_width = 56.0 * scale_factor
+	var actual_unit_height = 70.0 * scale_factor
+
+	# Center based on actual unit size
+	var base_pos = grid_to_visual_pos(grid_pos) + Vector2(CELL_GAP / 2, CELL_GAP / 2)
+	var centering_offset = Vector2(
+		(CELL_SIZE.x - actual_unit_width) / 2.0,
+		(CELL_SIZE.y - actual_unit_height) / 2.0
+	)
+	return base_pos + centering_offset
+
+
 func _ready() -> void:
 	GameManager.change_state(GameManager.GameState.COMBAT)
 
-	# Load grid config from file
+	# Connect to window resize signal
+	get_tree().root.size_changed.connect(_on_window_resized)
+
+	# Load grid config - prioritize configurator overrides over config file
 	CombatConfigLoaderClass.reload()
-	GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
-	CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
+
+	# Check if configurator specified custom grid size
+	if GameManager.story_flags.has("_combat_config_grid_cols"):
+		var cols = GameManager.story_flags.get("_combat_config_grid_cols", 7)
+		var rows = GameManager.story_flags.get("_combat_config_grid_rows", 5)
+		GRID_SIZE = Vector2i(cols, rows)
+	else:
+		GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
+
+	# Calculate optimal cell size and position to fill available screen space
+	_calculate_grid_layout()
 	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
 
 	# Initialize logic systems
@@ -126,12 +159,151 @@ func _ready() -> void:
 	_initialize_combat()
 
 
+## Calculate optimal grid cell size and position to fill screen
+func _calculate_grid_layout() -> void:
+	# Screen dimensions
+	const SCREEN_WIDTH = 1920.0
+	const SCREEN_HEIGHT = 1080.0
+
+	# UI panel dimensions
+	const TURN_PANEL_WIDTH = 260.0      # Left side turn order panel
+	const ACTION_LOG_WIDTH = 250.0      # Right side action log panel
+	const ACTION_PANEL_HEIGHT = 200.0   # Bottom action panel
+	const TOP_MARGIN = 60.0             # Top margin for status label
+	const PADDING = 40.0                # Extra padding around grid
+
+	# Calculate available space
+	var available_width = SCREEN_WIDTH - TURN_PANEL_WIDTH - ACTION_LOG_WIDTH - (PADDING * 2)
+	var available_height = SCREEN_HEIGHT - ACTION_PANEL_HEIGHT - TOP_MARGIN - (PADDING * 2)
+
+	# Calculate cell size that fits the grid into available space
+	var cell_width = available_width / GRID_SIZE.x
+	var cell_height = available_height / GRID_SIZE.y
+
+	# Use the smaller dimension to ensure the grid fits
+	var cell_size = min(cell_width, cell_height)
+
+	# Clamp cell size to reasonable bounds (min 40, max 120)
+	cell_size = clamp(cell_size, 40.0, 120.0)
+
+	CELL_SIZE = Vector2(cell_size, cell_size)
+
+	# Calculate actual grid dimensions
+	var grid_width = GRID_SIZE.x * (CELL_SIZE.x + CELL_GAP)
+	var grid_height = GRID_SIZE.y * (CELL_SIZE.y + CELL_GAP)
+
+	# Center the grid in available space
+	var grid_x = TURN_PANEL_WIDTH + ((available_width - grid_width) / 2.0) + PADDING
+	var grid_y = TOP_MARGIN + ((available_height - grid_height) / 2.0) + PADDING
+
+	# Position the BattleGrid node (parent of grid_node)
+	battle_grid_container.position = Vector2(grid_x, grid_y)
+
+	print("Grid layout calculated: Cell size: %.1f, Grid pos: (%.1f, %.1f)" % [cell_size, grid_x, grid_y])
+
+
+func _on_window_resized() -> void:
+	"""Handle window resize - recalculate grid layout and update all visuals"""
+	_calculate_grid_layout()
+	_draw_grid()
+	_update_all_unit_scales()
+	_highlight_current_unit()
+
+
+func _update_all_unit_scales() -> void:
+	"""Update scale of all unit visuals to match new cell size"""
+	for unit_id in unit_visuals:
+		var visual = unit_visuals[unit_id]
+		if is_instance_valid(visual):
+			visual.update_scale(CELL_SIZE)
+
+			# Reposition unit based on new cell size (centered in cell)
+			var unit = all_units.get(unit_id, {})
+			if not unit.is_empty():
+				var grid_pos = unit.get("grid_position", Vector2i(1, 1))
+				visual.position = get_centered_unit_position(grid_pos)
+
+
 func _process(delta: float) -> void:
 	# Pulse the turn highlight
 	if turn_highlight != null and is_instance_valid(turn_highlight):
 		_highlight_pulse_time += delta * 3.0
 		var alpha = 0.15 + 0.15 * sin(_highlight_pulse_time)
 		turn_highlight.color = Color(1.0, 1.0, 0.0, alpha)
+
+
+func _input(event: InputEvent) -> void:
+	# Hot reload: F5 key
+	if event is InputEventKey and event.pressed and not event.is_echo():
+		if event.keycode == KEY_F5:
+			_hot_reload_data()
+			get_viewport().set_input_as_handled()
+		# Debug panel toggle: ` key (backtick)
+		elif event.keycode == KEY_QUOTELEFT:
+			# TODO: Toggle debug panel when implemented
+			print("Debug panel toggle (not yet implemented)")
+			get_viewport().set_input_as_handled()
+
+
+func _hot_reload_data() -> void:
+	print("🔄 Hot reloading combat data...")
+
+	# Reload all JSON data
+	CombatConfigLoaderClass.reload()
+	var old_skills = skills_data
+	skills_data = DataLoaderClass.load_skills()
+
+	# Update grid config
+	GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
+	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+
+	# Recalculate grid layout with new size
+	_calculate_grid_layout()
+
+	# Reload character and enemy data
+	var characters = DataLoaderClass.load_characters()
+	var enemies_db = DataLoaderClass.load_enemies()
+
+	# Update existing units with new data
+	for unit_id in all_units:
+		var unit = all_units[unit_id]
+
+		# Find matching character/enemy in loaded data
+		if unit.get("is_ally", true):
+			for char in characters:
+				if char.get("id", "") == unit_id:
+					# Update base stats (preserve current HP/MP)
+					unit["base_stats"] = char.get("base_stats", unit.get("base_stats", {}))
+					# Recalculate speed/constitution
+					unit["speed"] = unit["base_stats"].get("agility", 5)
+					unit["constitution"] = unit["base_stats"].get("vigor", 5)
+					break
+		else:
+			# For enemies, check if template exists
+			var enemy_base_id = unit_id.split("_")[0] + "_" + unit_id.split("_")[1] if "_" in unit_id else unit_id
+			if enemies_db.has(enemy_base_id):
+				var enemy_template = enemies_db[enemy_base_id]
+				unit["base_stats"] = enemy_template.get("base_stats", unit.get("base_stats", {}))
+				unit["speed"] = unit["base_stats"].get("agility", 5)
+				unit["constitution"] = unit["base_stats"].get("vigor", 5)
+
+	# Update visuals with new data
+	_update_unit_visuals()
+
+	# Update skill panel if visible
+	if skill_panel.visible:
+		skill_panel.hide_panel()
+
+	# Log what changed
+	var skills_changed = 0
+	for skill_id in skills_data:
+		if not old_skills.has(skill_id) or skills_data[skill_id] != old_skills[skill_id]:
+			skills_changed += 1
+
+	_log_action("🔄 Data reloaded: %d skills updated" % skills_changed, Color(0.5, 1.0, 0.5))
+	status_label.text = "Data reloaded! (%d skills changed)" % skills_changed
+
+	print("✅ Hot reload complete: %d skills changed" % skills_changed)
 
 
 func _initialize_combat() -> void:
@@ -159,6 +331,7 @@ func _initialize_combat() -> void:
 	var ally_count = get_ally_units().size()
 	var enemy_count = get_enemy_units().size()
 	_log_action("Combat started: %d allies vs %d enemies" % [ally_count, enemy_count])
+	_log_action("Tip: Press F5 to hot reload data files", Color(0.7, 0.7, 1.0))
 
 	# Update turn order UI
 	_update_turn_order_ui()
@@ -441,17 +614,18 @@ func _update_unit_visuals() -> void:
 func _create_or_update_visual(unit: Dictionary) -> void:
 	var uid = unit.get("id", "")
 	var grid_pos = unit.get("grid_position", Vector2i(1, 1))
-	var pos = grid_to_visual_pos(grid_pos) + Vector2(CELL_GAP / 2 + 2, CELL_GAP / 2 + 1)
+	var pos = get_centered_unit_position(grid_pos)
 
 	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
 		var visual = unit_visuals[uid]
 		visual.position = pos
+		visual.update_scale(CELL_SIZE)  # Update scale in case cell size changed
 		visual.update_stats(unit)
 		visual.update_statuses(status_manager.get_statuses(uid))
 	else:
 		var visual = UnitVisualClass.new()
 		visual.position = pos
-		visual.setup(unit, unit.get("is_ally", true))
+		visual.setup(unit, unit.get("is_ally", true), CELL_SIZE)  # Pass current cell size
 		visual.update_statuses(status_manager.get_statuses(uid))
 		grid_node.add_child(visual)
 		unit_visuals[uid] = visual
@@ -1012,7 +1186,9 @@ func _on_attack_pressed() -> void:
 		grid,
 		GRID_SIZE,
 		grid_node,
-		status_manager
+		status_manager,
+		CELL_SIZE,
+		CELL_GAP
 	)
 
 
@@ -1037,7 +1213,9 @@ func _on_skill_selected(skill_id: String) -> void:
 		grid,
 		GRID_SIZE,
 		grid_node,
-		status_manager
+		status_manager,
+		CELL_SIZE,
+		CELL_GAP
 	)
 
 
@@ -1100,7 +1278,7 @@ func _on_move_pressed() -> void:
 	status_label.text = "Select position to move to..."
 	action_panel.visible = false
 
-	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node)
+	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, CELL_SIZE, CELL_GAP)
 
 
 func _on_move_position_selected(position: Vector2i) -> void:

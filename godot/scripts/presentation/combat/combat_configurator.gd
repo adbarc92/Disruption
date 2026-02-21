@@ -7,8 +7,8 @@ const DataLoaderClass = preload("res://scripts/data/data_loader.gd")
 const PARTY_NAMES = ["Cyrus", "Vaughn", "Phaidros"]
 
 # --- State ---
-var grid_cols: int = 3
-var grid_rows: int = 3
+var grid_cols: int = 7  # Default from combat_config.json
+var grid_rows: int = 5  # Default from combat_config.json
 var ally_positions: Dictionary = { 0: Vector2i(-1, -1), 1: Vector2i(-1, -1), 2: Vector2i(-1, -1) }
 var selected_party_member: int = -1   # -1 = nothing held
 var selected_encounter_index: int = 1  # default: Scout + Brute
@@ -25,7 +25,15 @@ var _row_value_label: Label
 
 
 func _ready() -> void:
+	# Load grid size from combat config
+	const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+	CombatConfigLoaderClass.reload()
+	var config_grid_size = CombatConfigLoaderClass.get_grid_size()
+	grid_cols = config_grid_size.x
+	grid_rows = config_grid_size.y
+
 	_encounters = DataLoaderClass.load_encounters()
+	_load_last_config()
 	_build_ui()
 
 
@@ -52,6 +60,11 @@ func _build_ui() -> void:
 	title.add_theme_font_size_override("font_size", 28)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
+
+	vbox.add_child(HSeparator.new())
+
+	# Quick Presets Section
+	_build_quick_presets(vbox)
 
 	vbox.add_child(HSeparator.new())
 
@@ -160,7 +173,7 @@ func _build_grid_size_panel(parent: Control) -> void:
 
 
 func _change_cols(delta: int) -> void:
-	grid_cols = clamp(grid_cols + delta, 1, 3)
+	grid_cols = clamp(grid_cols + delta, 1, 10)  # Allow up to 10 columns
 	_col_value_label.text = str(grid_cols)
 	_evict_out_of_bounds()
 	_grid_container.columns = grid_cols
@@ -169,7 +182,7 @@ func _change_cols(delta: int) -> void:
 
 
 func _change_rows(delta: int) -> void:
-	grid_rows = clamp(grid_rows + delta, 1, 3)
+	grid_rows = clamp(grid_rows + delta, 1, 10)  # Allow up to 10 rows
 	_row_value_label.text = str(grid_rows)
 	_evict_out_of_bounds()
 	_rebuild_ally_grid()
@@ -403,5 +416,126 @@ func _on_start_pressed() -> void:
 		pos_config[str(member_idx)] = {"x": pos.x, "y": pos.y}
 	GameManager.story_flags["_combat_config_ally_positions"] = pos_config
 
+	# Save current config as "last"
+	_save_last_config()
+
 	var return_scene = GameManager.story_flags.get("_combat_return_scene", "res://scenes/main.tscn")
 	GameManager.start_combat(resolved_enemies, return_scene)
+
+
+# --- Quick Presets ---
+
+func _build_quick_presets(parent: Control) -> void:
+	var panel = VBoxContainer.new()
+	panel.add_theme_constant_override("separation", 8)
+	parent.add_child(panel)
+
+	var header = Label.new()
+	header.text = "⚡ Quick Launch Presets"
+	header.add_theme_font_size_override("font_size", 16)
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(header)
+
+	var buttons_row = HBoxContainer.new()
+	buttons_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons_row.add_theme_constant_override("separation", 12)
+	panel.add_child(buttons_row)
+
+	# Preset buttons
+	var presets = [
+		{"name": "Default 3v3", "method": "_preset_default_3v3"},
+		{"name": "Speed Test", "method": "_preset_speed_test"},
+		{"name": "Tank Test", "method": "_preset_tank_test"},
+		{"name": "Last Config", "method": "_preset_last_config"},
+	]
+
+	for preset in presets:
+		var btn = Button.new()
+		btn.text = preset.name
+		btn.custom_minimum_size = Vector2(140, 36)
+		var method = preset.method
+		btn.pressed.connect(Callable(self, method))
+		buttons_row.add_child(btn)
+
+
+func _preset_default_3v3() -> void:
+	# Reset to config defaults
+	const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+	var config_grid_size = CombatConfigLoaderClass.get_grid_size()
+	grid_cols = config_grid_size.x
+	grid_rows = config_grid_size.y
+
+	# Position allies on left side (7x5 grid: allies on left, enemies on right)
+	ally_positions = {
+		0: Vector2i(1, 2),  # Cyrus - left zone, center
+		1: Vector2i(1, 1),  # Vaughn - left zone, top
+		2: Vector2i(0, 3),  # Phaidros - far left, lower
+	}
+	selected_encounter_index = 3  # Full Squad (3v3)
+	_apply_preset_and_launch()
+
+
+func _preset_speed_test() -> void:
+	const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+	var config_grid_size = CombatConfigLoaderClass.get_grid_size()
+	grid_cols = config_grid_size.x
+	grid_rows = config_grid_size.y
+
+	ally_positions = {
+		0: Vector2i(1, 2),  # Cyrus - left center
+		1: Vector2i(0, 1),  # Vaughn - far left top (fastest)
+		2: Vector2i(1, 3),  # Phaidros - left lower
+	}
+	selected_encounter_index = 0  # Two Scouts (fast enemies)
+	_apply_preset_and_launch()
+
+
+func _preset_tank_test() -> void:
+	const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+	var config_grid_size = CombatConfigLoaderClass.get_grid_size()
+	grid_cols = config_grid_size.x
+	grid_rows = config_grid_size.y
+
+	ally_positions = {
+		0: Vector2i(1, 2),  # Cyrus - left center
+		1: Vector2i(1, 1),  # Vaughn - left top
+		2: Vector2i(0, 2),  # Phaidros - front line (tank position)
+	}
+	selected_encounter_index = 4  # Twin Brutes (high HP)
+	_apply_preset_and_launch()
+
+
+func _preset_last_config() -> void:
+	_load_last_config()
+	_apply_preset_and_launch()
+
+
+func _apply_preset_and_launch() -> void:
+	# Update UI to reflect preset
+	_col_value_label.text = str(grid_cols)
+	_row_value_label.text = str(grid_rows)
+	_grid_container.columns = grid_cols
+	_rebuild_ally_grid()
+	_update_chip_colors()
+	_update_encounter_ui()
+
+	# Small delay for visual feedback, then launch
+	await get_tree().create_timer(0.2).timeout
+	_on_start_pressed()
+
+
+func _save_last_config() -> void:
+	GameManager.story_flags["_configurator_last_grid_cols"] = grid_cols
+	GameManager.story_flags["_configurator_last_grid_rows"] = grid_rows
+	GameManager.story_flags["_configurator_last_ally_positions"] = ally_positions.duplicate()
+	GameManager.story_flags["_configurator_last_encounter"] = selected_encounter_index
+
+
+func _load_last_config() -> void:
+	if GameManager.story_flags.has("_configurator_last_grid_cols"):
+		grid_cols = GameManager.story_flags.get("_configurator_last_grid_cols", 3)
+		grid_rows = GameManager.story_flags.get("_configurator_last_grid_rows", 3)
+		ally_positions = GameManager.story_flags.get("_configurator_last_ally_positions", {
+			0: Vector2i(-1, -1), 1: Vector2i(-1, -1), 2: Vector2i(-1, -1)
+		}).duplicate()
+		selected_encounter_index = GameManager.story_flags.get("_configurator_last_encounter", 1)

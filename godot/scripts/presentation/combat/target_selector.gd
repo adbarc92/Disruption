@@ -40,15 +40,22 @@ func _grid_to_visual(grid_pos: Vector2i) -> Vector2:
 
 
 ## Start target selection for a skill (unified grid)
-func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_status_manager = null) -> void:
+func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_status_manager = null, p_cell_size: Vector2 = Vector2.ZERO, p_cell_gap: float = 4.0) -> void:
 	current_skill = skill
 	current_user = user
 	all_units_ref = p_all_units
 	grid_ref = p_grid
 	grid_size_ref = p_grid_size
 	grid_node_ref = p_grid_node
-	CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
-	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+
+	# Use provided cell size if given, otherwise load from config
+	if p_cell_size != Vector2.ZERO:
+		CELL_SIZE = p_cell_size
+		CELL_GAP = p_cell_gap
+	else:
+		CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
+		CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+
 	if p_status_manager != null:
 		status_manager = p_status_manager
 	is_active = true
@@ -89,13 +96,20 @@ func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionar
 
 
 ## Start move targeting - highlights valid reachable cells
-func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D) -> void:
+func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_cell_size: Vector2 = Vector2.ZERO, p_cell_gap: float = 4.0) -> void:
 	current_user = unit
 	grid_ref = p_grid
 	grid_size_ref = p_grid_size
 	grid_node_ref = p_grid_node
-	CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
-	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+
+	# Use provided cell size if given, otherwise load from config
+	if p_cell_size != Vector2.ZERO:
+		CELL_SIZE = p_cell_size
+		CELL_GAP = p_cell_gap
+	else:
+		CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
+		CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+
 	is_active = true
 	is_move_mode = true
 

@@ -3,15 +3,25 @@ class_name UnitVisual
 ## UnitVisual - Persistent visual representation of a combat unit
 ## Includes colored border, HP/MP bars, status dots, and damage flash
 
-const UNIT_WIDTH = 56.0
-const UNIT_HEIGHT = 70.0
-const BAR_HEIGHT = 6.0
-const BAR_WIDTH = 52.0
-const BAR_OFFSET_X = 2.0
-const STATUS_DOT_SIZE = 6.0
+# Base proportions (will scale with cell size)
+const BASE_UNIT_WIDTH = 56.0
+const BASE_UNIT_HEIGHT = 70.0
+const BASE_BAR_HEIGHT = 6.0
+const BASE_BAR_WIDTH = 52.0
+const BASE_BAR_OFFSET_X = 2.0
+const BASE_STATUS_DOT_SIZE = 6.0
+
+# Dynamic sizes (calculated from cell size)
+var UNIT_WIDTH: float = 56.0
+var UNIT_HEIGHT: float = 70.0
+var BAR_HEIGHT: float = 6.0
+var BAR_WIDTH: float = 52.0
+var BAR_OFFSET_X: float = 2.0
+var STATUS_DOT_SIZE: float = 6.0
 
 var unit_id: String = ""
 var is_ally: bool = true
+var cell_size: Vector2 = Vector2(48, 48)
 
 # Child nodes
 var border_rect: Polygon2D
@@ -29,9 +39,13 @@ var flash_timer: float = 0.0
 const FLASH_DURATION = 0.15
 
 
-func setup(unit: Dictionary, ally: bool) -> void:
+func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48)) -> void:
 	unit_id = unit.get("id", "")
 	is_ally = ally
+	cell_size = p_cell_size
+
+	# Calculate scaled sizes based on cell size
+	_calculate_scaled_sizes()
 
 	var border_color = Color(0.3, 0.5, 0.8) if is_ally else Color(0.8, 0.2, 0.2)
 	var body_color = Color(0.12, 0.12, 0.18)
@@ -97,6 +111,80 @@ func setup(unit: Dictionary, ally: bool) -> void:
 	add_child(status_container)
 
 	update_stats(unit)
+
+
+func _calculate_scaled_sizes() -> void:
+	# Units (including bars) should fit within cells with padding
+	# Use 85% of cell dimensions to leave padding
+	var available_width = cell_size.x * 0.85
+	var available_height = cell_size.y * 0.85
+
+	# Calculate scale factor that fits both width AND height
+	var width_scale = available_width / BASE_UNIT_WIDTH
+	var height_scale = available_height / BASE_UNIT_HEIGHT
+
+	# Use the smaller scale to ensure unit fits in both dimensions
+	var scale_factor = min(width_scale, height_scale)
+
+	# Apply uniform scaling to maintain aspect ratio
+	UNIT_WIDTH = BASE_UNIT_WIDTH * scale_factor
+	UNIT_HEIGHT = BASE_UNIT_HEIGHT * scale_factor
+	BAR_HEIGHT = BASE_BAR_HEIGHT * scale_factor
+	BAR_WIDTH = BASE_BAR_WIDTH * scale_factor
+	BAR_OFFSET_X = BASE_BAR_OFFSET_X * scale_factor
+	STATUS_DOT_SIZE = BASE_STATUS_DOT_SIZE * scale_factor
+
+
+func update_scale(p_cell_size: Vector2) -> void:
+	"""Update the visual scale when cell size changes (e.g., window resize)"""
+	cell_size = p_cell_size
+	_calculate_scaled_sizes()
+
+	# Rebuild all visuals with new sizes
+	if border_rect:
+		border_rect.polygon = PackedVector2Array([
+			Vector2(0, 0), Vector2(UNIT_WIDTH, 0),
+			Vector2(UNIT_WIDTH, UNIT_HEIGHT), Vector2(0, UNIT_HEIGHT)
+		])
+
+	if body_rect:
+		body_rect.polygon = PackedVector2Array([
+			Vector2(2, 2), Vector2(UNIT_WIDTH - 2, 2),
+			Vector2(UNIT_WIDTH - 2, UNIT_HEIGHT - 2), Vector2(2, UNIT_HEIGHT - 2)
+		])
+
+	if name_label:
+		name_label.position = Vector2(-2, -16 * (cell_size.x / 48.0))
+		name_label.size = Vector2(UNIT_WIDTH + 4, 16 * (cell_size.x / 48.0))
+		name_label.add_theme_font_size_override("font_size", int(11 * (cell_size.x / 48.0)))
+
+	if flash_overlay:
+		flash_overlay.polygon = PackedVector2Array([
+			Vector2(2, 2), Vector2(UNIT_WIDTH - 2, 2),
+			Vector2(UNIT_WIDTH - 2, UNIT_HEIGHT - 2), Vector2(2, UNIT_HEIGHT - 2)
+		])
+
+	if status_container:
+		status_container.position = Vector2(0, UNIT_HEIGHT + 2)
+
+	# Recalculate bar positions
+	var hp_y = UNIT_HEIGHT - BAR_HEIGHT * 2 - 4
+	if hp_bar_bg:
+		hp_bar_bg.position = Vector2(BAR_OFFSET_X, hp_y)
+		hp_bar_bg.polygon = PackedVector2Array([
+			Vector2(0, 0), Vector2(BAR_WIDTH, 0), Vector2(BAR_WIDTH, BAR_HEIGHT), Vector2(0, BAR_HEIGHT)
+		])
+	if hp_bar_fill:
+		hp_bar_fill.position = Vector2(BAR_OFFSET_X, hp_y)
+
+	var mp_y = UNIT_HEIGHT - BAR_HEIGHT - 2
+	if mp_bar_bg:
+		mp_bar_bg.position = Vector2(BAR_OFFSET_X, mp_y)
+		mp_bar_bg.polygon = PackedVector2Array([
+			Vector2(0, 0), Vector2(BAR_WIDTH, 0), Vector2(BAR_WIDTH, BAR_HEIGHT), Vector2(0, BAR_HEIGHT)
+		])
+	if mp_bar_fill:
+		mp_bar_fill.position = Vector2(BAR_OFFSET_X, mp_y)
 
 
 func update_stats(unit: Dictionary) -> void:
