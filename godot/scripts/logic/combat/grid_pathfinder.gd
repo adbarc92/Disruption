@@ -3,6 +3,13 @@ extends RefCounted
 ## GridPathfinder - A* pathfinding and BFS flood fill for combat grid
 ## Pure logic, no engine dependencies
 
+## Range Bands - Simplified distance categories for targeting
+enum RangeBand {
+	MELEE = 0,    # Adjacent (1 space)
+	CLOSE = 1,    # Nearby (2-3 spaces)
+	DISTANT = 2   # Far (4+ spaces)
+}
+
 
 ## Find shortest path from start to end using A* with Manhattan heuristic
 ## grid: Dictionary of Vector2i -> unit_id (occupied cells)
@@ -89,6 +96,55 @@ static func get_cells_in_range(origin: Vector2i, move_range: int, grid: Dictiona
 ## Calculate Manhattan distance between two grid positions
 static func manhattan_distance(a: Vector2i, b: Vector2i) -> int:
 	return abs(a.x - b.x) + abs(a.y - b.y)
+
+
+## Get range band from distance value
+static func get_range_band(distance: int) -> RangeBand:
+	if distance <= 1:
+		return RangeBand.MELEE
+	elif distance <= 3:
+		return RangeBand.CLOSE
+	else:
+		return RangeBand.DISTANT
+
+
+## Get range band between two positions
+static func get_range_band_between(pos_a: Vector2i, pos_b: Vector2i) -> RangeBand:
+	var dist = manhattan_distance(pos_a, pos_b)
+	return get_range_band(dist)
+
+
+## Convert range band enum to string
+static func range_band_to_string(band: RangeBand) -> String:
+	match band:
+		RangeBand.MELEE:
+			return "melee"
+		RangeBand.CLOSE:
+			return "close"
+		RangeBand.DISTANT:
+			return "distant"
+		_:
+			return "unknown"
+
+
+## Convert string to range band enum
+static func string_to_range_band(band_str: String) -> RangeBand:
+	match band_str.to_lower():
+		"melee", "m":
+			return RangeBand.MELEE
+		"close", "c":
+			return RangeBand.CLOSE
+		"distant", "d", "far":
+			return RangeBand.DISTANT
+		_:
+			return RangeBand.MELEE  # Default fallback
+
+
+## Check if a target is within the specified range band
+## Returns true if target distance is within or closer than the max_band
+static func is_within_range_band(user_pos: Vector2i, target_pos: Vector2i, max_band: RangeBand) -> bool:
+	var actual_band = get_range_band_between(user_pos, target_pos)
+	return actual_band <= max_band
 
 
 ## Check if two positions are adjacent (Manhattan distance == 1)

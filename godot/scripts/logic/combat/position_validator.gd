@@ -27,30 +27,41 @@ static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_tar
 		_:
 			pass
 
-	var skill_range = get_skill_range(skill)
 	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
-	var range_type = skill.get("range_type", "melee")
 	var valid: Array = []
+
+	# Check if skill uses new Range Band system
+	var targeting = skill.get("targeting", {})
+	var uses_range_bands = targeting.has("range_band")
 
 	for target in potential_targets:
 		var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
 
-		if skill_range == 0:
-			# Unlimited range
-			valid.append(target)
-		elif range_type == "melee":
-			# Melee: either adjacent already, or can path to an adjacent cell
-			if is_in_range(user_pos, target_pos, skill_range):
+		if uses_range_bands:
+			# New Range Band system
+			if is_in_range_band(skill, user_pos, target_pos):
 				valid.append(target)
-			else:
-				# Check if unit can move to a cell adjacent to target
-				var move_range = get_movement_range(user)
-				if _can_reach_adjacent(user_pos, target_pos, move_range, grid, grid_size):
-					valid.append(target)
 		else:
-			# Ranged: simple Manhattan distance check
-			if is_in_range(user_pos, target_pos, skill_range):
+			# Legacy system (for backward compatibility)
+			var skill_range = get_skill_range(skill)
+			var range_type = skill.get("range_type", "melee")
+
+			if skill_range == 0:
+				# Unlimited range
 				valid.append(target)
+			elif range_type == "melee":
+				# Melee: either adjacent already, or can path to an adjacent cell
+				if is_in_range(user_pos, target_pos, skill_range):
+					valid.append(target)
+				else:
+					# Check if unit can move to a cell adjacent to target
+					var move_range = get_movement_range(user)
+					if _can_reach_adjacent(user_pos, target_pos, move_range, grid, grid_size):
+						valid.append(target)
+			else:
+				# Ranged: simple Manhattan distance check
+				if is_in_range(user_pos, target_pos, skill_range):
+					valid.append(target)
 
 	return valid
 
@@ -88,6 +99,32 @@ static func get_skill_range(skill: Dictionary) -> int:
 			return 0
 		_:
 			return 1
+
+
+## Get the range band from a skill (new Range Band system)
+static func get_skill_range_band(skill: Dictionary) -> GridPathfinderClass.RangeBand:
+	var targeting = skill.get("targeting", {})
+
+	# Check for explicit range_band field (new system)
+	if targeting.has("range_band"):
+		var band_str = targeting.get("range_band", "melee")
+		return GridPathfinderClass.string_to_range_band(band_str)
+
+	# Fallback: convert old range format to range band
+	var old_range = targeting.get("range", "adjacent")
+	match old_range:
+		"adjacent":
+			return GridPathfinderClass.RangeBand.MELEE
+		"any":
+			return GridPathfinderClass.RangeBand.DISTANT  # Unlimited = can hit at any distance
+		_:
+			return GridPathfinderClass.RangeBand.MELEE
+
+
+## Check if target is within skill's range band
+static func is_in_range_band(skill: Dictionary, user_pos: Vector2i, target_pos: Vector2i) -> bool:
+	var max_band = get_skill_range_band(skill)
+	return GridPathfinderClass.is_within_range_band(user_pos, target_pos, max_band)
 
 
 ## Check if target is within range (Manhattan distance, 0 = unlimited)
