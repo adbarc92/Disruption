@@ -60,7 +60,8 @@
     2. There is an optional quest here to go claim Empowered Weapons from the Aeonic Refractions (angels/demons, basically). **If the party has no support from the populace, this is a requirement.**
 20. The party returns to the city to fight their way to the center. If the party has support from the populace, there will be uprisings and fewer required fights. If not, the city is simply under martial law and the fights are more numerous and difficult.
 21. The party confronts the head of the Collective. If the populace supports the Collective, the Head has properly ascended.
-22X. If they have gathered all of the necessary pieces, they can proceed into the Realm of Twilight to challenge the Harvester and speak to the Echo of Skyne.
+22. If they have gathered all of the necessary pieces, they can proceed into the Realm of Twilight to challenge the Harvester and speak to the Echo of Skyne.
+    1. "I lived, and I thought that my suffering had taught me enough to do better than him. But I was mistaken--the act, itself, was self-negating. I acted in pride, and that pride seeped into my work. That pride was my undoing."
 
 ---
 
