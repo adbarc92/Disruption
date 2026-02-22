@@ -62,9 +62,8 @@ var unit_visuals: Dictionary = {}
 var turn_highlight: Polygon2D = null
 
 # Action log
-var action_log_scroll: ScrollContainer
-var action_log_container: VBoxContainer
-const ACTION_LOG_MAX_ENTRIES = 50
+var action_log_text: TextEdit
+const ACTION_LOG_MAX_LINES = 200
 
 # Node references
 @onready var battle_grid_container: Node2D = $BattleGrid
@@ -684,7 +683,7 @@ func _setup_action_log() -> void:
 	ui_layer.add_child(panel)
 
 	var title = Label.new()
-	title.text = "Action Log"
+	title.text = "Action Log (Ctrl+C to copy)"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.offset_left = 5
 	title.offset_top = 5
@@ -692,41 +691,41 @@ func _setup_action_log() -> void:
 	title.offset_bottom = 25
 	panel.add_child(title)
 
-	action_log_scroll = ScrollContainer.new()
-	action_log_scroll.offset_left = 5
-	action_log_scroll.offset_top = 28
-	action_log_scroll.offset_right = 245
-	action_log_scroll.offset_bottom = 685
-	panel.add_child(action_log_scroll)
-
-	action_log_container = VBoxContainer.new()
-	action_log_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	action_log_scroll.add_child(action_log_container)
+	action_log_text = TextEdit.new()
+	action_log_text.offset_left = 5
+	action_log_text.offset_top = 28
+	action_log_text.offset_right = 245
+	action_log_text.offset_bottom = 685
+	action_log_text.editable = false
+	action_log_text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	action_log_text.scroll_fit_content_height = true
+	action_log_text.add_theme_font_size_override("font_size", 11)
+	panel.add_child(action_log_text)
 
 
 func _log_action(text: String, color: Color = Color.WHITE) -> void:
-	if action_log_container == null:
+	if action_log_text == null:
 		return
 
-	var label = Label.new()
-	label.text = text
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", color)
-	label.custom_minimum_size = Vector2(230, 0)
-	action_log_container.add_child(label)
+	# Append new line
+	var current_text = action_log_text.text
+	if not current_text.is_empty():
+		current_text += "\n"
+	current_text += text
 
-	while action_log_container.get_child_count() > ACTION_LOG_MAX_ENTRIES:
-		var old = action_log_container.get_child(0)
-		action_log_container.remove_child(old)
-		old.queue_free()
+	# Limit total lines to prevent memory issues
+	var lines = current_text.split("\n")
+	if lines.size() > ACTION_LOG_MAX_LINES:
+		lines = lines.slice(lines.size() - ACTION_LOG_MAX_LINES, lines.size())
+		current_text = "\n".join(lines)
 
+	action_log_text.text = current_text
 	_scroll_log_to_bottom.call_deferred()
 
 
 func _scroll_log_to_bottom() -> void:
-	if action_log_scroll != null:
-		action_log_scroll.scroll_vertical = action_log_scroll.get_v_scroll_bar().max_value
+	if action_log_text != null:
+		action_log_text.scroll_vertical = INF  # Scroll to bottom
 
 
 # --- Turn Flow ---
@@ -1251,7 +1250,13 @@ func _on_move_position_selected(position: Vector2i) -> void:
 
 	_draw_grid()
 	await get_tree().create_timer(0.3).timeout
-	_end_turn()
+
+	# Return to action selection with remaining AP (don't auto-end turn)
+	current_phase = CombatPhase.SELECTING_ACTION
+	action_panel.visible = true
+	_update_ap_display()
+	_update_action_buttons()
+	status_label.text = "%s's turn (%d AP remaining)" % [current_unit.get("name", "?"), _ap_system.get_current_ap(current_unit.id)]
 
 
 func _on_defend_pressed() -> void:
