@@ -31,7 +31,6 @@ static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_tar
 	var valid: Array = []
 
 	# Check if skill uses new Range Band system
-	var targeting = skill.get("targeting", {})
 	var uses_range_bands = targeting.has("range_band")
 
 	for target in potential_targets:
