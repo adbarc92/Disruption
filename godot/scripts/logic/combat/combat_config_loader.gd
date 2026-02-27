@@ -64,6 +64,13 @@ static func get_cell_gap() -> float:
 	return grid.get("cell_gap", 4)
 
 
+## Get hex size (radius from center to vertex)
+static func get_hex_size() -> float:
+	_ensure_loaded()
+	var grid = _config.get("grid", {})
+	return grid.get("hex_size", 48.0)
+
+
 ## Get a balance value by key with default fallback
 static func get_balance(key: String, default_value: float = 0.0) -> float:
 	_ensure_loaded()

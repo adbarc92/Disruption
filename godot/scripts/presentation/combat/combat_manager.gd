@@ -19,8 +19,8 @@ const CombatResultsClass = preload("res://scripts/presentation/combat/combat_res
 
 # Grid configuration (loaded from combat_config.json)
 var GRID_SIZE: Vector2i = Vector2i(7, 5)
-var CELL_SIZE: Vector2 = Vector2(48, 48)
-var CELL_GAP: float = 4.0
+var HEX_SIZE: float = 48.0  # Hex radius (center to vertex)
+const HEX_INSET: float = 2.0  # Visual gap between hex cells
 
 # Combat state
 enum CombatPhase {
@@ -81,29 +81,60 @@ const ACTION_LOG_MAX_LINES = 200
 var _highlight_pulse_time: float = 0.0
 
 
-## Convert grid position to visual position (direct mapping, no mirroring)
+## Convert grid position to visual pixel position (pointy-top, odd-row offset)
 func grid_to_visual_pos(grid_pos: Vector2i) -> Vector2:
-	return Vector2(grid_pos.x, grid_pos.y) * (CELL_SIZE + Vector2(CELL_GAP, CELL_GAP))
+	var col = grid_pos.x
+	var row = grid_pos.y
+	var x = HEX_SIZE * sqrt(3.0) * (col + 0.5 * (row & 1))
+	var y = HEX_SIZE * 1.5 * row
+	return Vector2(x, y)
+
+
+## Generate pointy-top hex polygon vertices centered at origin
+func _hex_polygon(size: float) -> PackedVector2Array:
+	var points = PackedVector2Array()
+	for i in range(6):
+		var angle_deg = 60.0 * i - 30.0
+		var angle_rad = deg_to_rad(angle_deg)
+		points.append(Vector2(size * cos(angle_rad), size * sin(angle_rad)))
+	return points
+
+
+## Convert pixel position (local to grid_node) to grid offset coordinates
+func pixel_to_hex(pixel: Vector2) -> Vector2i:
+	var q_frac = (sqrt(3.0) / 3.0 * pixel.x - 1.0 / 3.0 * pixel.y) / HEX_SIZE
+	var r_frac = (2.0 / 3.0 * pixel.y) / HEX_SIZE
+	# Cube round
+	var s_frac = -q_frac - r_frac
+	var q = round(q_frac)
+	var r = round(r_frac)
+	var s = round(s_frac)
+	var q_diff = abs(q - q_frac)
+	var r_diff = abs(r - r_frac)
+	var s_diff = abs(s - s_frac)
+	if q_diff > r_diff and q_diff > s_diff:
+		q = -r - s
+	elif r_diff > s_diff:
+		r = -q - s
+	# Convert axial (q, r) back to offset (col, row)
+	var row = int(r)
+	var col = int(q) + (int(r) - (int(r) & 1)) / 2
+	return Vector2i(col, row)
 
 
 ## Calculate centered unit position within a cell
+## Works for both hex and square grids: computes unit visual size from cell
+## bounding box, then offsets so the unit is centered on the cell position.
 func get_centered_unit_position(grid_pos: Vector2i) -> Vector2:
-	# Calculate actual unit size (85% of cell, constrained by aspect ratio)
-	var available_width = CELL_SIZE.x * 0.85
-	var available_height = CELL_SIZE.y * 0.85
-	var width_scale = available_width / 56.0  # BASE_UNIT_WIDTH
-	var height_scale = available_height / 70.0  # BASE_UNIT_HEIGHT
-	var scale_factor = min(width_scale, height_scale)
-	var actual_unit_width = 56.0 * scale_factor
-	var actual_unit_height = 70.0 * scale_factor
-
-	# Center based on actual unit size
-	var base_pos = grid_to_visual_pos(grid_pos) + Vector2(CELL_GAP / 2, CELL_GAP / 2)
-	var centering_offset = Vector2(
-		(CELL_SIZE.x - actual_unit_width) / 2.0,
-		(CELL_SIZE.y - actual_unit_height) / 2.0
-	)
-	return base_pos + centering_offset
+	var center = grid_to_visual_pos(grid_pos)
+	var cell_bounds = Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0)
+	# Mirror UnitVisual._calculate_scaled_sizes logic
+	var available_w = cell_bounds.x * 0.85
+	var available_h = cell_bounds.y * 0.85
+	var scale_factor = min(available_w / 56.0, available_h / 70.0)  # BASE_UNIT_WIDTH, BASE_UNIT_HEIGHT
+	var unit_w = 56.0 * scale_factor
+	var unit_h = 70.0 * scale_factor
+	return center - Vector2(unit_w / 2.0, unit_h / 2.0)
 
 
 func _ready() -> void:
@@ -123,9 +154,8 @@ func _ready() -> void:
 	else:
 		GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
 
-	# Calculate optimal cell size and position to fill available screen space
+	# Calculate optimal hex size and position to fill available screen space
 	_calculate_grid_layout()
-	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
 
 	# Initialize logic systems
 	_ctb_manager = CTBTurnManagerClass.new()
@@ -159,65 +189,51 @@ func _ready() -> void:
 	_initialize_combat()
 
 
-## Calculate optimal grid cell size and position to fill screen
 func _calculate_grid_layout() -> void:
-	# Screen dimensions
 	const SCREEN_WIDTH = 1920.0
 	const SCREEN_HEIGHT = 1080.0
+	const TURN_PANEL_WIDTH = 260.0
+	const ACTION_LOG_WIDTH = 250.0
+	const ACTION_PANEL_HEIGHT = 200.0
+	const TOP_MARGIN = 60.0
+	const PADDING = 40.0
 
-	# UI panel dimensions
-	const TURN_PANEL_WIDTH = 260.0      # Left side turn order panel
-	const ACTION_LOG_WIDTH = 250.0      # Right side action log panel
-	const ACTION_PANEL_HEIGHT = 200.0   # Bottom action panel
-	const TOP_MARGIN = 60.0             # Top margin for status label
-	const PADDING = 40.0                # Extra padding around grid
-
-	# Calculate available space
 	var available_width = SCREEN_WIDTH - TURN_PANEL_WIDTH - ACTION_LOG_WIDTH - (PADDING * 2)
 	var available_height = SCREEN_HEIGHT - ACTION_PANEL_HEIGHT - TOP_MARGIN - (PADDING * 2)
 
-	# Calculate cell size that fits the grid into available space
-	var cell_width = available_width / GRID_SIZE.x
-	var cell_height = available_height / GRID_SIZE.y
+	# For pointy-top hexes:
+	# grid_width = hex_size * sqrt(3) * (cols + 0.5)
+	# grid_height = hex_size * 1.5 * (rows - 1) + hex_size * 2
+	var hex_from_width = available_width / (sqrt(3.0) * (GRID_SIZE.x + 0.5))
+	var hex_from_height = available_height / (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
-	# Use the smaller dimension to ensure the grid fits
-	var cell_size = min(cell_width, cell_height)
-
-	# Clamp cell size to reasonable bounds (min 40, max 120)
-	cell_size = clamp(cell_size, 40.0, 120.0)
-
-	CELL_SIZE = Vector2(cell_size, cell_size)
+	HEX_SIZE = clamp(min(hex_from_width, hex_from_height), 20.0, 60.0)
 
 	# Calculate actual grid dimensions
-	var grid_width = GRID_SIZE.x * (CELL_SIZE.x + CELL_GAP)
-	var grid_height = GRID_SIZE.y * (CELL_SIZE.y + CELL_GAP)
+	var grid_width = HEX_SIZE * sqrt(3.0) * (GRID_SIZE.x + 0.5)
+	var grid_height = HEX_SIZE * (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
-	# Center the grid in available space
 	var grid_x = TURN_PANEL_WIDTH + ((available_width - grid_width) / 2.0) + PADDING
 	var grid_y = TOP_MARGIN + ((available_height - grid_height) / 2.0) + PADDING
 
-	# Position the BattleGrid node (parent of grid_node)
 	battle_grid_container.position = Vector2(grid_x, grid_y)
 
-	print("Grid layout calculated: Cell size: %.1f, Grid pos: (%.1f, %.1f)" % [cell_size, grid_x, grid_y])
+	print("Hex grid layout: size=%.1f, pos=(%.1f, %.1f)" % [HEX_SIZE, grid_x, grid_y])
 
 
 func _on_window_resized() -> void:
-	"""Handle window resize - recalculate grid layout and update all visuals"""
 	_calculate_grid_layout()
 	_draw_grid()
-	_update_all_unit_scales()
 	_highlight_current_unit()
 
 
+## Update scale of all unit visuals to match new hex size
 func _update_all_unit_scales() -> void:
-	"""Update scale of all unit visuals to match new cell size"""
 	for unit_id in unit_visuals:
 		var visual = unit_visuals[unit_id]
 		if is_instance_valid(visual):
-			visual.update_scale(CELL_SIZE)
+			visual.update_scale(Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0))
 
-			# Reposition unit based on new cell size (centered in cell)
 			var unit = all_units.get(unit_id, {})
 			if not unit.is_empty():
 				var grid_pos = unit.get("grid_position", Vector2i(1, 1))
@@ -255,8 +271,6 @@ func _hot_reload_data() -> void:
 
 	# Update grid config
 	GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
-	CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
-
 	# Recalculate grid layout with new size
 	_calculate_grid_layout()
 
@@ -569,25 +583,21 @@ func _draw_grid_background() -> void:
 		if not child is UnitVisualClass:
 			child.queue_free()
 
-	var cell_visual_size = CELL_SIZE - Vector2(CELL_GAP, CELL_GAP)
+	var inset_size = HEX_SIZE - HEX_INSET
+	var hex_poly = _hex_polygon(inset_size)
 
 	for x in range(GRID_SIZE.x):
 		for y in range(GRID_SIZE.y):
 			var cell = Polygon2D.new()
-			cell.polygon = PackedVector2Array([
-				Vector2(0, 0), Vector2(cell_visual_size.x, 0),
-				Vector2(cell_visual_size.x, cell_visual_size.y), Vector2(0, cell_visual_size.y)
-			])
-			var pos = grid_to_visual_pos(Vector2i(x, y))
-			cell.position = pos + Vector2(CELL_GAP / 2, CELL_GAP / 2)
+			cell.polygon = hex_poly
+			cell.position = grid_to_visual_pos(Vector2i(x, y))
 
-			# Color based on zone: ally (blue), enemy (red), neutral (gray)
 			if x < 2:
-				cell.color = Color(0.2, 0.3, 0.5, 0.4)   # Blue-tinted ally zone
+				cell.color = Color(0.2, 0.3, 0.5, 0.4)
 			elif x >= GRID_SIZE.x - 2:
-				cell.color = Color(0.5, 0.2, 0.2, 0.4)   # Red-tinted enemy zone
+				cell.color = Color(0.5, 0.2, 0.2, 0.4)
 			else:
-				cell.color = Color(0.25, 0.25, 0.3, 0.35) # Neutral gray
+				cell.color = Color(0.25, 0.25, 0.3, 0.35)
 
 			grid_node.add_child(cell)
 
@@ -617,17 +627,18 @@ func _create_or_update_visual(unit: Dictionary) -> void:
 	var uid = unit.get("id", "")
 	var grid_pos = unit.get("grid_position", Vector2i(1, 1))
 	var pos = get_centered_unit_position(grid_pos)
+	var hex_cell_size = Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0)
 
 	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
 		var visual = unit_visuals[uid]
 		visual.position = pos
-		visual.update_scale(CELL_SIZE)  # Update scale in case cell size changed
+		visual.update_scale(hex_cell_size)
 		visual.update_stats(unit)
 		visual.update_statuses(status_manager.get_statuses(uid))
 	else:
 		var visual = UnitVisualClass.new()
 		visual.position = pos
-		visual.setup(unit, unit.get("is_ally", true), CELL_SIZE)  # Pass current cell size
+		visual.setup(unit, unit.get("is_ally", true), hex_cell_size)
 		visual.update_statuses(status_manager.get_statuses(uid))
 		grid_node.add_child(visual)
 		unit_visuals[uid] = visual
@@ -642,14 +653,11 @@ func _highlight_current_unit() -> void:
 		return
 
 	var grid_pos = current_unit.get("grid_position", Vector2i(1, 1))
-	var cell_visual_size = CELL_SIZE - Vector2(CELL_GAP, CELL_GAP)
+	var inset_size = HEX_SIZE - HEX_INSET
 
 	turn_highlight = Polygon2D.new()
-	turn_highlight.polygon = PackedVector2Array([
-		Vector2(0, 0), Vector2(cell_visual_size.x, 0),
-		Vector2(cell_visual_size.x, cell_visual_size.y), Vector2(0, cell_visual_size.y)
-	])
-	turn_highlight.position = grid_to_visual_pos(grid_pos) + Vector2(CELL_GAP / 2, CELL_GAP / 2)
+	turn_highlight.polygon = _hex_polygon(inset_size)
+	turn_highlight.position = grid_to_visual_pos(grid_pos)
 	turn_highlight.color = Color(1.0, 1.0, 0.0, 0.2)
 	_highlight_pulse_time = 0.0
 
@@ -666,7 +674,7 @@ func _clear_turn_highlight() -> void:
 
 func _spawn_floating_text(text: String, color: Color, target: Dictionary, large: bool = false) -> void:
 	var grid_pos = target.get("grid_position", Vector2i(1, 1))
-	var pos = grid_to_visual_pos(grid_pos) + Vector2(CELL_SIZE.x / 2, 0)
+	var pos = grid_to_visual_pos(grid_pos) + Vector2(0, -HEX_SIZE)
 	var world_pos = grid_node.global_position + pos
 
 	var ft = FloatingTextClass.create(text, color, world_pos, large)
@@ -966,7 +974,7 @@ func _ai_move_toward_enemies(unit: Dictionary) -> bool:
 	for cell in reachable:
 		for enemy in enemies:
 			var enemy_pos: Vector2i = enemy.get("grid_position", Vector2i(0, 0))
-			var dist = GridPathfinderClass.manhattan_distance(cell, enemy_pos)
+			var dist = GridPathfinderClass.hex_distance(cell, enemy_pos)
 			if dist < best_dist:
 				best_dist = dist
 				best_cell = cell
@@ -1206,8 +1214,7 @@ func _on_attack_pressed() -> void:
 		GRID_SIZE,
 		grid_node,
 		status_manager,
-		CELL_SIZE,
-		CELL_GAP
+		HEX_SIZE
 	)
 
 
@@ -1241,8 +1248,7 @@ func _on_skill_selected(skill_id: String) -> void:
 		GRID_SIZE,
 		grid_node,
 		status_manager,
-		CELL_SIZE,
-		CELL_GAP
+		HEX_SIZE
 	)
 
 
@@ -1320,7 +1326,7 @@ func _on_move_pressed() -> void:
 	status_label.text = "Select position to move to..."
 	action_panel.visible = false
 
-	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, CELL_SIZE, CELL_GAP)
+	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, HEX_SIZE)
 
 
 func _on_move_position_selected(position: Vector2i) -> void:

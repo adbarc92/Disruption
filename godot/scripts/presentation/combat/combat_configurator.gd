@@ -19,7 +19,7 @@ var _grid_cell_buttons: Array[Button] = []
 var _party_chip_buttons: Array[Button] = []
 var _encounter_buttons: Array[Button] = []
 var _encounter_desc_label: Label
-var _grid_container: GridContainer
+var _grid_container: Control
 var _col_value_label: Label
 var _row_value_label: Label
 
@@ -176,7 +176,6 @@ func _change_cols(delta: int) -> void:
 	grid_cols = clamp(grid_cols + delta, 1, 10)  # Allow up to 10 columns
 	_col_value_label.text = str(grid_cols)
 	_evict_out_of_bounds()
-	_grid_container.columns = grid_cols
 	_rebuild_ally_grid()
 	_update_chip_colors()
 
@@ -228,9 +227,8 @@ func _build_ally_position_panel(parent: Control) -> void:
 		chips_row.add_child(chip)
 		_party_chip_buttons.append(chip)
 
-	# Grid
-	_grid_container = GridContainer.new()
-	_grid_container.columns = grid_cols
+	# Grid (hex layout)
+	_grid_container = Control.new()
 	panel.add_child(_grid_container)
 
 	_rebuild_ally_grid()
@@ -249,14 +247,32 @@ func _rebuild_ally_grid() -> void:
 		child.queue_free()
 	_grid_cell_buttons.clear()
 
+	# Hex cell sizing for configurator UI
+	var hex_r = 30.0  # Radius for configurator hex cells (smaller than combat)
+	var cell_w = hex_r * sqrt(3.0)
+	var cell_h = hex_r * 2.0
+	var btn_size = Vector2(cell_w - 4, cell_h * 0.65)  # Fit button inside hex
+
 	for row in range(grid_rows):
 		for col in range(grid_cols):
 			var cell_btn = Button.new()
-			cell_btn.custom_minimum_size = Vector2(70, 50)
+			cell_btn.custom_minimum_size = btn_size
+			cell_btn.size = btn_size
 			var cell_pos = Vector2i(col, row)
 			cell_btn.pressed.connect(func(): _on_grid_cell_pressed(cell_pos))
+
+			# Pointy-top hex positioning (odd-row offset)
+			var x = hex_r * sqrt(3.0) * (col + 0.5 * (row & 1))
+			var y = hex_r * 1.5 * row
+			cell_btn.position = Vector2(x - btn_size.x / 2, y - btn_size.y / 2)
+
 			_grid_container.add_child(cell_btn)
 			_grid_cell_buttons.append(cell_btn)
+
+	# Set container size to fit all hex cells
+	var total_w = hex_r * sqrt(3.0) * (grid_cols + 0.5) + btn_size.x
+	var total_h = hex_r * (1.5 * (grid_rows - 1) + 2.0) + btn_size.y
+	_grid_container.custom_minimum_size = Vector2(total_w, total_h)
 
 	_update_grid_colors()
 
@@ -514,7 +530,6 @@ func _apply_preset_and_launch() -> void:
 	# Update UI to reflect preset
 	_col_value_label.text = str(grid_cols)
 	_row_value_label.text = str(grid_rows)
-	_grid_container.columns = grid_cols
 	_rebuild_ally_grid()
 	_update_chip_colors()
 	_update_encounter_ui()

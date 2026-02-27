@@ -4,13 +4,13 @@ extends RefCounted
 ## No engine dependencies - portable game rules
 ##
 ## Unified Grid: columns x rows, allies on left, enemies on right
-## Range is measured via Manhattan distance
+## Range is measured via hex distance
 
 const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
 const GridPathfinderClass = preload("res://scripts/logic/combat/grid_pathfinder.gd")
 
 
-## Get valid targets for a skill based on range (Manhattan distance)
+## Get valid targets for a skill based on range (hex distance)
 ## For melee skills, includes targets reachable via movement + 1 adjacent cell
 ## all_units: Dictionary of unit_id -> unit Dict
 ## grid: Dictionary of Vector2i -> unit_id
@@ -48,7 +48,7 @@ static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_tar
 				# Unlimited range
 				valid.append(target)
 			else:
-				# Both melee and ranged use Manhattan distance check
+				# Both melee and ranged use hex distance check
 				if is_in_range(user_pos, target_pos, skill_range):
 					valid.append(target)
 
@@ -116,11 +116,11 @@ static func is_in_range_band(skill: Dictionary, user_pos: Vector2i, target_pos: 
 	return GridPathfinderClass.is_within_range_band(user_pos, target_pos, max_band)
 
 
-## Check if target is within range (Manhattan distance, 0 = unlimited)
+## Check if target is within range (hex distance, 0 = unlimited)
 static func is_in_range(user_pos: Vector2i, target_pos: Vector2i, skill_range: int) -> bool:
 	if skill_range == 0:
 		return true
-	return GridPathfinderClass.manhattan_distance(user_pos, target_pos) <= skill_range
+	return GridPathfinderClass.hex_distance(user_pos, target_pos) <= skill_range
 
 
 ## Get movement range for a unit based on agility

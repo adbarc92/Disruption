@@ -21,7 +21,7 @@ var is_move_mode: bool = false
 var valid_move_positions: Array[Vector2i] = []
 
 # Visual nodes for highlighting
-var highlight_nodes: Array[ColorRect] = []
+var highlight_nodes: Array[Node2D] = []
 
 # Unified grid reference
 var grid_node_ref: Node2D
@@ -30,17 +30,51 @@ var grid_size_ref: Vector2i = Vector2i(10, 6)
 var all_units_ref: Dictionary = {}
 var status_manager = null
 
-var CELL_SIZE: Vector2 = Vector2(48, 48)
-var CELL_GAP: float = 4.0
+var hex_size: float = 48.0
+const HEX_INSET: float = 2.0
 
 
-## Convert grid position to visual position (direct mapping)
+## Convert grid position to visual position (pointy-top, odd-row offset)
 func _grid_to_visual(grid_pos: Vector2i) -> Vector2:
-	return Vector2(grid_pos.x, grid_pos.y) * (CELL_SIZE + Vector2(CELL_GAP, CELL_GAP))
+	var col = grid_pos.x
+	var row = grid_pos.y
+	var x = hex_size * sqrt(3.0) * (col + 0.5 * (row & 1))
+	var y = hex_size * 1.5 * row
+	return Vector2(x, y)
+
+
+## Generate pointy-top hex polygon vertices centered at origin
+func _hex_polygon(size: float) -> PackedVector2Array:
+	var points = PackedVector2Array()
+	for i in range(6):
+		var angle_deg = 60.0 * i - 30.0
+		var angle_rad = deg_to_rad(angle_deg)
+		points.append(Vector2(size * cos(angle_rad), size * sin(angle_rad)))
+	return points
+
+
+## Convert pixel position to grid offset coordinates (pointy-top hex)
+func _pixel_to_hex(pixel: Vector2) -> Vector2i:
+	var q_frac = (sqrt(3.0) / 3.0 * pixel.x - 1.0 / 3.0 * pixel.y) / hex_size
+	var r_frac = (2.0 / 3.0 * pixel.y) / hex_size
+	var s_frac = -q_frac - r_frac
+	var q = round(q_frac)
+	var r = round(r_frac)
+	var s = round(s_frac)
+	var q_diff = abs(q - q_frac)
+	var r_diff = abs(r - r_frac)
+	var s_diff = abs(s - s_frac)
+	if q_diff > r_diff and q_diff > s_diff:
+		q = -r - s
+	elif r_diff > s_diff:
+		r = -q - s
+	var row = int(r)
+	var col = int(q) + (int(r) - (int(r) & 1)) / 2
+	return Vector2i(col, row)
 
 
 ## Start target selection for a skill (unified grid)
-func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_status_manager = null, p_cell_size: Vector2 = Vector2.ZERO, p_cell_gap: float = 4.0) -> void:
+func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_status_manager = null, p_hex_size: float = 0.0) -> void:
 	current_skill = skill
 	current_user = user
 	all_units_ref = p_all_units
@@ -48,13 +82,10 @@ func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionar
 	grid_size_ref = p_grid_size
 	grid_node_ref = p_grid_node
 
-	# Use provided cell size if given, otherwise load from config
-	if p_cell_size != Vector2.ZERO:
-		CELL_SIZE = p_cell_size
-		CELL_GAP = p_cell_gap
+	if p_hex_size > 0.0:
+		hex_size = p_hex_size
 	else:
-		CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
-		CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+		hex_size = CombatConfigLoaderClass.get_hex_size()
 
 	if p_status_manager != null:
 		status_manager = p_status_manager
@@ -96,19 +127,16 @@ func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionar
 
 
 ## Start move targeting - highlights valid reachable cells
-func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_cell_size: Vector2 = Vector2.ZERO, p_cell_gap: float = 4.0) -> void:
+func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_hex_size: float = 0.0) -> void:
 	current_user = unit
 	grid_ref = p_grid
 	grid_size_ref = p_grid_size
 	grid_node_ref = p_grid_node
 
-	# Use provided cell size if given, otherwise load from config
-	if p_cell_size != Vector2.ZERO:
-		CELL_SIZE = p_cell_size
-		CELL_GAP = p_cell_gap
+	if p_hex_size > 0.0:
+		hex_size = p_hex_size
 	else:
-		CELL_SIZE = CombatConfigLoaderClass.get_cell_size()
-		CELL_GAP = CombatConfigLoaderClass.get_cell_gap()
+		hex_size = CombatConfigLoaderClass.get_hex_size()
 
 	is_active = true
 	is_move_mode = true
@@ -155,24 +183,16 @@ func _input(event: InputEvent) -> void:
 
 ## Check if a click hit a valid target
 func _check_target_click(click_pos: Vector2) -> void:
+	if grid_node_ref == null:
+		return
+	var local_pos = click_pos - grid_node_ref.global_position
+	var hex_pos = _pixel_to_hex(local_pos)
+
 	for target in valid_targets:
-		var target_rect = _get_target_rect(target)
-		if target_rect.has_point(click_pos):
+		var target_grid_pos = target.get("grid_position", Vector2i(-1, -1))
+		if hex_pos == target_grid_pos:
 			_select_target(target)
 			return
-
-
-## Get the screen rect for a target (unified grid, direct mapping)
-func _get_target_rect(target: Dictionary) -> Rect2:
-	var grid_pos = target.get("grid_position", Vector2i(0, 0))
-
-	if grid_node_ref == null:
-		return Rect2()
-
-	var pos = _grid_to_visual(grid_pos)
-	var global_pos = grid_node_ref.global_position + pos
-
-	return Rect2(global_pos, CELL_SIZE)
 
 
 ## Auto-select for "all" targeting skills
@@ -202,24 +222,21 @@ func _select_target(target: Dictionary) -> void:
 ## Show highlights on valid targets (unified grid)
 func _show_target_highlights() -> void:
 	_clear_highlights()
-
 	if grid_node_ref == null:
 		return
+
+	var inset_size = hex_size - HEX_INSET
+	var hex_poly = _hex_polygon(inset_size)
 
 	for target in valid_targets:
 		var grid_pos = target.get("grid_position", Vector2i(0, 0))
 		var pos = _grid_to_visual(grid_pos)
-		var cell_visual_size = CELL_SIZE - Vector2(CELL_GAP, CELL_GAP)
 
-		var highlight = ColorRect.new()
-		highlight.size = cell_visual_size
-		highlight.position = pos + Vector2(CELL_GAP / 2, CELL_GAP / 2)
-		highlight.color = Color(1.0, 1.0, 0.0, 0.3)  # Yellow highlight
+		var highlight = Polygon2D.new()
+		highlight.polygon = hex_poly
+		highlight.position = pos
+		highlight.color = Color(1.0, 1.0, 0.0, 0.3)
 		highlight.name = "highlight_%s" % target.get("id", "")
-
-		# Make it clickable by adding input handling
-		highlight.mouse_filter = Control.MOUSE_FILTER_STOP
-		highlight.gui_input.connect(_on_highlight_input.bind(target))
 
 		grid_node_ref.add_child(highlight)
 		highlight_nodes.append(highlight)
@@ -231,12 +248,6 @@ func _clear_highlights() -> void:
 		if is_instance_valid(node):
 			node.queue_free()
 	highlight_nodes.clear()
-
-
-## Handle click on highlight
-func _on_highlight_input(event: InputEvent, target: Dictionary) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_select_target(target)
 
 
 ## Get currently valid targets (for UI display)
@@ -253,14 +264,11 @@ func is_targeting() -> bool:
 func _check_move_click(click_pos: Vector2) -> void:
 	if grid_node_ref == null:
 		return
+	var local_pos = click_pos - grid_node_ref.global_position
+	var hex_pos = _pixel_to_hex(local_pos)
 
-	for pos in valid_move_positions:
-		var cell_pos = _grid_to_visual(pos)
-		var global_pos = grid_node_ref.global_position + cell_pos
-		var rect = Rect2(global_pos, CELL_SIZE)
-		if rect.has_point(click_pos):
-			_select_move_position(pos)
-			return
+	if hex_pos in valid_move_positions:
+		_select_move_position(hex_pos)
 
 
 ## Select a move position and emit signal
@@ -277,28 +285,20 @@ func _select_move_position(pos: Vector2i) -> void:
 ## Show highlights on valid move positions
 func _show_move_highlights() -> void:
 	_clear_highlights()
-
 	if grid_node_ref == null:
 		return
 
+	var inset_size = hex_size - HEX_INSET
+	var hex_poly = _hex_polygon(inset_size)
+
 	for pos in valid_move_positions:
 		var cell_pos = _grid_to_visual(pos)
-		var cell_visual_size = CELL_SIZE - Vector2(CELL_GAP, CELL_GAP)
 
-		var highlight = ColorRect.new()
-		highlight.size = cell_visual_size
-		highlight.position = cell_pos + Vector2(CELL_GAP / 2, CELL_GAP / 2)
-		highlight.color = Color(0.0, 1.0, 0.0, 0.3)  # Green highlight for move
+		var highlight = Polygon2D.new()
+		highlight.polygon = hex_poly
+		highlight.position = cell_pos
+		highlight.color = Color(0.0, 1.0, 0.0, 0.3)
 		highlight.name = "move_highlight_%d_%d" % [pos.x, pos.y]
-
-		highlight.mouse_filter = Control.MOUSE_FILTER_STOP
-		highlight.gui_input.connect(_on_move_highlight_input.bind(pos))
 
 		grid_node_ref.add_child(highlight)
 		highlight_nodes.append(highlight)
-
-
-## Handle click on move highlight
-func _on_move_highlight_input(event: InputEvent, pos: Vector2i) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_select_move_position(pos)

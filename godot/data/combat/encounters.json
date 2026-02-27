@@ -4,37 +4,37 @@
       "id": "two_scouts",
       "name": "Two Scouts",
       "description": "Two fast, fragile scouts. Good for testing basic combat flow.",
-      "enemy_ids": ["grunt_a", "grunt_a"]
+      "enemy_ids": ["corrupted_scout", "corrupted_scout"]
     },
     {
       "id": "scout_brute",
       "name": "Scout + Brute",
       "description": "A fast scout paired with a slow but tough brute. The default test encounter.",
-      "enemy_ids": ["grunt_a", "grunt_b"]
+      "enemy_ids": ["corrupted_scout", "corrupted_brute"]
     },
     {
       "id": "brute_caster",
       "name": "Brute + Caster",
       "description": "A tanky brute covering a fragile caster. Tests front-row protection mechanics.",
-      "enemy_ids": ["grunt_b", "grunt_c"]
+      "enemy_ids": ["corrupted_brute", "corrupted_caster"]
     },
     {
       "id": "full_squad",
       "name": "Full Squad (3v3)",
       "description": "One of each enemy type. Tests a full 3v3 encounter with all archetypes.",
-      "enemy_ids": ["grunt_a", "grunt_b", "grunt_c"]
+      "enemy_ids": ["corrupted_scout", "corrupted_brute", "corrupted_caster"]
     },
     {
       "id": "double_brute",
       "name": "Twin Brutes",
       "description": "Two heavily armored brutes. Tests sustained damage output against high HP.",
-      "enemy_ids": ["grunt_b", "grunt_b"]
+      "enemy_ids": ["corrupted_brute", "corrupted_brute"]
     },
     {
       "id": "caster_support",
       "name": "Scout + Two Casters",
       "description": "A scout flanked by two casters. Targets tend to cluster in the back — test positioning.",
-      "enemy_ids": ["grunt_a", "grunt_c", "grunt_c"]
+      "enemy_ids": ["corrupted_scout", "corrupted_caster", "corrupted_caster"]
     }
   ]
 }
