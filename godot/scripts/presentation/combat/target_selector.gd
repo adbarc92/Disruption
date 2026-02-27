@@ -192,6 +192,8 @@ func _auto_select_all() -> void:
 
 ## Select a target and emit signal
 func _select_target(target: Dictionary) -> void:
+	if not is_active:
+		return
 	is_active = false
 	_clear_highlights()
 	target_selected.emit(target.get("id", ""))
@@ -263,6 +265,8 @@ func _check_move_click(click_pos: Vector2) -> void:
 
 ## Select a move position and emit signal
 func _select_move_position(pos: Vector2i) -> void:
+	if not is_active:
+		return
 	is_active = false
 	is_move_mode = false
 	valid_move_positions.clear()

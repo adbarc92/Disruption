@@ -13,7 +13,11 @@
         "resonance": 5,
         "agility": 6
       },
-      "starting_abilities": ["basic_attack", "edge_shift", "true_strike"],
+      "starting_abilities": [
+        "basic_attack",
+        "edge_shift",
+        "true_strike"
+      ],
       "burst_mode": {
         "name": "Elemental Mastery",
         "duration": 5,
@@ -23,7 +27,10 @@
           "special": "all_attacks_gain_random_element"
         }
       },
-      "roles": ["bladewarden", "synergist"]
+      "roles": [
+        "bladewarden",
+        "synergist"
+      ]
     },
     {
       "id": "vaughn",
@@ -35,9 +42,13 @@
         "strength": 6,
         "dexterity": 8,
         "resonance": 4,
-        "agility": 7
+        "agility": 8
       },
-      "starting_abilities": ["basic_attack", "hamstring", "leadership"],
+      "starting_abilities": [
+        "basic_attack",
+        "hamstring",
+        "leadership"
+      ],
       "burst_mode": {
         "name": "Master Tactician",
         "duration": 5,
@@ -47,7 +58,10 @@
           "special": "allies_gain_extra_action"
         }
       },
-      "roles": ["shadowfang", "warcrier"]
+      "roles": [
+        "shadowfang",
+        "warcrier"
+      ]
     },
     {
       "id": "phaidros",
@@ -61,7 +75,11 @@
         "resonance": 6,
         "agility": 4
       },
-      "starting_abilities": ["basic_attack", "ironflesh", "derisive_snort"],
+      "starting_abilities": [
+        "basic_attack",
+        "ironflesh",
+        "derisive_snort"
+      ],
       "burst_mode": {
         "name": "Mountain King",
         "duration": 6,
@@ -71,7 +89,10 @@
           "special": "immune_to_forced_movement"
         }
       },
-      "roles": ["ironskin", "geovant"]
+      "roles": [
+        "ironskin",
+        "geovant"
+      ]
     }
   ]
 }

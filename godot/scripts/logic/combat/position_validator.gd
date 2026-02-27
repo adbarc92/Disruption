@@ -38,17 +38,8 @@ static func get_valid_targets(skill: Dictionary, user: Dictionary, potential_tar
 		if skill_range == 0:
 			# Unlimited range
 			valid.append(target)
-		elif range_type == "melee":
-			# Melee: either adjacent already, or can path to an adjacent cell
-			if is_in_range(user_pos, target_pos, skill_range):
-				valid.append(target)
-			else:
-				# Check if unit can move to a cell adjacent to target
-				var move_range = get_movement_range(user)
-				if _can_reach_adjacent(user_pos, target_pos, move_range, grid, grid_size):
-					valid.append(target)
 		else:
-			# Ranged: simple Manhattan distance check
+			# Both melee and ranged use Manhattan distance check
 			if is_in_range(user_pos, target_pos, skill_range):
 				valid.append(target)
 
@@ -132,23 +123,6 @@ static func targets_enemies(skill: Dictionary) -> bool:
 static func targets_all(skill: Dictionary) -> bool:
 	var target_type = get_targeting_type(skill)
 	return target_type in ["self", "all_allies", "all_enemies"]
-
-
-## Check if a unit can reach a cell adjacent to the target within movement range
-static func _can_reach_adjacent(user_pos: Vector2i, target_pos: Vector2i, move_range: int, grid: Dictionary, grid_size: Vector2i) -> bool:
-	# Get all cells adjacent to the target
-	var adjacent_cells = GridPathfinderClass._get_neighbors(target_pos, grid_size)
-
-	for adj in adjacent_cells:
-		# Skip occupied cells (can't stand there)
-		if grid.has(adj):
-			continue
-		# Check if we can path there within movement range
-		var path = GridPathfinderClass.find_path(user_pos, adj, grid, grid_size)
-		if not path.is_empty() and path.size() - 1 <= move_range:
-			return true
-
-	return false
 
 
 ## Filter units by side (ally/enemy)

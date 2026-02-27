@@ -95,18 +95,19 @@ func get_current_unit_id() -> String:
 ## Advance the current unit's turn with optional AP bonus
 ## Call this when a unit ends their turn
 func end_turn(unit_id: String, speed: int, remaining_ap: int = 0) -> void:
-	# Find and update the unit's entry
+	# Normalize first: advance time so the acting unit reaches 0
+	# This ensures other units' ticks reflect the time that passed
+	_normalize_queue()
+
+	# Now set new ticks for the acting unit (placed at back of queue)
 	for entry in _turn_queue:
 		if entry.unit_id == unit_id:
-			# Calculate new tick count with AP bonus
 			var new_ticks = calculate_ticks_with_ap_bonus(speed, remaining_ap)
 			entry.ticks_remaining = new_ticks
 			entry.speed = speed  # Update in case speed changed
 			entry._random_tiebreaker = randf()  # New random for future ties
 			break
 
-	# Normalize: subtract minimum ticks from all entries so next unit is at 0
-	_normalize_queue()
 	_sort_queue()
 
 

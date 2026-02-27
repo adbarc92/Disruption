@@ -56,10 +56,13 @@ static func calculate_damage(skill: Dictionary, attacker_stats: Dictionary, defe
 	# Calculate type effectiveness
 	result.effectiveness = _calculate_effectiveness(result.damage_type, damage_subtype, defender)
 
+	# Apply base damage multiplier (global tuning knob)
+	var base_mult = CombatConfigLoaderClass.get_balance("base_damage_multiplier", 1.0)
+	var final_damage = after_defense * result.effectiveness * crit_multiplier * base_mult
+
 	# Final damage
 	var min_damage = int(CombatConfigLoaderClass.get_balance("min_damage", 1))
-	result.damage = int(floor(after_defense * result.effectiveness * crit_multiplier))
-	result.damage = max(min_damage, result.damage)
+	result.damage = max(min_damage, int(floor(final_damage)))
 
 	# Debug: log damage breakdown
 	var attacker_name = attacker_stats.get("name", "???")

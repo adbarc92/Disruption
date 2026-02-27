@@ -44,6 +44,7 @@ var grid: Dictionary = {}       # Vector2i -> unit_id
 # Selected action/target
 var selected_action: String = ""
 var selected_skill: Dictionary = {}
+var _pending_ap_cost: int = 0  # AP cost deferred until action is confirmed
 
 # Core systems (CTB turn order + AP economy)
 var _ctb_manager = null  # CTBTurnManager instance
@@ -501,8 +502,9 @@ func _initialize_turn_systems() -> void:
 		var unit = all_units[unit_id]
 		var speed = unit.get("speed", 5)
 		var constitution = unit.get("constitution", 5)
+		var agility = unit.get("base_stats", {}).get("agility", 5)
 		_ctb_manager.add_unit(unit_id, speed)
-		_ap_system.register_unit(unit_id, constitution, unit.get("is_ally", false))
+		_ap_system.register_unit(unit_id, constitution, unit.get("is_ally", false), agility)
 
 
 func _update_turn_order_ui() -> void:
@@ -549,7 +551,8 @@ func _update_action_buttons() -> void:
 	var move_btn = $UI/ActionPanel/ActionButtons/MoveButton
 
 	attack_btn.disabled = not _ap_system.can_afford(current_unit.id, "attack")
-	skill_btn.disabled = not _ap_system.can_afford(current_unit.id, "skill_standard")
+	# Enable skill button if any skill is affordable (cheapest is 1 AP for light skills)
+	skill_btn.disabled = not _ap_system.can_afford(current_unit.id, "skill_light")
 	item_btn.disabled = not _ap_system.can_afford(current_unit.id, "item")
 	move_btn.disabled = not _ap_system.can_afford(current_unit.id, "move")
 
@@ -817,17 +820,42 @@ func _handle_ai_turn() -> void:
 			status_manager
 		)
 
-		_ap_system.spend_action(current_unit.id, "attack")
-
 		var skill = skills_data.get(decision.skill_id, skills_data.get("basic_attack", {}))
 		var target_id = decision.target_ids[0] if not decision.target_ids.is_empty() else ""
 		var target = _find_unit_by_id(target_id)
 
+		# Validate target is alive
 		if target.is_empty() or target.get("current_hp", 0) <= 0:
 			var alive_enemies = get_ally_units()  # Allies are AI's enemies
 			if alive_enemies.is_empty():
 				break
 			target = alive_enemies[randi() % alive_enemies.size()]
+
+		# Check if the target is actually in range
+		var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+		var user_pos: Vector2i = current_unit.get("grid_position", Vector2i(0, 0))
+		var skill_range = PositionValidatorClass.get_skill_range(skill)
+		var in_range = skill_range == 0 or PositionValidatorClass.is_in_range(user_pos, target_pos, skill_range)
+
+		if not in_range:
+			# Not in range — try to move closer first
+			if _ap_system.can_afford(current_unit.id, "move"):
+				var moved = await _ai_move_toward_enemies(current_unit)
+				if moved:
+					actions_taken += 1
+					continue  # Re-evaluate after moving
+			break  # Can't move or still not in range, end turn
+
+		# Spend AP for the skill
+		var ap_cost = _ap_system.get_skill_cost(skill)
+		if not _ap_system.can_afford_amount(current_unit.id, ap_cost):
+			break
+		_ap_system.spend_ap(current_unit.id, ap_cost)
+
+		# Deduct MP for AI skill usage
+		var ai_mp_cost = skill.get("mp_cost", 0)
+		if ai_mp_cost > 0:
+			current_unit["current_mp"] = max(0, current_unit.get("current_mp", 0) - ai_mp_cost)
 
 		await _execute_skill(skill, current_unit, target)
 		actions_taken += 1
@@ -842,19 +870,9 @@ func _handle_ai_turn() -> void:
 
 func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:
 	var skill_name = skill.get("name", "Attack")
-	var mp_cost = skill.get("mp_cost", 0)
 
-	# Deduct MP
-	if mp_cost > 0:
-		user["current_mp"] = max(0, user.get("current_mp", 0) - mp_cost)
-
-	# For melee skills, auto-move adjacent if not already adjacent
-	var range_type = skill.get("range_type", "melee")
-	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
-	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
-
-	if range_type == "melee" and not GridPathfinderClass.is_adjacent(user_pos, target_pos):
-		await _auto_move_to_target(user, target)
+	# Note: MP is deducted in _on_target_selected before calling this.
+	# AI turns deduct MP in _handle_ai_turn.
 
 	# Handle damage
 	if skill.has("damage"):
@@ -927,34 +945,45 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	await get_tree().create_timer(1.0).timeout
 
 
-## Auto-move user to a cell adjacent to target (for melee skills)
-func _auto_move_to_target(user: Dictionary, target: Dictionary) -> void:
-	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
-	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+## AI movement: move toward the nearest enemy when no melee target is in range
+## Returns true if movement was executed
+func _ai_move_toward_enemies(unit: Dictionary) -> bool:
+	var unit_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
+	var move_range = PositionValidatorClass.get_movement_range(unit)
+	var reachable = GridPathfinderClass.get_cells_in_range(unit_pos, move_range, grid, GRID_SIZE)
 
-	# Find the closest empty cell adjacent to the target
-	var best_adj = Vector2i(-1, -1)
+	if reachable.is_empty():
+		return false
+
+	# Find the closest enemy
+	var enemies = get_ally_units()  # AI's enemies are allies
+	if enemies.is_empty():
+		return false
+
+	# Pick the reachable cell that minimizes distance to the nearest enemy
+	var best_cell = Vector2i(-1, -1)
 	var best_dist = 999
 
-	var adjacent_cells = GridPathfinderClass._get_neighbors(target_pos, GRID_SIZE)
-	for adj in adjacent_cells:
-		if grid.has(adj) and grid[adj] != user.get("id", ""):
-			continue
-		if adj == user_pos:
-			return  # Already adjacent
-		var path = GridPathfinderClass.find_path(user_pos, adj, grid, GRID_SIZE)
-		if not path.is_empty() and path.size() < best_dist:
-			best_dist = path.size()
-			best_adj = adj
+	for cell in reachable:
+		for enemy in enemies:
+			var enemy_pos: Vector2i = enemy.get("grid_position", Vector2i(0, 0))
+			var dist = GridPathfinderClass.manhattan_distance(cell, enemy_pos)
+			if dist < best_dist:
+				best_dist = dist
+				best_cell = cell
 
-	if best_adj == Vector2i(-1, -1):
-		return
+	if best_cell == Vector2i(-1, -1) or best_cell == unit_pos:
+		return false
 
-	var path = GridPathfinderClass.find_path(user_pos, best_adj, grid, GRID_SIZE)
+	var path = GridPathfinderClass.find_path(unit_pos, best_cell, grid, GRID_SIZE)
 	if path.is_empty():
-		return
+		return false
 
-	await _execute_movement(user, best_adj, path)
+	_ap_system.spend_action(unit.get("id", ""), "move")
+	await _execute_movement(unit, best_cell, path)
+	_draw_grid()
+	await get_tree().create_timer(0.2).timeout
+	return true
 
 
 ## Execute movement along a path with opportunity attack detection
@@ -1092,6 +1121,10 @@ func _end_turn() -> void:
 
 	# Get remaining AP for CTB speed bonus
 	var remaining_ap = _ap_system.end_turn(current_unit.id)
+	var unit_name = current_unit.get("name", "?")
+	var log_color = Color.CYAN if current_unit.get("is_ally", false) else Color(1.0, 0.5, 0.5)
+	_log_action("--- %s ends turn (AP left: %d) ---" % [unit_name, remaining_ap], log_color)
+
 	var speed = current_unit.get("speed", 5)
 	_ctb_manager.end_turn(current_unit.id, speed, remaining_ap)
 
@@ -1160,6 +1193,32 @@ func _find_unit_by_id(unit_id: String) -> Dictionary:
 
 
 # ============================================================================
+# MULTI-ACTION TURN FLOW
+# ============================================================================
+
+## After executing an action, return to action selection if AP remains.
+## Otherwise, end the turn automatically.
+func _return_to_action_selection() -> void:
+	var remaining_ap = _ap_system.get_current_ap(current_unit.id)
+	if remaining_ap <= 0 or current_unit.get("current_hp", 0) <= 0:
+		_end_turn()
+		return
+
+	# Check if combat ended (target might have been defeated)
+	if _check_combat_end():
+		return
+
+	current_phase = CombatPhase.SELECTING_ACTION
+	action_panel.visible = true
+	status_label.text = "%s's turn (AP: %d)" % [current_unit.get("name", "?"), remaining_ap]
+	_log_action("  %s has %d AP remaining" % [current_unit.get("name", "?"), remaining_ap], Color(0.6, 0.8, 0.6))
+	_update_ap_display()
+	_update_action_buttons()
+	_update_turn_order_ui()
+	_update_unit_visuals()
+
+
+# ============================================================================
 # ACTION HANDLERS
 # ============================================================================
 
@@ -1171,10 +1230,10 @@ func _on_attack_pressed() -> void:
 		status_label.text = "Not enough AP!"
 		return
 
-	_ap_system.spend_action(current_unit.id, "attack")
-
+	# AP is spent after target confirmation, not here
 	selected_skill = skills_data.get("basic_attack", {})
 	selected_action = "attack"
+	_pending_ap_cost = _ap_system.get_action_cost("attack")
 	current_phase = CombatPhase.SELECTING_TARGET
 	status_label.text = "Select target..."
 	action_panel.visible = false
@@ -1197,12 +1256,20 @@ func _on_skill_pressed() -> void:
 		return
 
 	action_panel.visible = false
-	skill_panel.show_skills(current_unit, skills_data, all_units, grid, GRID_SIZE)
+	skill_panel.show_skills(current_unit, skills_data, all_units, grid, GRID_SIZE, _ap_system)
 
 
 func _on_skill_selected(skill_id: String) -> void:
 	selected_skill = skills_data.get(skill_id, {})
 	selected_action = "skill"
+
+	# Determine AP cost for this skill (deferred until confirmation)
+	_pending_ap_cost = _ap_system.get_skill_cost(selected_skill)
+	if not _ap_system.can_afford_amount(current_unit.id, _pending_ap_cost):
+		status_label.text = "Not enough AP for %s!" % selected_skill.get("name", skill_id)
+		action_panel.visible = true
+		return
+
 	current_phase = CombatPhase.SELECTING_TARGET
 	status_label.text = "Select target for %s..." % selected_skill.get("name", skill_id)
 
@@ -1220,12 +1287,23 @@ func _on_skill_selected(skill_id: String) -> void:
 
 
 func _on_skill_cancelled() -> void:
+	_pending_ap_cost = 0
 	action_panel.visible = true
 	current_phase = CombatPhase.SELECTING_ACTION
+	_update_ap_display()
+	_update_action_buttons()
 
 
 func _on_target_selected(target_id: String) -> void:
 	var target = _find_unit_by_id(target_id)
+
+	# Spend the deferred AP cost now that action is confirmed
+	_ap_system.spend_ap(current_unit.id, _pending_ap_cost)
+
+	# Deduct MP cost
+	var mp_cost = selected_skill.get("mp_cost", 0)
+	if mp_cost > 0:
+		current_unit["current_mp"] = max(0, current_unit.get("current_mp", 0) - mp_cost)
 
 	# Consume taunt charge when player targets enemies
 	if current_unit.get("is_ally", true):
@@ -1242,23 +1320,27 @@ func _on_target_selected(target_id: String) -> void:
 		await _execute_skill_on_all(selected_skill, current_unit, targets)
 	elif tt == "self":
 		await _execute_skill(selected_skill, current_unit, current_unit)
-		_end_turn()
+		_return_to_action_selection()
 	else:
 		if not target.is_empty():
 			await _execute_skill(selected_skill, current_unit, target)
-		_end_turn()
+		_return_to_action_selection()
 
 
 func _execute_skill_on_all(skill: Dictionary, user: Dictionary, targets: Array) -> void:
 	for target in targets:
 		await _execute_skill(skill, user, target)
-	_end_turn()
+	_return_to_action_selection()
 
 
 func _on_targeting_cancelled() -> void:
+	_pending_ap_cost = 0
 	action_panel.visible = true
 	current_phase = CombatPhase.SELECTING_ACTION
-	status_label.text = "%s's turn" % current_unit.get("name", "?")
+	var remaining_ap = _ap_system.get_current_ap(current_unit.id)
+	status_label.text = "%s's turn (AP: %d)" % [current_unit.get("name", "?"), remaining_ap]
+	_update_ap_display()
+	_update_action_buttons()
 
 
 func _on_item_pressed() -> void:
@@ -1289,8 +1371,9 @@ func _on_move_position_selected(position: Vector2i) -> void:
 	await _execute_movement(current_unit, position, path)
 
 	_draw_grid()
+	_highlight_current_unit()
 	await get_tree().create_timer(0.3).timeout
-	_end_turn()
+	_return_to_action_selection()
 
 
 func _on_defend_pressed() -> void:

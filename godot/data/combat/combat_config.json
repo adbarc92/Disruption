@@ -18,11 +18,15 @@
     "crit_multiplier": 1.5,
     "speed_per_agility": 2,
     "mp_regen_per_turn": 2,
-    "base_damage_multiplier": 0.75,
+    "base_damage_multiplier": 0.25,
     "min_damage": 1
   },
+  "ap": {
+    "base": 1,
+    "agility_divisor": 4
+  },
   "opportunity_attacks": {
-    "enabled": true,
+    "enabled": false,
     "damage_multiplier": 0.5,
     "max_per_move": 3
   }

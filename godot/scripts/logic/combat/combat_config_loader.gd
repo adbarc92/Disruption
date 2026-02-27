@@ -81,6 +81,20 @@ static func get_movement_range(agility: int) -> int:
 	return int(floor(float(agility) / divisor)) + base_range
 
 
+## Get AP base value (added to agility-derived bonus each turn)
+static func get_ap_base() -> int:
+	_ensure_loaded()
+	var ap = _config.get("ap", {})
+	return ap.get("base", 1)
+
+
+## Get AP agility divisor (formula: base + floor(agility / divisor))
+static func get_ap_agility_divisor() -> int:
+	_ensure_loaded()
+	var ap = _config.get("ap", {})
+	return ap.get("agility_divisor", 4)
+
+
 ## Get opportunity attack damage multiplier
 static func get_oa_damage_mult() -> float:
 	_ensure_loaded()

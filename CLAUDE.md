@@ -6,6 +6,16 @@ Disruption is a turn-based tactical RPG combining elements from Darkest Dungeon 
 
 ---
 
+## Session Startup
+
+When starting work on the **combat demo**, read the guidestone file first:
+`C:\Users\barclay\.claude\projects\D--MajorProjects-GAME-DEVELOPMENT-Disruption\memory\combat-demo.md`
+It contains architecture maps, file paths, data formats, formulas, turn flow, known gaps, and uncommitted changes.
+
+After finishing combat demo changes, update the guidestone to reflect any new files, changed formulas, added/removed features, or resolved gaps.
+
+---
+
 ## Current Development Target: Vertical Slice
 
 ### Technical Decisions

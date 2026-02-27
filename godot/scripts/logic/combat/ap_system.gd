@@ -5,11 +5,14 @@ extends RefCounted
 ##
 ## This class has no Godot scene dependencies and can be tested in isolation.
 
+const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+
 # ============================================================================
 # TUNABLE CONSTANTS - See docs/00_Development/Battle_Tuning_Lab.md
 # ============================================================================
 
-const BASE_AP_PER_TURN: int = 3
+## Fallback if config not loaded. Actual value derived from config ap.base + agility / ap.agility_divisor.
+const BASE_AP_PER_TURN: int = 2
 
 ## Action costs by type
 const AP_COSTS: Dictionary = {
@@ -38,6 +41,7 @@ class UnitAPState:
 	var current_ap: int
 	var conserved_ap: int  # Carried from previous turn (players only)
 	var ap_cap: int  # Maximum total AP (based on constitution)
+	var base_ap: int  # AP granted per turn (from agility formula)
 	var is_ally: bool
 
 	func _init(p_unit_id: String, p_ap_cap: int, p_is_ally: bool) -> void:
@@ -45,6 +49,7 @@ class UnitAPState:
 		current_ap = 0
 		conserved_ap = 0
 		ap_cap = p_ap_cap
+		base_ap = BASE_AP_PER_TURN
 		is_ally = p_is_ally
 
 	func get_available_ap() -> int:
@@ -68,10 +73,23 @@ func reset() -> void:
 
 ## Register a unit with the AP system
 ## constitution: determines AP cap for player characters
+## agility: used to derive base AP per turn from config formula
 ## is_ally: only allies can conserve AP
-func register_unit(unit_id: String, constitution: int, is_ally: bool) -> void:
-	var ap_cap = constitution if is_ally else BASE_AP_PER_TURN
-	_unit_states[unit_id] = UnitAPState.new(unit_id, ap_cap, is_ally)
+func register_unit(unit_id: String, constitution: int, is_ally: bool, agility: int = 5) -> void:
+	var base_ap = _calculate_base_ap(agility)
+	var ap_cap = max(constitution, base_ap) if is_ally else base_ap
+	var state = UnitAPState.new(unit_id, ap_cap, is_ally)
+	state.base_ap = base_ap
+	_unit_states[unit_id] = state
+
+
+## Calculate base AP per turn from config: base + floor(agility / divisor)
+func _calculate_base_ap(agility: int) -> int:
+	var base = int(CombatConfigLoaderClass.get_ap_base())
+	var divisor = int(CombatConfigLoaderClass.get_ap_agility_divisor())
+	if divisor <= 0:
+		divisor = 4
+	return base + int(floor(float(agility) / float(divisor)))
 
 
 ## Remove a unit (e.g., when defeated)
@@ -89,12 +107,12 @@ func start_turn(unit_id: String) -> int:
 	if state == null:
 		return BASE_AP_PER_TURN
 
-	# Calculate available AP: base + conserved, capped at constitution
-	var available = BASE_AP_PER_TURN + state.conserved_ap
+	# Calculate available AP: base_ap + conserved, capped at ap_cap
+	var available = state.base_ap + state.conserved_ap
 	if state.is_ally:
 		available = min(available, state.ap_cap)
 	else:
-		available = BASE_AP_PER_TURN  # Enemies don't conserve
+		available = state.base_ap  # Enemies don't conserve
 
 	state.current_ap = available
 	return available

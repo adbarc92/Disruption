@@ -20,6 +20,7 @@ var skill_buttons: Array[Button] = []
 var _all_units: Dictionary = {}
 var _grid: Dictionary = {}
 var _grid_size: Vector2i = Vector2i(10, 6)
+var _ap_system = null  # APSystem reference for cost checks
 
 
 func _ready() -> void:
@@ -28,12 +29,13 @@ func _ready() -> void:
 
 
 ## Show skills for a unit (unified grid version)
-func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6)) -> void:
+func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6), ap_system = null) -> void:
 	current_unit = unit
 	skills_data = all_skills
 	_all_units = all_units
 	_grid = grid
 	_grid_size = grid_size
+	_ap_system = ap_system
 
 	_populate_skill_list()
 	visible = true
@@ -68,18 +70,27 @@ func _populate_skill_list() -> void:
 		var mp_cost = skill.get("mp_cost", 0)
 		var action_type = skill.get("action_type", "action")
 
+		# Get AP cost for this skill
+		var ap_cost = 2  # default for standard skill
+		if _ap_system != null:
+			ap_cost = _ap_system.get_skill_cost(skill)
+
 		var action_tag = ""
 		if action_type == "bonus_action":
 			action_tag = " [B]"
 
-		button.text = "%s%s - %d MP" % [skill_name, action_tag, mp_cost]
+		button.text = "%s%s - %d AP, %d MP" % [skill_name, action_tag, ap_cost, mp_cost]
 		button.custom_minimum_size = Vector2(280, 35)
 
 		# Check if usable
 		var can_use = true
 		var disable_reason = ""
 
-		if current_mp < mp_cost:
+		# Check AP affordability
+		if _ap_system != null and not _ap_system.can_afford_amount(current_unit.get("id", ""), ap_cost):
+			can_use = false
+			disable_reason = "Not enough AP (%d needed)" % ap_cost
+		elif current_mp < mp_cost:
 			can_use = false
 			disable_reason = "Not enough MP"
 		elif not _all_units.is_empty() and not PositionValidatorClass.can_use_skill(skill, current_unit, _all_units, _grid, _grid_size):

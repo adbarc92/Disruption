@@ -6,6 +6,7 @@
       "name": "Attack",
       "description": "A basic physical attack.",
       "action_type": "action",
+      "ap_cost": 1,
       "mp_cost": 0,
       "damage": {
         "base": 100,
@@ -27,6 +28,7 @@
       "name": "Edge Shift",
       "description": "Reconfigure weapon element for next 3 attacks.",
       "action_type": "bonus_action",
+      "ap_cost": 1,
       "mp_cost": 2,
       "effect": {
         "type": "self_buff",
@@ -47,6 +49,7 @@
       "name": "True Strike",
       "description": "Lunge to target, deal piercing damage that cannot be dodged.",
       "action_type": "action",
+      "ap_cost": 2,
       "mp_cost": 2,
       "damage": {
         "base": 130,
@@ -74,6 +77,7 @@
       "name": "Hamstring",
       "description": "Deal damage and reduce enemy speed.",
       "action_type": "action",
+      "ap_cost": 2,
       "mp_cost": 2,
       "damage": {
         "base": 60,
@@ -102,6 +106,7 @@
       "name": "Leadership",
       "description": "Inspire allies with stat bonuses.",
       "action_type": "bonus_action",
+      "ap_cost": 1,
       "mp_cost": 2,
       "effect": {
         "type": "party_buff",
@@ -128,6 +133,7 @@
       "name": "Ironflesh",
       "description": "Grant an ally physical damage reduction.",
       "action_type": "bonus_action",
+      "ap_cost": 1,
       "mp_cost": 2,
       "effect": {
         "type": "ally_buff",
@@ -149,6 +155,7 @@
       "name": "Derisive Snort",
       "description": "Taunt all enemies to attack you.",
       "action_type": "action",
+      "ap_cost": 2,
       "mp_cost": 2,
       "effect": {
         "type": "enemy_debuff",
@@ -169,6 +176,7 @@
       "name": "Heavy Swing",
       "description": "A brutal overhead slam that crushes armor.",
       "action_type": "action",
+      "ap_cost": 2,
       "mp_cost": 2,
       "damage": {
         "base": 150,
@@ -183,6 +191,30 @@
       "usable_positions": ["front", "middle"],
       "target_positions": ["front", "middle"],
       "burst_gauge_gain": 8,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "dark_bolt",
+      "name": "Dark Bolt",
+      "description": "Launch a bolt of arcane energy at a distant target.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 3,
+      "damage": {
+        "base": 90,
+        "type": "magical",
+        "subtype": "arcane",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "ranged",
+        "range_value": 5
+      },
+      "range_type": "ranged",
+      "usable_positions": ["any"],
+      "target_positions": ["any"],
+      "burst_gauge_gain": 6,
       "burst_charge_type": "aggressive"
     }
   ]
