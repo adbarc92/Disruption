@@ -1,68 +1,190 @@
 {
-  "_FIXME": "Values need tweaking - placeholder enemies for vertical slice",
+  "_COMMENT": "Enemy Prototyping Lab - Test enemy archetypes and TTK",
+  "_TTK_NOTES": "At 20 damage/turn, 80 HP = 4 rounds. 120 HP = 6 rounds. Adjust based on feel.",
+
   "enemies": [
     {
-      "id": "grunt_a",
+      "_ARCHETYPE": "GLASS CANNON",
+      "id": "corrupted_scout",
       "name": "Corrupted Scout",
-      "description": "A fast but fragile enemy that attacks frequently.",
+      "description": "Fast, fragile, hits hard. Dies quickly but deals significant damage.",
       "category": "humanoid",
       "base_stats": {
-        "vigor": 4,
-        "strength": 5,
-        "dexterity": 6,
-        "resonance": 2,
-        "agility": 7
-      },
-      "hp": 45,
-      "mp": 10,
-      "resistances": {},
-      "weaknesses": ["lightning"],
-      "abilities": ["basic_attack"],
-      "ai_behavior": "aggressive",
-      "challenge_rating": 1,
-      "preferred_position": "front"
-    },
-    {
-      "id": "grunt_b",
-      "name": "Corrupted Brute",
-      "description": "A slow but powerful enemy with high defense.",
-      "category": "humanoid",
-      "base_stats": {
-        "vigor": 7,
+        "vigor": 3,
         "strength": 7,
-        "dexterity": 3,
-        "resonance": 3,
-        "agility": 3
+        "dexterity": 8,
+        "resonance": 2,
+        "agility": 9
       },
-      "hp": 80,
-      "mp": 5,
-      "resistances": ["physical"],
-      "weaknesses": ["fire"],
-      "abilities": ["basic_attack", "heavy_swing"],
-      "ai_behavior": "defensive",
+      "hp": 60,
+      "mp": 15,
+      "resistances": {},
+      "weaknesses": ["blunt"],
+      "abilities": ["basic_attack", "frenzy", "poison_strike"],
+      "ai_behavior": "aggressive",
       "challenge_rating": 2,
       "preferred_position": "front"
     },
+
     {
-      "id": "grunt_c",
+      "_ARCHETYPE": "TANK",
+      "id": "corrupted_brute",
+      "name": "Corrupted Brute",
+      "description": "Slow tank with high HP and defensive abilities.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 9,
+        "strength": 8,
+        "dexterity": 2,
+        "resonance": 2,
+        "agility": 3
+      },
+      "hp": 140,
+      "mp": 10,
+      "resistances": ["physical"],
+      "weaknesses": ["lightning"],
+      "abilities": ["basic_attack", "heavy_swing", "shield_bash"],
+      "ai_behavior": "defensive",
+      "challenge_rating": 3,
+      "preferred_position": "front"
+    },
+
+    {
+      "_ARCHETYPE": "RANGED DPS",
+      "id": "corrupted_caster",
       "name": "Corrupted Caster",
-      "description": "A fragile enemy that attacks from range with magic.",
+      "description": "Fragile ranged damage dealer. Priority target.",
       "category": "humanoid",
       "base_stats": {
         "vigor": 3,
         "strength": 2,
-        "dexterity": 5,
+        "dexterity": 6,
+        "resonance": 9,
+        "agility": 6
+      },
+      "hp": 50,
+      "mp": 40,
+      "resistances": ["arcane"],
+      "weaknesses": ["physical"],
+      "abilities": ["dark_bolt", "lightning_bolt", "ignite"],
+      "ai_behavior": "aggressive",
+      "challenge_rating": 3,
+      "preferred_position": "back"
+    },
+
+    {
+      "_ARCHETYPE": "DEBUFFER",
+      "id": "corrupted_hexer",
+      "name": "Corrupted Hexer",
+      "description": "Support enemy that weakens your party.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 4,
+        "strength": 3,
+        "dexterity": 7,
         "resonance": 7,
         "agility": 5
       },
-      "hp": 35,
+      "hp": 70,
       "mp": 30,
       "resistances": ["arcane"],
-      "weaknesses": ["physical"],
-      "abilities": ["basic_attack", "dark_bolt"],
+      "weaknesses": ["fire"],
+      "abilities": ["basic_attack", "weaken", "corrupting_aura", "venom_spit"],
       "ai_behavior": "support",
       "challenge_rating": 2,
-      "preferred_position": "back"
+      "preferred_position": "middle"
+    },
+
+    {
+      "_ARCHETYPE": "DISRUPTOR",
+      "id": "corrupted_brawler",
+      "name": "Corrupted Brawler",
+      "description": "Positioning-focused enemy that shoves and pulls.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 6,
+        "strength": 7,
+        "dexterity": 5,
+        "resonance": 3,
+        "agility": 6
+      },
+      "hp": 90,
+      "mp": 20,
+      "resistances": [],
+      "weaknesses": ["pierce"],
+      "abilities": ["basic_attack", "shove", "grapple_pull", "heavy_swing"],
+      "ai_behavior": "aggressive",
+      "challenge_rating": 2,
+      "preferred_position": "front"
+    },
+
+    {
+      "_ARCHETYPE": "REGENERATOR",
+      "id": "corrupted_leech",
+      "name": "Corrupted Leech",
+      "description": "Heals itself, creating pressure to focus fire.",
+      "category": "beast",
+      "base_stats": {
+        "vigor": 7,
+        "strength": 5,
+        "dexterity": 4,
+        "resonance": 6,
+        "agility": 4
+      },
+      "hp": 100,
+      "mp": 25,
+      "resistances": ["necrotic"],
+      "weaknesses": ["fire", "radiant"],
+      "abilities": ["basic_attack", "venom_spit", "heal_self"],
+      "ai_behavior": "defensive",
+      "challenge_rating": 3,
+      "preferred_position": "middle"
+    },
+
+    {
+      "_ARCHETYPE": "SWARM",
+      "id": "corrupted_imp",
+      "name": "Corrupted Imp",
+      "description": "Weak individually but dangerous in groups.",
+      "category": "demon",
+      "base_stats": {
+        "vigor": 2,
+        "strength": 4,
+        "dexterity": 7,
+        "resonance": 5,
+        "agility": 8
+      },
+      "hp": 35,
+      "mp": 15,
+      "resistances": [],
+      "weaknesses": ["radiant"],
+      "abilities": ["basic_attack", "dark_bolt"],
+      "ai_behavior": "aggressive",
+      "challenge_rating": 1,
+      "preferred_position": "middle"
+    },
+
+    {
+      "_ARCHETYPE": "ELITE BOSS",
+      "id": "corrupted_champion",
+      "name": "Corrupted Champion",
+      "description": "Elite enemy with diverse abilities and high stats.",
+      "category": "humanoid",
+      "base_stats": {
+        "vigor": 8,
+        "strength": 9,
+        "dexterity": 7,
+        "resonance": 6,
+        "agility": 7
+      },
+      "hp": 200,
+      "mp": 50,
+      "resistances": ["physical", "arcane"],
+      "weaknesses": [],
+      "abilities": ["basic_attack", "heavy_swing", "cleave", "shield_bash", "frenzy"],
+      "ai_behavior": "aggressive",
+      "challenge_rating": 5,
+      "preferred_position": "front"
     }
   ]
 }

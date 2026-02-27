@@ -78,23 +78,6 @@ static func calculate_damage(skill: Dictionary, attacker_stats: Dictionary, defe
 	return result
 
 
-## Calculate opportunity attack damage (basic attack at reduced multiplier)
-static func calculate_opportunity_attack_damage(attacker: Dictionary, defender: Dictionary, skills_data: Dictionary) -> DamageResult:
-	var basic_attack = skills_data.get("basic_attack", {
-		"damage": {
-			"base": 75,
-			"type": "physical",
-			"subtype": "slash",
-			"stat_scaling": "strength"
-		}
-	})
-	var result = calculate_damage(basic_attack, attacker, defender)
-	var oa_mult = CombatConfigLoaderClass.get_oa_damage_mult()
-	result.damage = max(1, int(floor(result.damage * oa_mult)))
-	print("[DMG]   OA damage: applied %.0f%% multiplier -> %d" % [oa_mult * 100, result.damage])
-	return result
-
-
 ## Get a stat value from a unit's stats
 static func _get_stat_value(unit: Dictionary, stat_name: String) -> float:
 	var base_stats = unit.get("base_stats", {})

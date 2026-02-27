@@ -134,10 +134,15 @@ func _on_skill_hover(skill_id: String) -> void:
 	var target_type = targeting.get("type", "single_enemy")
 	extra_info += "\nTarget: %s" % _format_target_type(target_type)
 
-	# Add range info
-	var range_type = skill.get("range_type", "melee")
-	var skill_range = PositionValidatorClass.get_skill_range(skill)
-	extra_info += "\nRange: %s" % _format_range(range_type, skill_range)
+	# Add range info (prioritize range_band if available)
+	var targeting_info = skill.get("targeting", {})
+	if targeting_info.has("range_band"):
+		var range_band = targeting_info.get("range_band", "melee")
+		extra_info += "\nRange: %s" % _format_range_band(range_band)
+	else:
+		var range_type = skill.get("range_type", "melee")
+		var skill_range = PositionValidatorClass.get_skill_range(skill)
+		extra_info += "\nRange: %s" % _format_range(range_type, skill_range)
 
 	# Add damage info if applicable
 	if skill.has("damage"):
@@ -195,3 +200,15 @@ func _format_range(range_type: String, skill_range: int) -> String:
 				return "Unlimited"
 			else:
 				return "%d cells" % skill_range
+
+
+func _format_range_band(range_band: String) -> String:
+	match range_band.to_lower():
+		"melee":
+			return "Melee (1 space)"
+		"close":
+			return "Close (2-3 spaces)"
+		"distant":
+			return "Distant (4+ spaces)"
+		_:
+			return range_band.capitalize()

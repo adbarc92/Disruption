@@ -134,6 +134,28 @@ The combat system derives values from character base stats:
 
 ## Design Decisions Log
 
+### 2026-02-21: Opportunity Attacks Removed
+
+**Decision:** No opportunity attack system in combat
+
+**Rationale:**
+Opportunity attacks (auto-attacks when moving adjacent to enemies) create defensive, static gameplay that contradicts our positioning-focused design. They punish movement and encourage turtling, the opposite of dynamic tactical combat.
+
+**What's NOT in the system:**
+- No auto-attacks when moving adjacent to enemies
+- No attacks of opportunity on retreat/repositioning
+- No movement penalties or reactive strikes
+- Movement is risk-free (aside from ending in poor position)
+
+**Alternative mechanics considered:**
+- Flanking bonuses (reward positioning, not punish movement)
+- Movement-triggered buffs (reward mobility)
+- Terrain advantages (create positional value without movement penalties)
+
+**Status:** ✅ Confirmed NOT implemented (no code, no config)
+
+---
+
 ### 2025-02-15: Initial CTB + AP System
 
 **Decision:** Combine FFX-style CTB with an Action Point system

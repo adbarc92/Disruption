@@ -13,11 +13,7 @@
         "resonance": 5,
         "agility": 6
       },
-      "starting_abilities": [
-        "basic_attack",
-        "edge_shift",
-        "true_strike"
-      ],
+      "starting_abilities": ["basic_attack", "true_strike", "heavy_swing", "cleave"],
       "burst_mode": {
         "name": "Elemental Mastery",
         "duration": 5,
@@ -44,11 +40,7 @@
         "resonance": 4,
         "agility": 8
       },
-      "starting_abilities": [
-        "basic_attack",
-        "hamstring",
-        "leadership"
-      ],
+      "starting_abilities": ["basic_attack", "hamstring", "poison_strike", "leadership"],
       "burst_mode": {
         "name": "Master Tactician",
         "duration": 5,
@@ -75,11 +67,7 @@
         "resonance": 6,
         "agility": 4
       },
-      "starting_abilities": [
-        "basic_attack",
-        "ironflesh",
-        "derisive_snort"
-      ],
+      "starting_abilities": ["basic_attack", "shield_bash", "ironflesh", "grapple_pull"],
       "burst_mode": {
         "name": "Mountain King",
         "duration": 6,

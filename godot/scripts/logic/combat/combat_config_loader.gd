@@ -81,6 +81,7 @@ static func get_movement_range(agility: int) -> int:
 	return int(floor(float(agility) / divisor)) + base_range
 
 
+
 ## Get AP base value (added to agility-derived bonus each turn)
 static func get_ap_base() -> int:
 	_ensure_loaded()

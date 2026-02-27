@@ -63,9 +63,8 @@ var unit_visuals: Dictionary = {}
 var turn_highlight: Polygon2D = null
 
 # Action log
-var action_log_scroll: ScrollContainer
-var action_log_container: VBoxContainer
-const ACTION_LOG_MAX_ENTRIES = 50
+var action_log_text: TextEdit
+const ACTION_LOG_MAX_LINES = 200
 
 # Node references
 @onready var battle_grid_container: Node2D = $BattleGrid
@@ -687,7 +686,7 @@ func _setup_action_log() -> void:
 	ui_layer.add_child(panel)
 
 	var title = Label.new()
-	title.text = "Action Log"
+	title.text = "Action Log (Ctrl+C to copy)"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.offset_left = 5
 	title.offset_top = 5
@@ -695,41 +694,41 @@ func _setup_action_log() -> void:
 	title.offset_bottom = 25
 	panel.add_child(title)
 
-	action_log_scroll = ScrollContainer.new()
-	action_log_scroll.offset_left = 5
-	action_log_scroll.offset_top = 28
-	action_log_scroll.offset_right = 245
-	action_log_scroll.offset_bottom = 685
-	panel.add_child(action_log_scroll)
-
-	action_log_container = VBoxContainer.new()
-	action_log_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	action_log_scroll.add_child(action_log_container)
+	action_log_text = TextEdit.new()
+	action_log_text.offset_left = 5
+	action_log_text.offset_top = 28
+	action_log_text.offset_right = 245
+	action_log_text.offset_bottom = 685
+	action_log_text.editable = false
+	action_log_text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	action_log_text.scroll_fit_content_height = true
+	action_log_text.add_theme_font_size_override("font_size", 11)
+	panel.add_child(action_log_text)
 
 
 func _log_action(text: String, color: Color = Color.WHITE) -> void:
-	if action_log_container == null:
+	if action_log_text == null:
 		return
 
-	var label = Label.new()
-	label.text = text
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.add_theme_font_size_override("font_size", 11)
-	label.add_theme_color_override("font_color", color)
-	label.custom_minimum_size = Vector2(230, 0)
-	action_log_container.add_child(label)
+	# Append new line
+	var current_text = action_log_text.text
+	if not current_text.is_empty():
+		current_text += "\n"
+	current_text += text
 
-	while action_log_container.get_child_count() > ACTION_LOG_MAX_ENTRIES:
-		var old = action_log_container.get_child(0)
-		action_log_container.remove_child(old)
-		old.queue_free()
+	# Limit total lines to prevent memory issues
+	var lines = current_text.split("\n")
+	if lines.size() > ACTION_LOG_MAX_LINES:
+		lines = lines.slice(lines.size() - ACTION_LOG_MAX_LINES, lines.size())
+		current_text = "\n".join(lines)
 
+	action_log_text.text = current_text
 	_scroll_log_to_bottom.call_deferred()
 
 
 func _scroll_log_to_bottom() -> void:
-	if action_log_scroll != null:
-		action_log_scroll.scroll_vertical = action_log_scroll.get_v_scroll_bar().max_value
+	if action_log_text != null:
+		action_log_text.scroll_vertical = INF  # Scroll to bottom
 
 
 # --- Turn Flow ---
@@ -986,7 +985,7 @@ func _ai_move_toward_enemies(unit: Dictionary) -> bool:
 	return true
 
 
-## Execute movement along a path with opportunity attack detection
+## Execute movement along a path
 func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vector2i] = []) -> void:
 	var unit_id = unit.get("id", "")
 	var old_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
@@ -996,14 +995,6 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 
 	if path.is_empty():
 		return
-
-	# Detect opportunity attackers
-	var oa_attackers: Array[String] = []
-	if CombatConfigLoaderClass.is_oa_enabled():
-		oa_attackers = GridPathfinderClass.get_opportunity_attackers(path, unit_id, all_units, grid)
-		var max_oa = CombatConfigLoaderClass.get_oa_max_per_move()
-		if oa_attackers.size() > max_oa:
-			oa_attackers.resize(max_oa)
 
 	# Animate step-by-step
 	for i in range(1, path.size()):
@@ -1015,39 +1006,8 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 		_update_unit_visuals()
 		await get_tree().create_timer(0.15).timeout
 
-	# Execute opportunity attacks after movement
-	for attacker_id in oa_attackers:
-		await _execute_opportunity_attack(attacker_id, unit_id)
-
 	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), target_pos.x, target_pos.y], Color(0.7, 0.9, 1.0))
 	EventBus.position_changed.emit(unit_id, old_pos, target_pos)
-
-
-func _execute_opportunity_attack(attacker_id: String, target_id: String) -> void:
-	var attacker = _find_unit_by_id(attacker_id)
-	var target = _find_unit_by_id(target_id)
-
-	if attacker.is_empty() or target.is_empty():
-		return
-
-	var result = DamageCalculatorClass.calculate_opportunity_attack_damage(attacker, target, skills_data)
-
-	var reductions = status_manager.get_damage_reductions(target_id)
-	if not reductions.is_empty():
-		result.damage = DamageCalculatorClass.apply_damage_reduction(
-			result.damage, result.damage_type, reductions
-		)
-
-	_apply_damage(target, result.damage)
-
-	_log_action("  OA! %s strikes %s for %d dmg" % [attacker.get("name", "?"), target.get("name", "?"), result.damage], Color(1.0, 0.6, 0.2))
-	_spawn_floating_text("OA %d" % result.damage, Color(1.0, 0.6, 0.2), target)
-
-	if unit_visuals.has(target_id) and is_instance_valid(unit_visuals[target_id]):
-		unit_visuals[target_id].flash_damage()
-
-	_update_unit_visuals()
-	await get_tree().create_timer(0.5).timeout
 
 
 func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:

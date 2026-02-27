@@ -269,6 +269,36 @@
 
 ---
 
+## Design Decision: Opportunity Attack Removal
+
+**Date:** 2026-02-21
+
+**Decision:** Removed opportunity attack (OA) system from combat mechanics
+
+**Rationale:**
+Attack on approach is too powerful and incentivizes turtling. The mechanic discouraged movement and aggressive positioning, which runs counter to the design goal of positioning-based tactical combat. Players would be punished for approaching enemies, leading to static, defensive play patterns.
+
+**Files Modified:**
+- `godot/data/combat/combat_config.json` - Removed `opportunity_attacks` config section
+- `godot/scripts/logic/combat/combat_config_loader.gd` - Removed `get_oa_damage_mult()`, `is_oa_enabled()`, `get_oa_max_per_move()`
+- `godot/scripts/logic/combat/grid_pathfinder.gd` - Removed `get_opportunity_attackers()` function
+- `godot/scripts/logic/combat/damage_calculator.gd` - Removed `calculate_opportunity_attack_damage()` function
+- `godot/scripts/presentation/combat/combat_manager.gd` - Removed OA detection and execution logic from `_execute_movement()`, removed `_execute_opportunity_attack()` function
+
+**Impact:**
+- Movement is now more rewarding and less punitive
+- Encourages aggressive positioning and dynamic combat
+- Simplifies combat rules (one less system to balance)
+- Reduces cognitive load for players
+
+**Future Consideration:**
+If movement penalties are needed for balance, consider alternative mechanics that don't create defensive incentives, such as:
+- Movement-based buffs (gain advantage after moving)
+- Flanking bonuses (reward positioning behind enemies)
+- Terrain-based tactical options
+
+---
+
 ## Conclusion
 
 Rapid prototyping features successfully implemented. Combat balance iteration speed increased by **~15x**. Designer can now test hypotheses in **seconds instead of minutes**.

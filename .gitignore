@@ -6,8 +6,12 @@ godot/.godot/
 # Godot export templates and builds
 godot/export/
 godot/build/
+godot/builds/
 *.pck
 *.zip
+*.exe
+*.ipa
+*.x86_64
 
 # OS generated files
 .DS_Store

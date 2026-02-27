@@ -3,6 +3,13 @@ extends RefCounted
 ## GridPathfinder - A* pathfinding and BFS flood fill for combat grid
 ## Pure logic, no engine dependencies
 
+## Range Bands - Simplified distance categories for targeting
+enum RangeBand {
+	MELEE = 0,    # Adjacent (1 space)
+	CLOSE = 1,    # Nearby (2-3 spaces)
+	DISTANT = 2   # Far (4+ spaces)
+}
+
 
 ## Find shortest path from start to end using A* with Manhattan heuristic
 ## grid: Dictionary of Vector2i -> unit_id (occupied cells)
@@ -86,42 +93,58 @@ static func get_cells_in_range(origin: Vector2i, move_range: int, grid: Dictiona
 	return reachable
 
 
-## Get list of enemy unit IDs that would get opportunity attacks along a path
-## For each cell in the path (excluding start), check orthogonal neighbors for enemies
-## Deduplicated - each enemy only attacks once per move
-static func get_opportunity_attackers(path: Array[Vector2i], moving_unit_id: String, all_units: Dictionary, grid: Dictionary) -> Array[String]:
-	var attackers: Array[String] = []
-	var attacker_set: Dictionary = {}  # For deduplication
-
-	# Determine which side the moving unit is on
-	var moving_unit = all_units.get(moving_unit_id, {})
-	var moving_is_ally = moving_unit.get("is_ally", true)
-
-	# Skip the first cell (starting position)
-	for i in range(1, path.size()):
-		var cell = path[i]
-		# Check orthogonal neighbors
-		var directions = [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
-		for dir in directions:
-			var adj = cell + dir
-			if grid.has(adj):
-				var adj_unit_id = grid[adj]
-				if adj_unit_id == moving_unit_id:
-					continue
-				if attacker_set.has(adj_unit_id):
-					continue
-				# Only enemies trigger OAs
-				var adj_unit = all_units.get(adj_unit_id, {})
-				if adj_unit.get("is_ally", true) != moving_is_ally:
-					attacker_set[adj_unit_id] = true
-					attackers.append(adj_unit_id)
-
-	return attackers
-
-
 ## Calculate Manhattan distance between two grid positions
 static func manhattan_distance(a: Vector2i, b: Vector2i) -> int:
 	return abs(a.x - b.x) + abs(a.y - b.y)
+
+
+## Get range band from distance value
+static func get_range_band(distance: int) -> RangeBand:
+	if distance <= 1:
+		return RangeBand.MELEE
+	elif distance <= 3:
+		return RangeBand.CLOSE
+	else:
+		return RangeBand.DISTANT
+
+
+## Get range band between two positions
+static func get_range_band_between(pos_a: Vector2i, pos_b: Vector2i) -> RangeBand:
+	var dist = manhattan_distance(pos_a, pos_b)
+	return get_range_band(dist)
+
+
+## Convert range band enum to string
+static func range_band_to_string(band: RangeBand) -> String:
+	match band:
+		RangeBand.MELEE:
+			return "melee"
+		RangeBand.CLOSE:
+			return "close"
+		RangeBand.DISTANT:
+			return "distant"
+		_:
+			return "unknown"
+
+
+## Convert string to range band enum
+static func string_to_range_band(band_str: String) -> RangeBand:
+	match band_str.to_lower():
+		"melee", "m":
+			return RangeBand.MELEE
+		"close", "c":
+			return RangeBand.CLOSE
+		"distant", "d", "far":
+			return RangeBand.DISTANT
+		_:
+			return RangeBand.MELEE  # Default fallback
+
+
+## Check if a target is within the specified range band
+## Returns true if target distance is within or closer than the max_band
+static func is_within_range_band(user_pos: Vector2i, target_pos: Vector2i, max_band: RangeBand) -> bool:
+	var actual_band = get_range_band_between(user_pos, target_pos)
+	return actual_band <= max_band
 
 
 ## Check if two positions are adjacent (Manhattan distance == 1)

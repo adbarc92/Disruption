@@ -138,11 +138,12 @@ scripts/
 
 ## Core Design Pillars
 
-1. **Positioning as Primary Strategy** - Combat revolves around manipulating unit positions on a 3x3 grid per side
-2. **Modular Architecture** - All systems designed for easy swapping and iteration
-3. **Resource Depth** - Dual resource management (MP + Equipment charges + Burst Gauge)
-4. **Complexity Scalability** - Systems can be individually toggled for complexity management
-5. **Tabletop Compatibility** - All mechanics designed to function without digital assistance
+1. **Playtesting is King** - A game is worthless if players aren't having fun. Design documents are hypotheses; playtesting reveals truth. When design conflicts with player enjoyment, enjoyment wins. Iterate rapidly, test frequently, and let player experience guide all decisions.
+2. **Positioning as Primary Strategy** - Combat revolves around manipulating unit positions on a 3x3 grid per side
+3. **Modular Architecture** - All systems designed for easy swapping and iteration
+4. **Resource Depth** - Dual resource management (MP + Equipment charges + Burst Gauge)
+5. **Complexity Scalability** - Systems can be individually toggled for complexity management
+6. **Tabletop Compatibility** - All mechanics designed to function without digital assistance
 
 ---
 
