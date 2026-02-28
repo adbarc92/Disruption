@@ -316,6 +316,18 @@ func _update_grid_colors() -> void:
 			else:
 				btn.text = ""
 				btn.remove_theme_color_override("font_color")
+
+			# Zone tinting (matches combat_manager zones)
+			var zone_style = StyleBoxFlat.new()
+			zone_style.set_corner_radius_all(4)
+			if col < 2:
+				zone_style.bg_color = Color(0.15, 0.25, 0.45, 0.8)  # Ally zone (blue)
+			elif col >= grid_cols - 2:
+				zone_style.bg_color = Color(0.45, 0.15, 0.15, 0.8)  # Enemy zone (red)
+			else:
+				zone_style.bg_color = Color(0.2, 0.2, 0.25, 0.8)    # Neutral (gray)
+			btn.add_theme_stylebox_override("normal", zone_style)
+
 			btn_idx += 1
 
 
