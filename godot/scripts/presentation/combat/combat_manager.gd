@@ -13,6 +13,7 @@ const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_confi
 const GridPathfinderClass = preload("res://scripts/logic/combat/grid_pathfinder.gd")
 const CTBTurnManagerClass = preload("res://scripts/logic/combat/ctb_turn_manager.gd")
 const APSystemClass = preload("res://scripts/logic/combat/ap_system.gd")
+const TileEnvironmentManagerClass = preload("res://scripts/logic/combat/tile_environment_manager.gd")
 const UnitVisualClass = preload("res://scripts/presentation/combat/unit_visual.gd")
 const FloatingTextClass = preload("res://scripts/presentation/combat/floating_text.gd")
 const CombatResultsClass = preload("res://scripts/presentation/combat/combat_results.gd")
@@ -55,6 +56,9 @@ var skills_data: Dictionary = {}
 
 # Status effect manager instance
 var status_manager = StatusEffectManagerClass.new()
+
+# Tile environment manager (Blood & Soil system)
+var tile_env_manager: TileEnvironmentManagerClass = TileEnvironmentManagerClass.new()
 
 # Persistent unit visuals (unit_id -> UnitVisual)
 var unit_visuals: Dictionary = {}
@@ -304,6 +308,9 @@ func _hot_reload_data() -> void:
 	# Update visuals with new data
 	_update_unit_visuals()
 
+	# Reset tile environment on hot reload
+	tile_env_manager.clear_all()
+
 	# Update skill panel if visible
 	if skill_panel.visible:
 		skill_panel.hide_panel()
@@ -326,6 +333,7 @@ func _initialize_combat() -> void:
 
 	# Clear previous status effects
 	status_manager.clear_all()
+	tile_env_manager.clear_all()
 
 	# Load all units
 	_load_units_from_encounter()
@@ -601,6 +609,17 @@ func _draw_grid_background() -> void:
 
 			grid_node.add_child(cell)
 
+			# Soil tint overlay
+			var soil_level = tile_env_manager.get_max_soil_at(Vector2i(x, y))
+			if soil_level > 0:
+				var soil_overlay = Polygon2D.new()
+				soil_overlay.polygon = hex_poly
+				soil_overlay.position = grid_to_visual_pos(Vector2i(x, y))
+				# Warm amber that intensifies: level 1=faint, 2=medium, 3=bright
+				var alpha = 0.12 + (soil_level * 0.08)
+				soil_overlay.color = Color(0.85, 0.65, 0.2, alpha)
+				grid_node.add_child(soil_overlay)
+
 
 func _update_unit_visuals() -> void:
 	var alive_ids: Dictionary = {}
@@ -635,11 +654,13 @@ func _create_or_update_visual(unit: Dictionary) -> void:
 		visual.update_scale(hex_cell_size)
 		visual.update_stats(unit)
 		visual.update_statuses(status_manager.get_statuses(uid))
+		visual.update_soil(tile_env_manager.get_soil_intensity(grid_pos, uid))
 	else:
 		var visual = UnitVisualClass.new()
 		visual.position = pos
 		visual.setup(unit, unit.get("is_ally", true), hex_cell_size)
 		visual.update_statuses(status_manager.get_statuses(uid))
+		visual.update_soil(tile_env_manager.get_soil_intensity(grid_pos, uid))
 		grid_node.add_child(visual)
 		unit_visuals[uid] = visual
 
@@ -777,6 +798,24 @@ func _start_next_turn() -> void:
 	_regenerate_mp(current_unit)
 	_update_unit_visuals()
 
+	# Blood & Soil: check if unit stayed on same tile
+	var unit_id_for_soil = current_unit.get("id", "")
+	var current_grid_pos = current_unit.get("grid_position", Vector2i(0, 0))
+	var soil_eligible = current_unit.get("is_ally", true) or current_unit.get("soil_enabled", false)
+
+	if soil_eligible and tile_env_manager.did_unit_stay(unit_id_for_soil, current_grid_pos):
+		var new_intensity = tile_env_manager.increment_soil(current_grid_pos, unit_id_for_soil)
+		if new_intensity > 0:
+			_log_action("  Soil %d on %s (rooted)" % [new_intensity, current_unit.get("name", "?")],
+				Color(0.85, 0.7, 0.3))
+
+	# Apply tile bonus MP regen
+	var tile_bonuses = tile_env_manager.get_bonuses_for_unit(unit_id_for_soil, current_grid_pos)
+	if tile_bonuses.get("mp_regen", 0) > 0:
+		var bonus_mp = tile_bonuses["mp_regen"]
+		current_unit["current_mp"] = mini(current_unit.get("max_mp", 25), current_unit.get("current_mp", 0) + bonus_mp)
+		_log_action("  +%d MP from Soil" % bonus_mp, Color(0.4, 0.6, 0.9))
+
 	# If AI controlled, handle AI turn
 	if not current_unit.get("is_ally", true):
 		_handle_ai_turn()
@@ -884,6 +923,18 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	# Handle damage
 	if skill.has("damage"):
 		var result = DamageCalculatorClass.calculate_damage(skill, user, target)
+
+		# Apply tile environment damage bonus (attacker's Soil)
+		var attacker_pos = user.get("grid_position", Vector2i(0, 0))
+		var attacker_tile_bonuses = tile_env_manager.get_bonuses_for_unit(user.get("id", ""), attacker_pos)
+		if attacker_tile_bonuses.get("damage_mult", 0.0) > 0.0:
+			result.damage = int(ceil(result.damage * (1.0 + attacker_tile_bonuses["damage_mult"])))
+
+		# Apply tile environment damage reduction (defender's Soil)
+		var defender_pos = target.get("grid_position", Vector2i(0, 0))
+		var defender_tile_bonuses = tile_env_manager.get_bonuses_for_unit(target.get("id", ""), defender_pos)
+		if defender_tile_bonuses.get("damage_reduction", 0.0) > 0.0:
+			result.damage = int(floor(result.damage * (1.0 - defender_tile_bonuses["damage_reduction"])))
 
 		# Apply damage reduction from status effects
 		var reductions = status_manager.get_damage_reductions(target.get("id", ""))
@@ -998,6 +1049,9 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 	var unit_id = unit.get("id", "")
 	var old_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
 
+	# Blood & Soil: mark old position as decaying when unit moves
+	tile_env_manager.mark_soil_decaying(old_pos, unit_id)
+
 	if path.is_empty():
 		path = GridPathfinderClass.find_path(old_pos, target_pos, grid, GRID_SIZE)
 
@@ -1076,6 +1130,13 @@ func _end_turn() -> void:
 	current_phase = CombatPhase.TURN_END
 	_clear_turn_highlight()
 
+	# Blood & Soil: record where this unit ended their turn
+	var end_pos = current_unit.get("grid_position", Vector2i(0, 0))
+	tile_env_manager.record_turn_end_position(current_unit.get("id", ""), end_pos)
+
+	# Tick tile effect decay
+	tile_env_manager.tick_decay()
+
 	# Process status effect tick
 	var expired = status_manager.tick_turn_end(current_unit.id)
 	for status_name in expired:
@@ -1110,6 +1171,7 @@ func _remove_defeated_units() -> void:
 			status_manager.clear_unit(uid)
 			_ctb_manager.remove_unit(uid)
 			_ap_system.remove_unit(uid)
+			tile_env_manager.clear_unit(uid)
 			defeated_ids.append(uid)
 
 	for uid in defeated_ids:
@@ -1137,6 +1199,7 @@ func _end_combat(victory: bool) -> void:
 	_clear_turn_highlight()
 
 	status_manager.clear_all()
+	tile_env_manager.clear_all()
 	EventBus.combat_ended.emit(victory)
 
 	# Show results screen

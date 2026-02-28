@@ -46,7 +46,8 @@
       "abilities": ["basic_attack", "heavy_swing", "shield_bash"],
       "ai_behavior": "defensive",
       "challenge_rating": 3,
-      "preferred_position": "front"
+      "preferred_position": "front",
+      "soil_enabled": true
     },
 
     {
@@ -184,7 +185,8 @@
       "abilities": ["basic_attack", "heavy_swing", "cleave", "shield_bash", "frenzy"],
       "ai_behavior": "aggressive",
       "challenge_rating": 5,
-      "preferred_position": "front"
+      "preferred_position": "front",
+      "soil_enabled": true
     }
   ]
 }

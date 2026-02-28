@@ -33,6 +33,7 @@ var mp_bar_bg: Polygon2D
 var mp_bar_fill: Polygon2D
 var flash_overlay: Polygon2D
 var status_container: Node2D
+var soil_badge: Label
 
 # Flash state
 var flash_timer: float = 0.0
@@ -109,6 +110,18 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	status_container = Node2D.new()
 	status_container.position = Vector2(0, UNIT_HEIGHT + 2)
 	add_child(status_container)
+
+	# Soil intensity badge (hidden by default)
+	soil_badge = Label.new()
+	soil_badge.text = ""
+	soil_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	soil_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	soil_badge.add_theme_font_size_override("font_size", 10)
+	soil_badge.add_theme_color_override("font_color", Color(0.95, 0.85, 0.3))
+	soil_badge.size = Vector2(16, 16)
+	soil_badge.position = Vector2(UNIT_WIDTH - 16, -2)
+	soil_badge.visible = false
+	add_child(soil_badge)
 
 	update_stats(unit)
 
@@ -224,6 +237,16 @@ func update_statuses(statuses: Array) -> void:
 		])
 		dot.color = _get_status_color(status.get("status", ""))
 		status_container.add_child(dot)
+
+
+func update_soil(intensity: int) -> void:
+	if soil_badge == null:
+		return
+	if intensity > 0:
+		soil_badge.text = str(intensity)
+		soil_badge.visible = true
+	else:
+		soil_badge.visible = false
 
 
 func flash_damage() -> void:

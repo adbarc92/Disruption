@@ -122,3 +122,29 @@ static func get_oa_max_per_move() -> int:
 	_ensure_loaded()
 	var oa = _config.get("opportunity_attacks", {})
 	return oa.get("max_per_move", 3)
+
+
+## Get the maximum Soil intensity (default 3)
+static func get_soil_max_intensity() -> int:
+	_ensure_loaded()
+	var soil = _config.get("tile_effects", {}).get("soil", {})
+	return soil.get("max_intensity", 3)
+
+
+## Get the Soil decay rate per combat turn (default 1)
+static func get_soil_decay_rate() -> int:
+	_ensure_loaded()
+	var soil = _config.get("tile_effects", {}).get("soil", {})
+	return soil.get("decay_rate", 1)
+
+
+## Get Soil bonuses for a given intensity level
+## Returns: { "damage_mult": float, "damage_reduction": float, "mp_regen": int }
+static func get_soil_bonuses(intensity: int) -> Dictionary:
+	_ensure_loaded()
+	var soil = _config.get("tile_effects", {}).get("soil", {})
+	var bonuses_table: Array = soil.get("bonuses_per_level", [])
+	var clamped = clampi(intensity, 0, bonuses_table.size() - 1)
+	if clamped >= 0 and clamped < bonuses_table.size():
+		return bonuses_table[clamped]
+	return { "damage_mult": 0.0, "damage_reduction": 0.0, "mp_regen": 0 }
