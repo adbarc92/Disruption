@@ -13,7 +13,9 @@
         "resonance": 5,
         "agility": 6
       },
-      "starting_abilities": ["basic_attack", "true_strike", "heavy_swing", "cleave"],
+      "equipment_proficiencies": ["greatsword", "longsword", "device"],
+      "equipment": ["shifting_blade", "tactical_chronometer"],
+      "starting_abilities": ["basic_attack", "wide_swing", "stance_of_pitch", "raging_blossom", "flat_swing", "resolve_break", "northern_gale", "southern_breeze", "break_stock"],
       "burst_mode": {
         "name": "Elemental Mastery",
         "duration": 5,
@@ -23,10 +25,7 @@
           "special": "all_attacks_gain_random_element"
         }
       },
-      "roles": [
-        "bladewarden",
-        "synergist"
-      ]
+      "roles": ["bladewarden", "synergist"]
     },
     {
       "id": "vaughn",
@@ -40,7 +39,9 @@
         "resonance": 4,
         "agility": 8
       },
-      "starting_abilities": ["basic_attack", "hamstring", "poison_strike", "leadership"],
+      "equipment_proficiencies": ["dagger", "shortsword", "consumable_device", "gadget"],
+      "equipment": ["poison_vial", "rheas_tears_vial"],
+      "starting_abilities": ["basic_attack", "hamstring", "commotion", "leadership", "sever_tendons", "constant_flurry", "hook", "falcon_strike", "deduce_vulnerability", "peak_efficiency"],
       "burst_mode": {
         "name": "Master Tactician",
         "duration": 5,
@@ -50,10 +51,7 @@
           "special": "allies_gain_extra_action"
         }
       },
-      "roles": [
-        "shadowfang",
-        "warcrier"
-      ]
+      "roles": ["shadowfang", "warcrier"]
     },
     {
       "id": "phaidros",
@@ -67,7 +65,9 @@
         "resonance": 6,
         "agility": 4
       },
-      "starting_abilities": ["basic_attack", "shield_bash", "ironflesh", "grapple_pull"],
+      "equipment_proficiencies": ["gauntlet", "fist", "heavy_armor"],
+      "equipment": ["earth_gauntlets"],
+      "starting_abilities": ["basic_attack", "one_two", "ironflesh", "derisive_snort", "ready_stance", "protective_instinct", "intercede", "again_with_vigor", "uppercut", "headclap", "smash", "thunderfist", "striking_tips", "unerring_menace"],
       "burst_mode": {
         "name": "Mountain King",
         "duration": 6,
@@ -77,10 +77,7 @@
           "special": "immune_to_forced_movement"
         }
       },
-      "roles": [
-        "ironskin",
-        "geovant"
-      ]
+      "roles": ["ironskin", "geovant"]
     }
   ]
 }

@@ -307,30 +307,6 @@
 
     {
       "_CATEGORY": "BUFF SKILLS",
-      "id": "leadership",
-      "name": "Leadership",
-      "description": "Inspire allies with stat bonuses.",
-      "action_type": "bonus_action",
-      "ap_cost": 1,
-      "mp_cost": 2,
-      "effect": {
-        "type": "party_buff",
-        "status": "inspired",
-        "stat_modifier": {
-          "strength": 0.15,
-          "dexterity": 0.15
-        },
-        "duration": 3
-      },
-      "targeting": {
-        "type": "all_allies"
-      },
-      "burst_gauge_gain": 15,
-      "burst_charge_type": "support",
-      "roles": ["warcrier"]
-    },
-
-    {
       "id": "ironflesh",
       "name": "Ironflesh",
       "description": "Grant ally physical damage reduction.",
