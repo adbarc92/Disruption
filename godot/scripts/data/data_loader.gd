@@ -19,25 +19,27 @@ static func load_characters() -> Array:
 	return []
 
 
-## Load all skill definitions from all JSON files in skills/ directory
+## Load all skill definitions from all known skill JSON files
 static func load_skills() -> Dictionary:
 	var skills_by_id = {}
 	var skills_dir = DATA_PATH + "skills/"
-	var dir = DirAccess.open(skills_dir)
-	if dir == null:
-		push_error("Cannot open skills directory: " + skills_dir)
-		return skills_by_id
-
-	dir.list_dir_begin()
-	var file_name = dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".json"):
-			var data = _load_json_file(skills_dir + file_name)
-			if data.has("skills"):
-				for skill in data.skills:
-					skills_by_id[skill.id] = skill
-		file_name = dir.get_next()
-	dir.list_dir_end()
+	var skill_files = [
+		"core_skills.json",
+		"bladewarden_skills.json",
+		"synergist_skills.json",
+		"shadowfang_skills.json",
+		"warcrier_skills.json",
+		"ironskin_skills.json",
+		"geovant_skills.json",
+	]
+	for file_name in skill_files:
+		var path = skills_dir + file_name
+		if not FileAccess.file_exists(path):
+			continue
+		var data = _load_json_file(path)
+		if data.has("skills"):
+			for skill in data.skills:
+				skills_by_id[skill.id] = skill
 	return skills_by_id
 
 
@@ -107,25 +109,23 @@ static func get_skills_for_role(role: String) -> Array:
 	return role_skills
 
 
-## Load all equipment definitions from all JSON files in equipment/ directory
+## Load all equipment definitions from known equipment JSON files
 static func load_equipment() -> Dictionary:
 	var equipment_by_id = {}
 	var equip_dir = DATA_PATH + "equipment/"
-	var dir = DirAccess.open(equip_dir)
-	if dir == null:
-		# Equipment dir may not exist yet - that's OK
-		return equipment_by_id
-
-	dir.list_dir_begin()
-	var file_name = dir.get_next()
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".json"):
-			var data = _load_json_file(equip_dir + file_name)
-			if data.has("equipment"):
-				for item in data.equipment:
-					equipment_by_id[item.id] = item
-		file_name = dir.get_next()
-	dir.list_dir_end()
+	var equip_files = [
+		"weapons.json",
+		"devices.json",
+		"armor.json",
+	]
+	for file_name in equip_files:
+		var path = equip_dir + file_name
+		if not FileAccess.file_exists(path):
+			continue
+		var data = _load_json_file(path)
+		if data.has("equipment"):
+			for item in data.equipment:
+				equipment_by_id[item.id] = item
 	return equipment_by_id
 
 
