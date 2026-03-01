@@ -1,0 +1,15 @@
+{
+  "equipment": [
+    {
+      "id": "shifting_blade",
+      "name": "The Shifting Blade",
+      "description": "A runic greatsword that can reconfigure its elemental affinity. A gift from Phaidros.",
+      "category": "greatsword",
+      "slot": "weapon",
+      "stat_bonuses": { "strength": 2 },
+      "charges": 3,
+      "granted_skills": ["edge_shift", "gout_of_flame", "luminous_tines", "frozen_thrust", "infernal_incarnate"],
+      "type": "glyphion"
+    }
+  ]
+}

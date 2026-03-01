@@ -1,0 +1,37 @@
+{
+  "equipment": [
+    {
+      "id": "tactical_chronometer",
+      "name": "Tactical Chronometer",
+      "description": "A precision device that manipulates turn order.",
+      "category": "device",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 2,
+      "granted_skills": [],
+      "type": "glyphion"
+    },
+    {
+      "id": "poison_vial",
+      "name": "Poison Vial",
+      "description": "A vial of potent poison. Apply to weapons to envenom attacks.",
+      "category": "consumable_device",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 1,
+      "granted_skills": ["poison_coating"],
+      "type": "device"
+    },
+    {
+      "id": "rheas_tears_vial",
+      "name": "Rhea's Tears Vial",
+      "description": "A vial of Rhea's Tears. Apply to weapons to cause bleeding.",
+      "category": "consumable_device",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 1,
+      "granted_skills": ["razor_edge"],
+      "type": "device"
+    }
+  ]
+}
