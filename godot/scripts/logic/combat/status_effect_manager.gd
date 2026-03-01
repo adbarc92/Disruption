@@ -82,6 +82,8 @@ func apply_status(unit_id: String, status_name: String, duration: int, effect_da
 		new_effect["redirect_damage_to"] = effect_data.redirect_damage_to
 	if effect_data.has("prevents_movement"):
 		new_effect["prevents_movement"] = effect_data.prevents_movement
+	if effect_data.has("attacks_remaining"):
+		new_effect["attacks_remaining"] = effect_data.attacks_remaining
 
 	effects_list.append(new_effect)
 	return true

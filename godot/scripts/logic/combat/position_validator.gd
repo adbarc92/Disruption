@@ -65,7 +65,7 @@ static func can_use_skill(skill: Dictionary, user: Dictionary, all_units: Dictio
 		"all_allies", "single_ally":
 			var allies = _get_units_by_side(user.get("is_ally", true), all_units)
 			return not get_valid_targets(skill, user, allies, all_units, grid, grid_size).is_empty()
-		"all_enemies", "single_enemy":
+		"all_enemies", "single_enemy", "aoe_adjacent_enemies":
 			var enemies = _get_units_by_side(not user.get("is_ally", true), all_units)
 			return not get_valid_targets(skill, user, enemies, all_units, grid, grid_size).is_empty()
 		_:
@@ -151,13 +151,13 @@ static func targets_allies(skill: Dictionary) -> bool:
 ## Check if skill targets enemies
 static func targets_enemies(skill: Dictionary) -> bool:
 	var target_type = get_targeting_type(skill)
-	return target_type in ["single_enemy", "all_enemies"]
+	return target_type in ["single_enemy", "all_enemies", "aoe_adjacent_enemies"]
 
 
 ## Check if skill targets all (no selection needed)
 static func targets_all(skill: Dictionary) -> bool:
 	var target_type = get_targeting_type(skill)
-	return target_type in ["self", "all_allies", "all_enemies"]
+	return target_type in ["self", "all_allies", "all_enemies", "aoe_adjacent_enemies"]
 
 
 ## Filter units by side (ally/enemy)

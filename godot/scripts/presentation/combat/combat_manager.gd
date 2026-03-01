@@ -1033,6 +1033,16 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 			if unit_visuals.has(tid) and is_instance_valid(unit_visuals[tid]):
 				unit_visuals[tid].flash_damage()
 
+			# Apply per-hit random debuff if applicable
+			if skill.has("effect") and skill.effect.get("type", "") == "random_debuff_per_hit":
+				var pool = skill.effect.get("debuff_pool", [])
+				var debuff_duration = skill.effect.get("duration", 2)
+				if not pool.is_empty():
+					var random_status = pool[randi() % pool.size()]
+					status_manager.apply_status(target.get("id", ""), random_status, debuff_duration, {})
+					EventBus.status_applied.emit(target.get("id", ""), random_status)
+					_log_action("  %s inflicts %s!" % [user.get("name", "?"), random_status], Color(1.0, 0.5, 0.5))
+
 			# Small delay between hits
 			if hit_count > 1 and hit_i < hit_count - 1:
 				await get_tree().create_timer(0.25).timeout
@@ -1209,13 +1219,8 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 			_log_action("  %s's weapon infused with %s!" % [user.get("name", "?"), element_text], Color(0.5, 1.0, 0.8))
 
 		"random_debuff_per_hit":
-			# Handled during multi-hit damage loop - just log
-			var pool = effect.get("debuff_pool", [])
-			if not pool.is_empty():
-				var random_status = pool[randi() % pool.size()]
-				status_manager.apply_status(target.id, random_status, duration, {})
-				EventBus.status_applied.emit(target.id, random_status)
-				_log_action("  %s gains %s!" % [target.get("name", "?"), random_status], Color(1.0, 0.5, 0.5))
+			# Handled per-hit in _execute_skill damage loop
+			pass
 
 		"create_terrain":
 			# Placeholder for terrain creation (The Wall)
@@ -1315,19 +1320,19 @@ func _end_turn() -> void:
 	# Tick tile effect decay
 	tile_env_manager.tick_decay()
 
-	# Process DOT damage before ticking durations
-	var dot_statuses = ["poisoned", "burning", "bleeding"]
-	for dot_status in dot_statuses:
-		if status_manager.has_status(current_unit.id, dot_status):
-			var status_data = status_manager.get_status_data(current_unit.id, dot_status)
-			var dot_damage = status_data.get("damage_per_turn", 0)
-			if dot_damage > 0:
-				_apply_damage(current_unit, dot_damage)
-				var dot_color = Color(0.6, 0.2, 0.8) if dot_status == "poisoned" else Color(1.0, 0.4, 0.1)
-				if dot_status == "bleeding":
-					dot_color = Color(0.8, 0.1, 0.1)
-				_spawn_floating_text(str(dot_damage), dot_color, current_unit, false)
-				_log_action("  %s takes %d %s damage" % [current_unit.get("name", "?"), dot_damage, dot_status], dot_color)
+	# Process DOT damage (data-driven - any status with damage_per_turn)
+	var all_statuses = status_manager.get_statuses(current_unit.id)
+	for status_info in all_statuses:
+		var status_data = status_manager.get_status_data(current_unit.id, status_info.status)
+		var dot_damage = status_data.get("damage_per_turn", 0)
+		if dot_damage > 0:
+			_apply_damage(current_unit, dot_damage)
+			var dot_color = Color(1.0, 0.4, 0.1)  # Default orange
+			match status_info.status:
+				"poisoned": dot_color = Color(0.6, 0.2, 0.8)
+				"bleeding": dot_color = Color(0.8, 0.1, 0.1)
+			_spawn_floating_text(str(dot_damage), dot_color, current_unit, false)
+			_log_action("  %s takes %d %s damage" % [current_unit.get("name", "?"), dot_damage, status_info.status], dot_color)
 
 	# Process status effect tick
 	var expired = status_manager.tick_turn_end(current_unit.id)
@@ -1538,7 +1543,7 @@ func _on_target_selected(target_id: String) -> void:
 	# Consume taunt charge when player targets enemies
 	if current_unit.get("is_ally", true):
 		var target_type = PositionValidatorClass.get_targeting_type(selected_skill)
-		if target_type in ["single_enemy", "all_enemies"]:
+		if target_type in ["single_enemy", "all_enemies", "aoe_adjacent_enemies"]:
 			status_manager.get_taunt_target(current_unit.get("id", ""))
 
 	var tt = PositionValidatorClass.get_targeting_type(selected_skill)
@@ -1548,6 +1553,18 @@ func _on_target_selected(target_id: String) -> void:
 	elif tt == "all_enemies":
 		var targets = get_enemy_units() if current_unit.get("is_ally", true) else get_ally_units()
 		await _execute_skill_on_all(selected_skill, current_unit, targets)
+	elif tt == "aoe_adjacent_enemies":
+		# Find all enemies adjacent to the user
+		var enemies = get_enemy_units() if current_unit.get("is_ally", true) else get_ally_units()
+		var user_pos: Vector2i = current_unit.get("grid_position", Vector2i(0, 0))
+		var adjacent_enemies: Array = []
+		for enemy in enemies:
+			var enemy_pos: Vector2i = enemy.get("grid_position", Vector2i(0, 0))
+			if GridPathfinderClass.hex_distance(user_pos, enemy_pos) <= 1:
+				adjacent_enemies.append(enemy)
+		if adjacent_enemies.is_empty():
+			adjacent_enemies = [target]  # Fallback to clicked target
+		await _execute_skill_on_all(selected_skill, current_unit, adjacent_enemies)
 	elif tt == "self":
 		await _execute_skill(selected_skill, current_unit, current_unit)
 		_return_to_action_selection()
