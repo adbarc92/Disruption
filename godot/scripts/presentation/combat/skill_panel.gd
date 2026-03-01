@@ -21,6 +21,7 @@ var _all_units: Dictionary = {}
 var _grid: Dictionary = {}
 var _grid_size: Vector2i = Vector2i(10, 6)
 var _ap_system = null  # APSystem reference for cost checks
+var _equip_data: Dictionary = {}
 
 
 func _ready() -> void:
@@ -29,13 +30,14 @@ func _ready() -> void:
 
 
 ## Show skills for a unit (unified grid version)
-func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6), ap_system = null) -> void:
+func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6), ap_system = null, equip_data: Dictionary = {}) -> void:
 	current_unit = unit
 	skills_data = all_skills
 	_all_units = all_units
 	_grid = grid
 	_grid_size = grid_size
 	_ap_system = ap_system
+	_equip_data = equip_data
 
 	_populate_skill_list()
 	visible = true
@@ -79,7 +81,10 @@ func _populate_skill_list() -> void:
 		if action_type == "bonus_action":
 			action_tag = " [B]"
 
+		var charge_cost = skill.get("equipment_charge_cost", 0)
 		button.text = "%s%s - %d AP, %d MP" % [skill_name, action_tag, ap_cost, mp_cost]
+		if charge_cost > 0:
+			button.text += " [%dC]" % charge_cost
 		button.custom_minimum_size = Vector2(280, 35)
 
 		# Check if usable
@@ -96,6 +101,19 @@ func _populate_skill_list() -> void:
 		elif not _all_units.is_empty() and not PositionValidatorClass.can_use_skill(skill, current_unit, _all_units, _grid, _grid_size):
 			can_use = false
 			disable_reason = "No valid targets in range"
+
+		# Check equipment charges
+		if charge_cost > 0 and can_use:
+			var has_charges = false
+			for equip_id in current_unit.get("equipment", []):
+				if skill.get("id", "") in _equip_data.get(equip_id, {}).get("granted_skills", []):
+					var unit_charges = current_unit.get("equipment_charges", {})
+					if unit_charges.get(equip_id, 0) >= charge_cost:
+						has_charges = true
+						break
+			if not has_charges:
+				can_use = false
+				disable_reason = "No equipment charges remaining"
 
 		button.disabled = not can_use
 

@@ -54,6 +54,9 @@ var _ap_system = null    # APSystem instance
 # Skills data (loaded once)
 var skills_data: Dictionary = {}
 
+# Equipment data (loaded once)
+var equipment_data: Dictionary = {}
+
 # Status effect manager instance
 var status_manager = StatusEffectManagerClass.new()
 
@@ -167,6 +170,7 @@ func _ready() -> void:
 
 	# Load skills data
 	skills_data = DataLoaderClass.load_skills()
+	equipment_data = DataLoaderClass.load_equipment()
 
 	# Connect UI buttons
 	$UI/ActionPanel/ActionButtons/AttackButton.pressed.connect(_on_attack_pressed)
@@ -272,6 +276,13 @@ func _hot_reload_data() -> void:
 	CombatConfigLoaderClass.reload()
 	var old_skills = skills_data
 	skills_data = DataLoaderClass.load_skills()
+	equipment_data = DataLoaderClass.load_equipment()
+
+	# Re-resolve abilities for ally units
+	for unit_id in all_units:
+		var unit = all_units[unit_id]
+		if unit.get("is_ally", true):
+			unit["abilities"] = DataLoaderClass.resolve_character_abilities(unit, equipment_data)
 
 	# Update grid config
 	GRID_SIZE = CombatConfigLoaderClass.get_grid_size()
@@ -406,6 +417,17 @@ func _load_units_from_encounter() -> void:
 			var mp = int(resonance * CombatConfigLoaderClass.get_balance("mp_per_resonance", 5))
 			member["current_mp"] = mp
 			member["max_mp"] = mp
+
+		# Resolve abilities from starting_abilities + equipment
+		member["abilities"] = DataLoaderClass.resolve_character_abilities(member, equipment_data)
+
+		# Initialize equipment charges
+		var equip_charges = {}
+		for equip_id in member.get("equipment", []):
+			var equip = equipment_data.get(equip_id, {})
+			if equip.get("charges", 0) > 0:
+				equip_charges[equip_id] = equip.charges
+		member["equipment_charges"] = equip_charges
 
 		all_units[member["id"]] = member
 
@@ -920,73 +942,116 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	# Note: MP is deducted in _on_target_selected before calling this.
 	# AI turns deduct MP in _handle_ai_turn.
 
+	# Handle spend_all_mp special (Break Stock)
+	var special_hit_count = 0
+	if skill.has("special") and skill.special.get("type", "") == "spend_all_mp":
+		var mp_available = user.get("current_mp", 0)
+		user["current_mp"] = 0
+		special_hit_count = max(2, int(mp_available / 2))
+		_log_action("  %s spends all %d MP! (%d hits)" % [user.get("name", "?"), mp_available, special_hit_count], Color(1.0, 0.85, 0.2))
+
+	# Handle healing
+	if skill.has("healing"):
+		var healing_data = skill.healing
+		var heal_amount = 0
+		if healing_data.has("base_percent"):
+			heal_amount = int(ceil(user.get("max_hp", 100) * healing_data.base_percent))
+		else:
+			heal_amount = healing_data.get("base", 0)
+			var scaling_stat = healing_data.get("stat_scaling", "")
+			if scaling_stat != "":
+				var stat_val = user.get("base_stats", {}).get(scaling_stat, 5)
+				heal_amount = int(ceil(heal_amount * (1.0 + stat_val * 0.15)))
+
+		user["current_hp"] = min(user.get("max_hp", 100), user.get("current_hp", 0) + heal_amount)
+		_spawn_floating_text("+%d" % heal_amount, Color(0.3, 1.0, 0.3), user, false)
+		_log_action("  %s heals for %d HP!" % [user.get("name", "?"), heal_amount], Color(0.3, 1.0, 0.3))
+		status_label.text = "%s heals for %d HP!" % [user.get("name", "?"), heal_amount]
+
 	# Handle damage
 	if skill.has("damage"):
-		var result = DamageCalculatorClass.calculate_damage(skill, user, target)
+		var hit_count = skill.damage.get("hits", 1)
+		if special_hit_count > 0:
+			hit_count = special_hit_count
 
-		# Apply tile environment damage bonus (attacker's Soil)
-		var attacker_pos = user.get("grid_position", Vector2i(0, 0))
-		var attacker_tile_bonuses = tile_env_manager.get_bonuses_for_unit(user.get("id", ""), attacker_pos)
-		if attacker_tile_bonuses.get("damage_mult", 0.0) > 0.0:
-			result.damage = int(ceil(result.damage * (1.0 + attacker_tile_bonuses["damage_mult"])))
+		# Check for multi_hit_bonus from combat_flow status
+		if hit_count > 1 and status_manager.has_status(user.get("id", ""), "combat_flow"):
+			var bonus_data = status_manager.get_status_data(user.get("id", ""), "combat_flow")
+			hit_count += bonus_data.get("multi_hit_bonus", 0)
 
-		# Apply tile environment damage reduction (defender's Soil)
-		var defender_pos = target.get("grid_position", Vector2i(0, 0))
-		var defender_tile_bonuses = tile_env_manager.get_bonuses_for_unit(target.get("id", ""), defender_pos)
-		if defender_tile_bonuses.get("damage_reduction", 0.0) > 0.0:
-			result.damage = int(floor(result.damage * (1.0 - defender_tile_bonuses["damage_reduction"])))
+		# Check for pitched_stance (double damage on next attack)
+		var stance_mult = 1.0
+		if status_manager.has_status(user.get("id", ""), "pitched_stance"):
+			stance_mult = 2.0
+			status_manager.remove_status(user.get("id", ""), "pitched_stance")
+			_log_action("  Stance of Pitch activates! 2x damage!", Color(1.0, 0.9, 0.2))
 
-		# Apply damage reduction from status effects
-		var reductions = status_manager.get_damage_reductions(target.get("id", ""))
-		if not reductions.is_empty():
-			result.damage = DamageCalculatorClass.apply_damage_reduction(
-				result.damage, result.damage_type, reductions
-			)
+		var total_damage = 0
+		for hit_i in range(hit_count):
+			var result = DamageCalculatorClass.calculate_damage(skill, user, target)
 
-		_apply_damage(target, result.damage)
+			# Apply stance multiplier
+			result.damage = int(ceil(result.damage * stance_mult))
 
-		var crit_text = " CRITICAL!" if result.is_critical else ""
+			# Apply tile environment damage bonus (attacker's Soil)
+			var attacker_pos = user.get("grid_position", Vector2i(0, 0))
+			var attacker_tile_bonuses = tile_env_manager.get_bonuses_for_unit(user.get("id", ""), attacker_pos)
+			if attacker_tile_bonuses.get("damage_mult", 0.0) > 0.0:
+				result.damage = int(ceil(result.damage * (1.0 + attacker_tile_bonuses["damage_mult"])))
+
+			# Apply tile environment damage reduction (defender's Soil)
+			var defender_pos = target.get("grid_position", Vector2i(0, 0))
+			var defender_tile_bonuses = tile_env_manager.get_bonuses_for_unit(target.get("id", ""), defender_pos)
+			if defender_tile_bonuses.get("damage_reduction", 0.0) > 0.0:
+				result.damage = int(floor(result.damage * (1.0 - defender_tile_bonuses["damage_reduction"])))
+
+			# Apply damage reduction from status effects
+			var reductions = status_manager.get_damage_reductions(target.get("id", ""))
+			if not reductions.is_empty():
+				result.damage = DamageCalculatorClass.apply_damage_reduction(
+					result.damage, result.damage_type, reductions
+				)
+
+			_apply_damage(target, result.damage)
+			total_damage += result.damage
+
+			# Floating text per hit
+			var float_color = Color.WHITE
+			var large = false
+			if result.is_critical:
+				float_color = Color(1.0, 0.9, 0.1)
+				large = true
+			elif result.effectiveness > 1.0:
+				float_color = Color(1.0, 0.3, 0.3)
+			elif result.effectiveness < 1.0:
+				float_color = Color(0.6, 0.6, 0.6)
+
+			_spawn_floating_text(str(result.damage), float_color, target, large)
+
+			# Flash target
+			var tid = target.get("id", "")
+			if unit_visuals.has(tid) and is_instance_valid(unit_visuals[tid]):
+				unit_visuals[tid].flash_damage()
+
+			# Small delay between hits
+			if hit_count > 1 and hit_i < hit_count - 1:
+				await get_tree().create_timer(0.25).timeout
+
+			# Stop hitting if target is defeated
+			if target.get("current_hp", 0) <= 0:
+				break
+
+		var hit_text = " (%d hits)" % hit_count if hit_count > 1 else ""
+		var crit_text = ""
 		var eff_text = ""
-		if result.effectiveness > 1.0:
-			eff_text = " (Weak!)"
-		elif result.effectiveness < 1.0:
-			eff_text = " (Resist)"
-
-		status_label.text = "%s uses %s on %s for %d damage!%s%s" % [
-			user.get("name", "?"), skill_name, target.get("name", "?"), result.damage, crit_text, eff_text
+		status_label.text = "%s uses %s on %s for %d damage!%s" % [
+			user.get("name", "?"), skill_name, target.get("name", "?"), total_damage, hit_text
 		]
+		_log_action("%s -> %s: %s for %d dmg%s" % [user.get("name", "?"), target.get("name", "?"), skill_name, total_damage, hit_text],
+			Color(0.7, 0.9, 1.0) if user.get("is_ally", true) else Color(1.0, 0.7, 0.7))
 
-		var log_extras = ""
-		if result.is_critical:
-			log_extras += " CRIT!"
-		if result.effectiveness > 1.0:
-			log_extras += " Weak!"
-		elif result.effectiveness < 1.0:
-			log_extras += " Resist"
-
-		var log_color = Color(0.7, 0.9, 1.0) if user.get("is_ally", true) else Color(1.0, 0.7, 0.7)
-		_log_action("%s -> %s: %s for %d dmg%s" % [user.get("name", "?"), target.get("name", "?"), skill_name, result.damage, log_extras], log_color)
-
-		# Floating damage number
-		var float_color = Color.WHITE
-		var large = false
-		if result.is_critical:
-			float_color = Color(1.0, 0.9, 0.1)
-			large = true
-		elif result.effectiveness > 1.0:
-			float_color = Color(1.0, 0.3, 0.3)
-		elif result.effectiveness < 1.0:
-			float_color = Color(0.6, 0.6, 0.6)
-
-		_spawn_floating_text(str(result.damage), float_color, target, large)
-
-		# Flash the target unit visual
-		var tid = target.get("id", "")
-		if unit_visuals.has(tid) and is_instance_valid(unit_visuals[tid]):
-			unit_visuals[tid].flash_damage()
-
-		EventBus.unit_damaged.emit(target.get("id", ""), result.damage, result.damage_type)
-	else:
+		EventBus.unit_damaged.emit(target.get("id", ""), total_damage, skill.damage.get("type", "physical"))
+	elif not skill.has("healing"):
 		status_label.text = "%s uses %s!" % [user.get("name", "?"), skill_name]
 		_log_action("%s uses %s" % [user.get("name", "?"), skill_name], Color(0.8, 0.8, 0.5))
 
@@ -1111,10 +1176,123 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 				status_label.text += " Enemies are %s!" % status_name
 				_log_action("  -%s on all enemies (%d turns)" % [status_name, duration], Color(1.0, 0.5, 0.5))
 			else:
+				# Check apply chance
+				var apply_chance = effect.get("apply_chance", 1.0)
+				if apply_chance < 1.0 and randf() > apply_chance:
+					_log_action("  %s resists %s!" % [target.get("name", "?"), status_name], Color(0.6, 0.6, 0.6))
+					return
 				status_manager.apply_status(target.id, status_name, duration, effect)
 				EventBus.status_applied.emit(target.id, status_name)
 				status_label.text += " %s is %s!" % [target.get("name", "?"), status_name]
 				_log_action("  -%s on %s (%d turns)" % [status_name, target.get("name", "?"), duration], Color(1.0, 0.5, 0.5))
+
+		"forced_movement":
+			_apply_forced_movement(effect, user, target)
+
+		"self_reposition":
+			await get_tree().create_timer(0.3).timeout
+			_apply_self_reposition(effect, user, target)
+
+		"reveal":
+			target["revealed"] = true
+			var weaknesses = target.get("weaknesses", [])
+			var resistances = target.get("resistances", [])
+			var weak_text = ", ".join(weaknesses) if not weaknesses.is_empty() else "none"
+			var resist_text = ", ".join(resistances) if not resistances.is_empty() else "none"
+			_log_action("  Revealed %s! Weak: %s | Resist: %s" % [target.get("name", "?"), weak_text, resist_text], Color(0.9, 0.9, 0.3))
+			status_label.text = "%s's weaknesses revealed!" % target.get("name", "?")
+
+		"weapon_buff":
+			status_manager.apply_status(user.id, status_name, duration, effect)
+			EventBus.status_applied.emit(user.id, status_name)
+			var element_text = effect.get("element", "chosen element")
+			_log_action("  %s's weapon infused with %s!" % [user.get("name", "?"), element_text], Color(0.5, 1.0, 0.8))
+
+		"random_debuff_per_hit":
+			# Handled during multi-hit damage loop - just log
+			var pool = effect.get("debuff_pool", [])
+			if not pool.is_empty():
+				var random_status = pool[randi() % pool.size()]
+				status_manager.apply_status(target.id, random_status, duration, {})
+				EventBus.status_applied.emit(target.id, random_status)
+				_log_action("  %s gains %s!" % [target.get("name", "?"), random_status], Color(1.0, 0.5, 0.5))
+
+		"create_terrain":
+			# Placeholder for terrain creation (The Wall)
+			_log_action("  %s creates %s!" % [user.get("name", "?"), effect.get("terrain", "terrain")], Color(0.7, 0.5, 0.3))
+
+
+## Handle forced movement effects (push up/down/toward/away)
+func _apply_forced_movement(effect: Dictionary, user: Dictionary, target: Dictionary) -> void:
+	var direction = effect.get("direction", "")
+	var distance = effect.get("distance", 1)
+	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
+	var new_pos = target_pos
+
+	# Check if target has braced status (negates forced movement)
+	if status_manager.has_status(target.get("id", ""), "braced"):
+		var braced_data = status_manager.get_status_data(target.get("id", ""), "braced")
+		if braced_data.get("negates_forced_movement", false):
+			_log_action("  %s resists forced movement (Braced)!" % target.get("name", "?"), Color(0.8, 0.8, 0.2))
+			return
+
+	match direction:
+		"up":
+			new_pos = Vector2i(target_pos.x, max(0, target_pos.y - distance))
+		"down":
+			new_pos = Vector2i(target_pos.x, min(GRID_SIZE.y - 1, target_pos.y + distance))
+		"away":
+			var dx = sign(target_pos.x - user_pos.x) if target_pos.x != user_pos.x else 1
+			new_pos = Vector2i(clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1), target_pos.y)
+		"toward_caster":
+			var dx = sign(user_pos.x - target_pos.x) if target_pos.x != user_pos.x else 0
+			var dy = sign(user_pos.y - target_pos.y) if target_pos.y != user_pos.y else 0
+			new_pos = Vector2i(
+				clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1),
+				clamp(target_pos.y + dy * distance, 0, GRID_SIZE.y - 1)
+			)
+
+	if new_pos != target_pos and not grid.has(new_pos):
+		grid.erase(target_pos)
+		target["grid_position"] = new_pos
+		grid[new_pos] = target.get("id", "")
+		_log_action("  %s pushed to (%d,%d)!" % [target.get("name", "?"), new_pos.x, new_pos.y], Color(0.9, 0.7, 0.3))
+		EventBus.position_changed.emit(target.get("id", ""), target_pos, new_pos)
+		_update_unit_visuals()
+	elif new_pos != target_pos:
+		_log_action("  %s can't be moved (blocked)!" % target.get("name", "?"), Color(0.6, 0.6, 0.6))
+
+
+## Handle self-repositioning after attack (e.g., Falcon Strike retreat)
+func _apply_self_reposition(effect: Dictionary, user: Dictionary, target: Dictionary) -> void:
+	var direction = effect.get("direction", "")
+	var distance = effect.get("distance", 1)
+	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
+	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+	var new_pos = user_pos
+
+	match direction:
+		"away_from_target":
+			var dx = sign(user_pos.x - target_pos.x) if user_pos.x != target_pos.x else -1
+			new_pos = Vector2i(clamp(user_pos.x + dx * distance, 0, GRID_SIZE.x - 1), user_pos.y)
+
+	if new_pos != user_pos and not grid.has(new_pos):
+		grid.erase(user_pos)
+		user["grid_position"] = new_pos
+		grid[new_pos] = user.get("id", "")
+		_log_action("  %s repositions to (%d,%d)" % [user.get("name", "?"), new_pos.x, new_pos.y], Color(0.7, 0.9, 0.7))
+		EventBus.position_changed.emit(user.get("id", ""), user_pos, new_pos)
+		_update_unit_visuals()
+
+
+## Find which equipment grants a skill for a unit
+func _get_skill_equipment(unit: Dictionary, skill_id: String) -> String:
+	for equip_id in unit.get("equipment", []):
+		var equip = equipment_data.get(equip_id, {})
+		if skill_id in equip.get("granted_skills", []):
+			return equip_id
+	return ""
 
 
 func _apply_damage(target: Dictionary, damage: int) -> void:
@@ -1136,6 +1314,20 @@ func _end_turn() -> void:
 
 	# Tick tile effect decay
 	tile_env_manager.tick_decay()
+
+	# Process DOT damage before ticking durations
+	var dot_statuses = ["poisoned", "burning", "bleeding"]
+	for dot_status in dot_statuses:
+		if status_manager.has_status(current_unit.id, dot_status):
+			var status_data = status_manager.get_status_data(current_unit.id, dot_status)
+			var dot_damage = status_data.get("damage_per_turn", 0)
+			if dot_damage > 0:
+				_apply_damage(current_unit, dot_damage)
+				var dot_color = Color(0.6, 0.2, 0.8) if dot_status == "poisoned" else Color(1.0, 0.4, 0.1)
+				if dot_status == "bleeding":
+					dot_color = Color(0.8, 0.1, 0.1)
+				_spawn_floating_text(str(dot_damage), dot_color, current_unit, false)
+				_log_action("  %s takes %d %s damage" % [current_unit.get("name", "?"), dot_damage, dot_status], dot_color)
 
 	# Process status effect tick
 	var expired = status_manager.tick_turn_end(current_unit.id)
@@ -1286,7 +1478,7 @@ func _on_skill_pressed() -> void:
 		return
 
 	action_panel.visible = false
-	skill_panel.show_skills(current_unit, skills_data, all_units, grid, GRID_SIZE, _ap_system)
+	skill_panel.show_skills(current_unit, skills_data, all_units, grid, GRID_SIZE, _ap_system, equipment_data)
 
 
 func _on_skill_selected(skill_id: String) -> void:
@@ -1333,6 +1525,15 @@ func _on_target_selected(target_id: String) -> void:
 	var mp_cost = selected_skill.get("mp_cost", 0)
 	if mp_cost > 0:
 		current_unit["current_mp"] = max(0, current_unit.get("current_mp", 0) - mp_cost)
+
+	# Deduct equipment charges if needed
+	var charge_cost = selected_skill.get("equipment_charge_cost", 0)
+	if charge_cost > 0:
+		var equip_id = _get_skill_equipment(current_unit, selected_skill.get("id", ""))
+		if equip_id != "":
+			var charges = current_unit.get("equipment_charges", {})
+			charges[equip_id] = max(0, charges.get(equip_id, 0) - charge_cost)
+			_log_action("  -%d charge from %s (%d remaining)" % [charge_cost, equipment_data.get(equip_id, {}).get("name", equip_id), charges.get(equip_id, 0)], Color(0.8, 0.6, 0.2))
 
 	# Consume taunt charge when player targets enemies
 	if current_unit.get("is_ally", true):
