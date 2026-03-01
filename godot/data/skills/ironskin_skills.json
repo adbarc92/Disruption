@@ -1,0 +1,276 @@
+{
+  "_COMMENT": "Ironskin role skills - Phaidros defensive and tank techniques",
+  "skills": [
+    {
+      "id": "ready_stance",
+      "name": "Ready Stance",
+      "description": "Brace for the next blow. -50% physical or -25% magical damage, negate push.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "braced",
+        "damage_reduction": { "physical": 0.5, "elemental": 0.25, "magical": 0.25 },
+        "negates_forced_movement": true,
+        "duration": 2,
+        "consumes_on_hit": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "protective_instinct",
+      "name": "Protective Instinct",
+      "description": "Set counter trigger. If any ally takes damage, counterattack the source.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "protective_instinct",
+        "counter_on_ally_hit": true,
+        "duration": 4
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "intercede",
+      "name": "Intercede",
+      "description": "Block the next hit targeting one ally, taking the damage instead.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "ally_buff",
+        "status": "intercepted",
+        "redirect_damage_to": "caster",
+        "duration": 3,
+        "consumes_on_hit": true
+      },
+      "targeting": {
+        "type": "single_ally",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "again_with_vigor",
+      "name": "Again, with Vigor",
+      "description": "Repair personal defenses. Heal 30% of max HP.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "healing": {
+        "base_percent": 0.3,
+        "target": "self"
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "one_two",
+      "name": "One-Two",
+      "description": "A quick jab combo.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength",
+        "hits": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 6,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "uppercut",
+      "name": "Uppercut",
+      "description": "A rising strike with a chance to stun.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "stunned",
+        "duration": 1,
+        "apply_chance": 0.6
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "headclap",
+      "name": "Headclap",
+      "description": "Crunch an enemy's head between hands, reducing magic power.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "headclapped",
+        "stat_modifier": { "resonance": -0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "smash",
+      "name": "Smash",
+      "description": "Crushing downward attack. Knocks down small enemies, deals %HP to larger ones.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "knocked_down",
+        "duration": 1,
+        "size_conditional": true,
+        "knockdown_max_size": 1,
+        "hp_percent_if_large": 0.05
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "thunderfist",
+      "name": "Thunderfist",
+      "description": "A concussive punch that disorients the target.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "disoriented",
+        "stat_modifier": { "dexterity": -0.2, "agility": -0.2 },
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "striking_tips",
+      "name": "Striking Tips",
+      "description": "Damage all enemies in the front row, applying burning DOTs.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "burning",
+        "damage_per_turn": 8,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    },
+    {
+      "id": "unerring_menace",
+      "name": "Unerring Menace",
+      "description": "Unleash seven strikes, each inflicting a random negative physical status.",
+      "action_type": "action",
+      "ap_cost": 3,
+      "mp_cost": 5,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength",
+        "hits": 7
+      },
+      "effect": {
+        "type": "random_debuff_per_hit",
+        "debuff_pool": ["weakened", "defense_broken", "disoriented", "hamstrung", "tendon_damage", "distracted", "knocked_down"],
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 25,
+      "burst_charge_type": "aggressive",
+      "roles": ["ironskin"]
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "_COMMENT": "Synergist role skills - elemental weapon infusion, granted by equipment",
+  "skills": [
+    {
+      "id": "edge_shift",
+      "name": "Edge Shift",
+      "description": "Reconfigure weapon element. Next 3 attacks deal the chosen element.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "weapon_buff",
+        "status": "elemental_edge",
+        "choose_element": true,
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["synergist"]
+    },
+    {
+      "id": "gout_of_flame",
+      "name": "Gout of Flame",
+      "description": "Slash in a burning arc. Weapon gains Fire for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "fire",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "fire_edge",
+        "element": "fire",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive",
+      "roles": ["synergist"]
+    },
+    {
+      "id": "luminous_tines",
+      "name": "Luminous Tines",
+      "description": "An overhead swing to mimic the wrath of a storm. Weapon gains Lightning for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "lightning",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "lightning_edge",
+        "element": "lightning",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive",
+      "roles": ["synergist"]
+    },
+    {
+      "id": "frozen_thrust",
+      "name": "Frozen Thrust",
+      "description": "A piercing thrust of ice. Weapon gains Ice for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "ice",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "ice_edge",
+        "element": "ice",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive",
+      "roles": ["synergist"]
+    },
+    {
+      "id": "infernal_incarnate",
+      "name": "Infernal Incarnate",
+      "description": "Channel the will of the blade. +40% damage, all attacks become current element.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "effect": {
+        "type": "self_buff",
+        "status": "infernal_incarnate",
+        "stat_modifier": { "strength": 0.4 },
+        "converts_attacks_to_element": true,
+        "duration": 4
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive",
+      "roles": ["synergist"]
+    }
+  ]
+}
