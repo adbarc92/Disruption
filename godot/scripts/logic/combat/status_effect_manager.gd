@@ -58,6 +58,30 @@ func apply_status(unit_id: String, status_name: String, duration: int, effect_da
 		new_effect["max_stacks"] = effect_data.max_stacks
 	if effect_data.has("attacks_redirected"):
 		new_effect["attacks_redirected"] = effect_data.attacks_redirected
+	if effect_data.has("damage_per_turn"):
+		new_effect["damage_per_turn"] = effect_data.damage_per_turn
+	if effect_data.has("damage_multiplier"):
+		new_effect["damage_multiplier"] = effect_data.damage_multiplier
+	if effect_data.has("consumes_on_attack"):
+		new_effect["consumes_on_attack"] = effect_data.consumes_on_attack
+	if effect_data.has("consumes_on_hit"):
+		new_effect["consumes_on_hit"] = effect_data.consumes_on_hit
+	if effect_data.has("consumes_on_skill"):
+		new_effect["consumes_on_skill"] = effect_data.consumes_on_skill
+	if effect_data.has("negates_forced_movement"):
+		new_effect["negates_forced_movement"] = effect_data.negates_forced_movement
+	if effect_data.has("multi_hit_bonus"):
+		new_effect["multi_hit_bonus"] = effect_data.multi_hit_bonus
+	if effect_data.has("mp_cost_reduction"):
+		new_effect["mp_cost_reduction"] = effect_data.mp_cost_reduction
+	if effect_data.has("burst_gauge_bonus"):
+		new_effect["burst_gauge_bonus"] = effect_data.burst_gauge_bonus
+	if effect_data.has("counter_on_ally_hit"):
+		new_effect["counter_on_ally_hit"] = effect_data.counter_on_ally_hit
+	if effect_data.has("redirect_damage_to"):
+		new_effect["redirect_damage_to"] = effect_data.redirect_damage_to
+	if effect_data.has("prevents_movement"):
+		new_effect["prevents_movement"] = effect_data.prevents_movement
 
 	effects_list.append(new_effect)
 	return true
