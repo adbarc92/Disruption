@@ -999,25 +999,6 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 			var bonus_data = status_manager.get_status_data(user.get("id", ""), "combat_flow")
 			hit_count += bonus_data.get("multi_hit_bonus", 0)
 
-		# Apply tile environment damage bonus (attacker's Soil)
-		var attacker_pos = user.get("grid_position", Vector2i(0, 0))
-		var attacker_tile_bonuses = tile_env_manager.get_bonuses_for_unit(user.get("id", ""), attacker_pos)
-		if attacker_tile_bonuses.get("damage_mult", 0.0) > 0.0:
-			result.damage = int(ceil(result.damage * (1.0 + attacker_tile_bonuses["damage_mult"])))
-
-		# Apply tile environment damage reduction (defender's Soil)
-		var defender_pos = target.get("grid_position", Vector2i(0, 0))
-		var defender_tile_bonuses = tile_env_manager.get_bonuses_for_unit(target.get("id", ""), defender_pos)
-		if defender_tile_bonuses.get("damage_reduction", 0.0) > 0.0:
-			result.damage = int(floor(result.damage * (1.0 - defender_tile_bonuses["damage_reduction"])))
-
-		# Apply damage reduction from status effects
-		var reductions = status_manager.get_damage_reductions(target.get("id", ""))
-		if not reductions.is_empty():
-			result.damage = DamageCalculatorClass.apply_damage_reduction(
-				result.damage, result.damage_type, reductions
-			)
-
 		# Check for pitched_stance (double damage on next attack)
 		var stance_mult = 1.0
 		if status_manager.has_status(user.get("id", ""), "pitched_stance"):
