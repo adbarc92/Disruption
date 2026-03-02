@@ -134,14 +134,27 @@ func pixel_to_hex(pixel: Vector2) -> Vector2i:
 ## bounding box, then offsets so the unit is centered on the cell position.
 func get_centered_unit_position(grid_pos: Vector2i) -> Vector2:
 	var center = grid_to_visual_pos(grid_pos)
-	var cell_bounds = Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0)
+	var inscribed = _get_hex_inscribed_rect()
 	# Mirror UnitVisual._calculate_scaled_sizes logic
-	var available_w = cell_bounds.x * 0.85
-	var available_h = cell_bounds.y * 0.85
+	var available_w = inscribed.x * 0.90
+	var available_h = inscribed.y * 0.90
 	var scale_factor = min(available_w / 56.0, available_h / 70.0)  # BASE_UNIT_WIDTH, BASE_UNIT_HEIGHT
 	var unit_w = 56.0 * scale_factor
 	var unit_h = 70.0 * scale_factor
 	return center - Vector2(unit_w / 2.0, unit_h / 2.0)
+
+
+## Get the largest rectangle with unit aspect ratio (56:70) that fits inside the hex.
+## For a pointy-top hex with radius R, the tapered edge constrains the corner:
+##   half_width <= sqrt(3) * (R - half_height)
+## Combined with aspect ratio w/h = 56/70:
+##   half_height = sqrt(3)*R / (56/70 + sqrt(3))
+func _get_hex_inscribed_rect() -> Vector2:
+	var R = HEX_SIZE - HEX_INSET
+	var aspect = 56.0 / 70.0  # UnitVisual BASE_UNIT_WIDTH / BASE_UNIT_HEIGHT
+	var half_h = sqrt(3.0) * R / (aspect + sqrt(3.0))
+	var half_w = half_h * aspect
+	return Vector2(half_w * 2.0, half_h * 2.0)
 
 
 func _ready() -> void:
@@ -241,7 +254,7 @@ func _update_all_unit_scales() -> void:
 	for unit_id in unit_visuals:
 		var visual = unit_visuals[unit_id]
 		if is_instance_valid(visual):
-			visual.update_scale(Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0))
+			visual.update_scale(_get_hex_inscribed_rect())
 
 			var unit = all_units.get(unit_id, {})
 			if not unit.is_empty():
@@ -680,7 +693,7 @@ func _create_or_update_visual(unit: Dictionary) -> void:
 	var uid = unit.get("id", "")
 	var grid_pos = unit.get("grid_position", Vector2i(1, 1))
 	var pos = get_centered_unit_position(grid_pos)
-	var hex_cell_size = Vector2(HEX_SIZE * sqrt(3.0), HEX_SIZE * 2.0)
+	var hex_cell_size = _get_hex_inscribed_rect()
 
 	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
 		var visual = unit_visuals[uid]
@@ -889,8 +902,8 @@ func _init_burst_fields(unit: Dictionary) -> void:
 	unit["burst_active"] = false
 	unit["burst_turns_remaining"] = 0
 	unit["burst_effects"] = {}
-	# TESTING: Start with full burst gauge for allies
-	if unit.get("is_ally", false):
+	# TESTING: Start with full burst gauge for units that have burst_mode data
+	if not unit.get("burst_mode", {}).is_empty():
 		unit["burst_gauge"] = CombatConfigLoaderClass.get_burst_max_gauge()
 
 
@@ -899,6 +912,24 @@ func _handle_ai_turn() -> void:
 	status_label.text = "%s is thinking..." % current_unit.name
 
 	await get_tree().create_timer(0.3).timeout
+
+	# AI burst activation: if unit has burst_mode and gauge is full, activate immediately
+	var ai_burst_data = current_unit.get("burst_mode", {})
+	if not ai_burst_data.is_empty() and not current_unit.get("burst_active", false):
+		var threshold = CombatConfigLoaderClass.get_burst_activation_threshold()
+		if current_unit.get("burst_gauge", 0) >= threshold:
+			current_unit["burst_active"] = true
+			current_unit["burst_turns_remaining"] = ai_burst_data.get("duration", 5)
+			current_unit["burst_effects"] = ai_burst_data.get("effects", {}).duplicate()
+			current_unit["burst_gauge"] = 0
+			var burst_name = ai_burst_data.get("name", "Burst Mode")
+			EventBus.burst_mode_activated.emit(current_unit.get("id", ""))
+			EventBus.burst_gauge_changed.emit(current_unit.get("id", ""), 0)
+			_log_action("%s activates %s! (%d turns)" % [current_unit.get("name", "?"), burst_name, current_unit["burst_turns_remaining"]],
+				Color(1.0, 0.85, 0.2))
+			status_label.text = "%s activates %s!" % [current_unit.get("name", "?"), burst_name]
+			_update_unit_visuals()
+			await get_tree().create_timer(0.5).timeout
 
 	var actions_taken = 0
 	while _ap_system.can_afford(current_unit.id, "attack"):
@@ -1110,8 +1141,8 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	if skill.has("effect"):
 		await _apply_skill_effect(skill, user, target)
 
-	# Add burst gauge (only when burst is not active and unit is ally)
-	if not user.get("burst_active", false) and user.get("is_ally", false):
+	# Add burst gauge (only for units with burst_mode data, when not already active)
+	if not user.get("burst_active", false) and not user.get("burst_mode", {}).is_empty():
 		var burst_gain = skill.get("burst_gauge_gain", 5)
 		var max_gauge = CombatConfigLoaderClass.get_burst_max_gauge()
 		user["burst_gauge"] = min(max_gauge, user.get("burst_gauge", 0) + burst_gain)

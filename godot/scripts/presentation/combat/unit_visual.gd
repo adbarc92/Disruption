@@ -29,6 +29,7 @@ var INSET: float = 2.0
 
 var unit_id: String = ""
 var is_ally: bool = true
+var has_burst: bool = false
 var cell_size: Vector2 = Vector2(48, 48)
 
 # Child nodes
@@ -54,6 +55,7 @@ const FLASH_DURATION = 0.15
 func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48)) -> void:
 	unit_id = unit.get("id", "")
 	is_ally = ally
+	has_burst = not unit.get("burst_mode", {}).is_empty()
 	cell_size = p_cell_size
 	_calculate_scaled_sizes()
 
@@ -76,7 +78,7 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	name_label = Label.new()
 	name_label.text = unit.get("name", "???")
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.clip_text = true
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(name_label)
 
 	# Bars are stacked from bottom of body upward:
@@ -99,8 +101,8 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	hp_bar_fill = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.8, 0.2))
 	add_child(hp_bar_fill)
 
-	# Burst bar (allies only)
-	if is_ally:
+	# Burst bar (units with burst_mode data)
+	if has_burst:
 		var burst_y = hp_y - BAR_HEIGHT - BAR_GAP
 		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
 		add_child(burst_bar_bg)
@@ -162,18 +164,20 @@ func _apply_layout() -> void:
 	var font_size = max(8, int(10 * (UNIT_HEIGHT / BASE_UNIT_HEIGHT)))
 	var small_font = max(6, int(8 * (UNIT_HEIGHT / BASE_UNIT_HEIGHT)))
 
-	# Name label: inside top
-	if name_label:
-		name_label.position = Vector2(INSET, INSET)
-		name_label.size = Vector2(UNIT_WIDTH - INSET * 2, NAME_HEIGHT)
-		name_label.add_theme_font_size_override("font_size", font_size)
-
 	# Bars stacked from bottom
 	var bar_bottom = UNIT_HEIGHT - INSET
 
 	var mp_y = bar_bottom - BAR_HEIGHT
 	var hp_y = mp_y - BAR_HEIGHT - BAR_GAP
 	var burst_y = hp_y - BAR_HEIGHT - BAR_GAP
+
+	# Name label: inside top, height fills space above bars
+	var bars_top = burst_y if has_burst else hp_y
+	var name_available_height = bars_top - INSET - BAR_GAP
+	if name_label:
+		name_label.position = Vector2(INSET, INSET)
+		name_label.size = Vector2(UNIT_WIDTH - INSET * 2, name_available_height)
+		name_label.add_theme_font_size_override("font_size", font_size)
 
 	if mp_bar_bg:
 		mp_bar_bg.position = Vector2(BAR_OFFSET_X, mp_y)
@@ -198,8 +202,8 @@ func _apply_layout() -> void:
 		burst_info_label.size = Vector2(BAR_WIDTH, NAME_HEIGHT)
 		burst_info_label.add_theme_font_size_override("font_size", small_font)
 
-	# Status dots: between name and bars
-	var status_y = INSET + NAME_HEIGHT + BAR_GAP
+	# Status dots: just above the top bar
+	var status_y = bars_top - STATUS_DOT_SIZE - BAR_GAP
 	if status_container:
 		status_container.position = Vector2(BAR_OFFSET_X, status_y)
 
@@ -275,7 +279,7 @@ func update_soil(intensity: int) -> void:
 
 
 func update_burst(unit: Dictionary) -> void:
-	if not is_ally:
+	if not has_burst:
 		return
 
 	var gauge = unit.get("burst_gauge", 0)
