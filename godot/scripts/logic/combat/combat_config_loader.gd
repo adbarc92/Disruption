@@ -148,3 +148,31 @@ static func get_soil_bonuses(intensity: int) -> Dictionary:
 	if clamped >= 0 and clamped < bonuses_table.size():
 		return bonuses_table[clamped]
 	return { "damage_mult": 0.0, "damage_reduction": 0.0, "mp_regen": 0 }
+
+
+## Get the maximum burst gauge value (default 100)
+static func get_burst_max_gauge() -> int:
+	_ensure_loaded()
+	var burst = _config.get("burst", {})
+	return burst.get("max_gauge", 100)
+
+
+## Get the burst activation threshold (default 100)
+static func get_burst_activation_threshold() -> int:
+	_ensure_loaded()
+	var burst = _config.get("burst", {})
+	return burst.get("activation_threshold", 100)
+
+
+## Get the AP cost for burst activation (default 0)
+static func get_burst_activation_ap_cost() -> int:
+	_ensure_loaded()
+	var burst = _config.get("burst", {})
+	return burst.get("activation_ap_cost", 0)
+
+
+## Get the gauge carry percentage between combats (default 0.0)
+static func get_burst_gauge_carry() -> float:
+	_ensure_loaded()
+	var burst = _config.get("burst", {})
+	return burst.get("gauge_carry_between_combats", 0.0)

@@ -41,5 +41,11 @@
         { "damage_mult": 0.10, "damage_reduction": 0.10, "mp_regen": 1 }
       ]
     }
+  },
+  "burst": {
+    "max_gauge": 100,
+    "activation_threshold": 100,
+    "activation_ap_cost": 0,
+    "gauge_carry_between_combats": 0.0
   }
 }
