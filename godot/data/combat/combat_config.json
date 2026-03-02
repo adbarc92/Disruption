@@ -29,5 +29,17 @@
     "enabled": false,
     "damage_multiplier": 0.5,
     "max_per_move": 3
+  },
+  "tile_effects": {
+    "soil": {
+      "max_intensity": 3,
+      "decay_rate": 1,
+      "bonuses_per_level": [
+        { "damage_mult": 0.0, "damage_reduction": 0.0, "mp_regen": 0 },
+        { "damage_mult": 0.05, "damage_reduction": 0.0, "mp_regen": 0 },
+        { "damage_mult": 0.05, "damage_reduction": 0.10, "mp_regen": 0 },
+        { "damage_mult": 0.10, "damage_reduction": 0.10, "mp_regen": 1 }
+      ]
+    }
   }
 }

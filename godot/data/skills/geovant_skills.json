@@ -1,0 +1,95 @@
+{
+  "_COMMENT": "Geovant role skills - Earth magic, granted by Earth Gauntlets equipment",
+  "skills": [
+    {
+      "id": "the_wall",
+      "name": "The Wall",
+      "description": "Create a destructible wall along the front column. HP = 75% of caster's max HP.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "wall",
+        "hp_percent_of_caster": 0.75,
+        "placement": "front_column"
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "defensive",
+      "roles": ["geovant"]
+    },
+    {
+      "id": "earthquake",
+      "name": "Earthquake",
+      "description": "Shake the entire battlefield with earth damage.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "equipment_charge_cost": 1,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "earth",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive",
+      "roles": ["geovant"]
+    },
+    {
+      "id": "pitfall",
+      "name": "Pitfall",
+      "description": "Collapse the ground beneath an enemy, rooting them in place.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "debuff",
+        "status": "rooted",
+        "prevents_movement": true,
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "technical",
+      "roles": ["geovant"]
+    },
+    {
+      "id": "stonefist",
+      "name": "Stonefist",
+      "description": "Rip stone from the ground and launch at an enemy. Chance to knock down.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "equipment_charge_cost": 1,
+      "damage": {
+        "base": 40,
+        "type": "elemental",
+        "subtype": "earth",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "knocked_down",
+        "duration": 1,
+        "apply_chance": 0.5
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["geovant"]
+    }
+  ]
+}

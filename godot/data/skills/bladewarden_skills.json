@@ -1,0 +1,199 @@
+{
+  "_COMMENT": "Bladewarden role skills - Cyrus innate sword techniques",
+  "skills": [
+    {
+      "id": "wide_swing",
+      "name": "Wide Swing",
+      "description": "Swing across the front-line, hitting all adjacent enemies.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "raging_blossom",
+      "name": "Raging Blossom",
+      "description": "Obliterate the enemy with a series of three strikes.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength",
+        "hits": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "flat_swing",
+      "name": "Flat Swing",
+      "description": "Crush foes with the broadside, reducing their defenses.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "defense_broken",
+        "stat_modifier": { "vigor": -0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "stance_of_pitch",
+      "name": "Stance of Pitch",
+      "description": "Assume the learned form. Your next attack deals double damage.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "pitched_stance",
+        "damage_multiplier": 2.0,
+        "duration": 2,
+        "consumes_on_attack": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "resolve_break",
+      "name": "Resolve Break",
+      "description": "Shatter an opponent's will, weakening their magic and focus.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 25,
+        "type": "special",
+        "subtype": "psychic",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "resolve_broken",
+        "stat_modifier": { "resonance": -0.3, "dexterity": -0.2 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "northern_gale",
+      "name": "Northern Gale",
+      "description": "Displace an enemy upward with a sweeping cut.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "up",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "southern_breeze",
+      "name": "Southern Breeze",
+      "description": "Displace an enemy downward with a low sweep.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "down",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["bladewarden"]
+    },
+    {
+      "id": "break_stock",
+      "name": "Break Stock",
+      "description": "Ultimate technique. Spend all remaining MP to slash all enemies multiple times.",
+      "action_type": "action",
+      "ap_cost": 3,
+      "mp_cost": 0,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "special": {
+        "type": "spend_all_mp",
+        "hits_formula": "mp_spent_div_2_min_2"
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "burst_gauge_gain": 25,
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
+    }
+  ]
+}

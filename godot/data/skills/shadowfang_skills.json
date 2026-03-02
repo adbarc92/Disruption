@@ -1,0 +1,212 @@
+{
+  "_COMMENT": "Shadowfang role skills - Vaughn debuff and precision techniques",
+  "skills": [
+    {
+      "id": "sever_tendons",
+      "name": "Sever Tendons",
+      "description": "Precise cut to reduce physical attack damage by 20%.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "tendon_damage",
+        "stat_modifier": { "strength": -0.2 },
+        "duration": 4
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "commotion",
+      "name": "Commotion",
+      "description": "Distracting maneuvers reduce enemy accuracy by 30%.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "debuff",
+        "status": "distracted",
+        "stat_modifier": { "dexterity": -0.3 },
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "ranged"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "hook",
+      "name": "Hook",
+      "description": "Pull an enemy forward 1 tile with a hooked strike.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "toward_caster",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "close"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "falcon_strike",
+      "name": "Falcon Strike",
+      "description": "Strike an enemy, then retreat 1 tile.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "self_reposition",
+        "direction": "away_from_target",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "deduce_vulnerability",
+      "name": "Deduce Vulnerability",
+      "description": "Determine an enemy's resistances and weaknesses for the entire party.",
+      "action_type": "action",
+      "mp_cost": 1,
+      "effect": {
+        "type": "reveal",
+        "reveals": "weaknesses_and_resistances",
+        "duration": -1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "peak_efficiency",
+      "name": "Peak Efficiency",
+      "description": "Next ability costs 1 less MP and generates +50% Burst Gauge.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "optimized",
+        "mp_cost_reduction": 1,
+        "burst_gauge_bonus": 0.5,
+        "duration": 2,
+        "consumes_on_skill": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "constant_flurry",
+      "name": "Constant Flurry",
+      "description": "All multi-hit attacks gain +1 additional hit for 3 turns.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 3,
+      "effect": {
+        "type": "self_buff",
+        "status": "combat_flow",
+        "multi_hit_bonus": 1,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "poison_coating",
+      "name": "Poison Coating",
+      "description": "Apply poison to weapons. Next 5 attacks may poison enemies.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "poisoned_weapons",
+        "dot_on_hit": { "status": "poisoned", "damage_per_turn": 6, "duration": 3, "apply_chance": 0.6 },
+        "attacks_remaining": 5,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    },
+    {
+      "id": "razor_edge",
+      "name": "Razor Edge",
+      "description": "Apply Rhea's Tears to weapons. Next 5 attacks may cause bleeding.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "bleeding_weapons",
+        "dot_on_hit": { "status": "bleeding", "damage_per_turn": 8, "duration": 3, "apply_chance": 0.5 },
+        "attacks_remaining": 5,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
+    }
+  ]
+}

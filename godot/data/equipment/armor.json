@@ -1,0 +1,15 @@
+{
+  "equipment": [
+    {
+      "id": "earth_gauntlets",
+      "name": "Earth Gauntlets",
+      "description": "Ancient gauntlets imbued with the power of the earth.",
+      "category": "gauntlet",
+      "slot": "weapon",
+      "stat_bonuses": { "vigor": 1, "strength": 1 },
+      "charges": 4,
+      "granted_skills": ["the_wall", "earthquake", "pitfall", "stonefist"],
+      "type": "glyphion"
+    }
+  ]
+}
