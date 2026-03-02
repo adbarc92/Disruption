@@ -333,8 +333,10 @@ func _hot_reload_data() -> void:
 	# Update visuals with new data
 	_update_unit_visuals()
 
-	# Reset tile environment on hot reload
+	# Reset tile environment on hot reload and re-apply starting effects
 	tile_env_manager.clear_all()
+	_place_starting_tile_effects()
+	_draw_grid()
 
 	# Update skill panel if visible
 	if skill_panel.visible:
@@ -366,6 +368,9 @@ func _initialize_combat() -> void:
 
 	# Place units on grid
 	_place_units_on_grid()
+
+	# Place starting tile effects from encounter data
+	_place_starting_tile_effects()
 
 	# Initialize CTB + AP systems
 	_initialize_turn_systems()
@@ -509,6 +514,27 @@ func _load_units_from_encounter() -> void:
 			_init_burst_fields(enemy)
 
 
+## Place starting tile effects defined in the encounter data
+func _place_starting_tile_effects() -> void:
+	var encounter_id = GameManager.story_flags.get("_combat_encounter_id", "")
+	if encounter_id == "":
+		return
+	var encounter_data = DataLoaderClass.get_encounter(encounter_id)
+	var starting_effects = encounter_data.get("starting_tile_effects", [])
+	for effect_data in starting_effects:
+		var pos_arr = effect_data.get("position", [0, 0])
+		var pos = Vector2i(pos_arr[0], pos_arr[1])
+		var params = {
+			"type": effect_data.get("terrain", ""),
+			"intensity": effect_data.get("intensity", 1),
+			"duration": effect_data.get("duration", -1),
+			"owner_id": "",
+		}
+		if effect_data.has("hp"):
+			params["hp"] = effect_data["hp"]
+		tile_env_manager.place_effect(pos, params)
+
+
 func _get_default_ally_position(index: int) -> Vector2i:
 	match index:
 		0: return Vector2i(1, 2)  # Left zone, center
@@ -627,6 +653,14 @@ func _update_action_buttons() -> void:
 
 # --- Grid Drawing ---
 
+func _get_impassable_positions() -> Dictionary:
+	var impassable: Dictionary = {}
+	for pos in tile_env_manager.get_category_effect_positions():
+		if tile_env_manager.is_impassable(pos):
+			impassable[pos] = true
+	return impassable
+
+
 func _draw_grid() -> void:
 	_draw_grid_background()
 	_update_unit_visuals()
@@ -666,6 +700,49 @@ func _draw_grid_background() -> void:
 				var alpha = 0.12 + (soil_level * 0.08)
 				soil_overlay.color = Color(0.85, 0.65, 0.2, alpha)
 				grid_node.add_child(soil_overlay)
+
+			# Category effect overlays (surfaces and obstacles)
+			var cat_effects = tile_env_manager.get_all_category_effects_at(Vector2i(x, y))
+			for cat_key in cat_effects:
+				var eff = cat_effects[cat_key]
+				var vis = eff.get("visual", {})
+				if vis.is_empty():
+					continue
+
+				var color_arr = vis.get("color", [0.5, 0.5, 0.5])
+				var alpha_base = vis.get("alpha_base", 0.15)
+				var alpha_per = vis.get("alpha_per_intensity", 0.1)
+				var intensity = eff.get("intensity", 1)
+				var overlay_alpha = alpha_base + alpha_per * intensity
+
+				var eff_overlay = Polygon2D.new()
+				eff_overlay.polygon = hex_poly
+				eff_overlay.position = grid_to_visual_pos(Vector2i(x, y))
+				eff_overlay.color = Color(color_arr[0], color_arr[1], color_arr[2], overlay_alpha)
+				grid_node.add_child(eff_overlay)
+
+				# Draw HP bar for obstacles
+				if cat_key == "obstacle" and eff.get("hp", 0) > 0:
+					var max_hp = eff.get("max_hp", eff.get("hp", 1))
+					if max_hp > 0:
+						var hp_ratio = float(eff.get("hp", 0)) / float(max_hp)
+						var center = grid_to_visual_pos(Vector2i(x, y))
+						var bar_width = inset_size * 0.8
+						var bar_height = 4.0
+
+						# Background bar
+						var bg_bar = ColorRect.new()
+						bg_bar.size = Vector2(bar_width, bar_height)
+						bg_bar.position = center + Vector2(-bar_width / 2.0, inset_size * 0.6)
+						bg_bar.color = Color(0.2, 0.2, 0.2, 0.8)
+						grid_node.add_child(bg_bar)
+
+						# HP fill bar
+						var hp_bar = ColorRect.new()
+						hp_bar.size = Vector2(bar_width * hp_ratio, bar_height)
+						hp_bar.position = center + Vector2(-bar_width / 2.0, inset_size * 0.6)
+						hp_bar.color = Color(0.8, 0.4, 0.1, 0.9)
+						grid_node.add_child(hp_bar)
 
 
 func _update_unit_visuals() -> void:
@@ -747,6 +824,65 @@ func _spawn_floating_text(text: String, color: Color, target: Dictionary, large:
 
 	var ft = FloatingTextClass.create(text, color, world_pos, large)
 	get_tree().current_scene.add_child(ft)
+
+
+# --- Tile Effect Triggers ---
+
+## Apply on_enter effects when a unit moves onto a surface tile
+func _apply_on_enter_effects(unit: Dictionary, pos: Vector2i) -> void:
+	var surface = tile_env_manager.get_surface_at(pos)
+	if surface.is_empty():
+		return
+
+	var on_enter = surface.get("on_enter", {})
+	if on_enter.is_empty():
+		return
+
+	var intensity = surface.get("intensity", 1)
+	var unit_id = unit.get("id", "")
+	var unit_name = unit.get("name", "?")
+	var effect_type = surface.get("type", "")
+
+	if on_enter.has("damage"):
+		var dmg = int(on_enter["damage"] * intensity)
+		if dmg > 0:
+			_apply_damage(unit, dmg)
+			_spawn_floating_text(str(dmg), Color(1.0, 0.5, 0.2), unit, false)
+			_log_action("  %s takes %d %s damage (tile)" % [unit_name, dmg, effect_type], Color(1.0, 0.5, 0.2))
+			EventBus.unit_damaged.emit(unit_id, dmg, surface.get("element", "physical"))
+
+	if on_enter.has("apply_status"):
+		var status_name = on_enter["apply_status"]
+		var status_duration = on_enter.get("status_duration", 2)
+		status_manager.apply_status(unit_id, status_name, status_duration, {})
+		EventBus.status_applied.emit(unit_id, status_name)
+		_log_action("  %s gains %s from %s" % [unit_name, status_name, effect_type], Color(1.0, 0.6, 0.3))
+
+	if on_enter.get("ends_movement", false):
+		unit["_movement_ended_by_tile"] = true
+
+
+## Apply on_turn effects when a unit starts their turn on a surface tile
+func _apply_on_turn_effects(unit: Dictionary) -> void:
+	var pos = unit.get("grid_position", Vector2i(0, 0))
+	var surface = tile_env_manager.get_surface_at(pos)
+	if surface.is_empty():
+		return
+
+	var on_turn = surface.get("on_turn", {})
+	if on_turn.is_empty():
+		return
+
+	var intensity = surface.get("intensity", 1)
+	var unit_name = unit.get("name", "?")
+	var effect_type = surface.get("type", "")
+
+	if on_turn.has("damage"):
+		var dmg = int(on_turn["damage"] * intensity)
+		if dmg > 0:
+			_apply_damage(unit, dmg)
+			_spawn_floating_text(str(dmg), Color(1.0, 0.4, 0.1), unit, false)
+			_log_action("  %s takes %d %s damage (standing on %s)" % [unit_name, dmg, surface.get("element", "?"), effect_type], Color(1.0, 0.4, 0.1))
 
 
 # --- Action Log ---
@@ -863,6 +999,13 @@ func _start_next_turn() -> void:
 		var bonus_mp = tile_bonuses["mp_regen"]
 		current_unit["current_mp"] = mini(current_unit.get("max_mp", 25), current_unit.get("current_mp", 0) + bonus_mp)
 		_log_action("  +%d MP from Soil" % bonus_mp, Color(0.4, 0.6, 0.9))
+
+	# Apply on-turn tile effects (e.g., standing on fire)
+	_apply_on_turn_effects(current_unit)
+	if current_unit.get("current_hp", 0) <= 0:
+		_remove_defeated_units()
+		_start_next_turn()
+		return
 
 	# If AI controlled, handle AI turn
 	if not current_unit.get("is_ally", true):
@@ -1157,7 +1300,7 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 func _ai_move_toward_enemies(unit: Dictionary) -> bool:
 	var unit_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
 	var move_range = PositionValidatorClass.get_movement_range(unit)
-	var reachable = GridPathfinderClass.get_cells_in_range(unit_pos, move_range, grid, GRID_SIZE)
+	var reachable = GridPathfinderClass.get_cells_in_range(unit_pos, move_range, grid, GRID_SIZE, _get_impassable_positions())
 
 	if reachable.is_empty():
 		return false
@@ -1182,7 +1325,7 @@ func _ai_move_toward_enemies(unit: Dictionary) -> bool:
 	if best_cell == Vector2i(-1, -1) or best_cell == unit_pos:
 		return false
 
-	var path = GridPathfinderClass.find_path(unit_pos, best_cell, grid, GRID_SIZE)
+	var path = GridPathfinderClass.find_path(unit_pos, best_cell, grid, GRID_SIZE, _get_impassable_positions())
 	if path.is_empty():
 		return false
 
@@ -1202,23 +1345,34 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 	tile_env_manager.mark_soil_decaying(old_pos, unit_id)
 
 	if path.is_empty():
-		path = GridPathfinderClass.find_path(old_pos, target_pos, grid, GRID_SIZE)
+		path = GridPathfinderClass.find_path(old_pos, target_pos, grid, GRID_SIZE, _get_impassable_positions())
 
 	if path.is_empty():
 		return
 
-	# Animate step-by-step
+	# Animate step-by-step, checking on-enter effects at each tile
+	var final_pos = old_pos
 	for i in range(1, path.size()):
 		var step_pos = path[i]
 		grid.erase(unit.get("grid_position", Vector2i(0, 0)))
 		unit["grid_position"] = step_pos
 		grid[step_pos] = unit_id
+		final_pos = step_pos
 
 		_update_unit_visuals()
 		await get_tree().create_timer(0.15).timeout
 
-	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), target_pos.x, target_pos.y], Color(0.7, 0.9, 1.0))
-	EventBus.position_changed.emit(unit_id, old_pos, target_pos)
+		# Check on-enter tile effects at each step
+		_apply_on_enter_effects(unit, step_pos)
+		if unit.get("current_hp", 0) <= 0:
+			break
+		if unit.get("_movement_ended_by_tile", false):
+			unit.erase("_movement_ended_by_tile")
+			_log_action("  %s's movement halted by tile effect!" % unit.get("name", "?"), Color(1.0, 0.6, 0.3))
+			break
+
+	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), final_pos.x, final_pos.y], Color(0.7, 0.9, 1.0))
+	EventBus.position_changed.emit(unit_id, old_pos, final_pos)
 
 
 func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:
@@ -1297,8 +1451,59 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 			pass
 
 		"create_terrain":
-			# Placeholder for terrain creation (The Wall)
-			_log_action("  %s creates %s!" % [user.get("name", "?"), effect.get("terrain", "terrain")], Color(0.7, 0.5, 0.3))
+			var terrain_type = effect.get("terrain", "")
+			var placement = effect.get("placement", "target_hex")
+			var eff_intensity = effect.get("intensity", 1)
+			var eff_duration = effect.get("duration", -1)
+
+			# Determine target positions based on placement
+			var target_positions: Array[Vector2i] = []
+			var t_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
+			var u_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
+
+			match placement:
+				"target_hex":
+					target_positions.append(t_pos)
+				"front_column":
+					for row in range(GRID_SIZE.y):
+						target_positions.append(Vector2i(u_pos.x, row))
+				"around_target":
+					target_positions.append(t_pos)
+					# Add hex neighbors of target
+					var even_offsets = [Vector2i(1,0), Vector2i(-1,0), Vector2i(0,-1), Vector2i(1,-1), Vector2i(0,1), Vector2i(1,1)]
+					var odd_offsets = [Vector2i(1,0), Vector2i(-1,0), Vector2i(-1,-1), Vector2i(0,-1), Vector2i(-1,1), Vector2i(0,1)]
+					var offsets = odd_offsets if (t_pos.y & 1) else even_offsets
+					for offset in offsets:
+						var neighbor = t_pos + offset
+						if neighbor.x >= 0 and neighbor.x < GRID_SIZE.x and neighbor.y >= 0 and neighbor.y < GRID_SIZE.y:
+							target_positions.append(neighbor)
+				_:
+					target_positions.append(t_pos)
+
+			# Calculate HP for obstacles if hp_percent_of_caster is set
+			var eff_hp = 0
+			if effect.has("hp_percent_of_caster"):
+				eff_hp = int(user.get("max_hp", 100) * effect["hp_percent_of_caster"])
+
+			_log_action("  %s creates %s!" % [user.get("name", "?"), terrain_type], Color(0.7, 0.5, 0.3))
+
+			for place_pos in target_positions:
+				var params = {
+					"type": terrain_type,
+					"owner_id": user.get("id", ""),
+					"intensity": eff_intensity,
+					"duration": eff_duration,
+				}
+				if eff_hp > 0:
+					params["hp"] = eff_hp
+				var result = tile_env_manager.place_effect(place_pos, params)
+
+				# Handle interactions
+				for interaction in result.get("interactions", []):
+					_handle_tile_interaction(interaction)
+
+			_remove_defeated_units()
+			_draw_grid_background()
 
 
 ## Handle forced movement effects (push up/down/toward/away)
@@ -1307,40 +1512,87 @@ func _apply_forced_movement(effect: Dictionary, user: Dictionary, target: Dictio
 	var distance = effect.get("distance", 1)
 	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
 	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
-	var new_pos = target_pos
+	var target_id = target.get("id", "")
+	var target_name = target.get("name", "?")
 
 	# Check if target has braced status (negates forced movement)
-	if status_manager.has_status(target.get("id", ""), "braced"):
-		var braced_data = status_manager.get_status_data(target.get("id", ""), "braced")
+	if status_manager.has_status(target_id, "braced"):
+		var braced_data = status_manager.get_status_data(target_id, "braced")
 		if braced_data.get("negates_forced_movement", false):
-			_log_action("  %s resists forced movement (Braced)!" % target.get("name", "?"), Color(0.8, 0.8, 0.2))
+			_log_action("  %s resists forced movement (Braced)!" % target_name, Color(0.8, 0.8, 0.2))
 			return
 
+	# Calculate movement direction vector
+	var dir_vec = Vector2i.ZERO
 	match direction:
 		"up":
-			new_pos = Vector2i(target_pos.x, max(0, target_pos.y - distance))
+			dir_vec = Vector2i(0, -1)
 		"down":
-			new_pos = Vector2i(target_pos.x, min(GRID_SIZE.y - 1, target_pos.y + distance))
+			dir_vec = Vector2i(0, 1)
 		"away":
 			var dx = sign(target_pos.x - user_pos.x) if target_pos.x != user_pos.x else 1
-			new_pos = Vector2i(clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1), target_pos.y)
+			dir_vec = Vector2i(dx, 0)
 		"toward_caster":
 			var dx = sign(user_pos.x - target_pos.x) if target_pos.x != user_pos.x else 0
 			var dy = sign(user_pos.y - target_pos.y) if target_pos.y != user_pos.y else 0
-			new_pos = Vector2i(
-				clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1),
-				clamp(target_pos.y + dy * distance, 0, GRID_SIZE.y - 1)
-			)
+			dir_vec = Vector2i(dx, dy)
 
-	if new_pos != target_pos and not grid.has(new_pos):
+	if dir_vec == Vector2i.ZERO:
+		return
+
+	var collision_config = CombatConfigLoaderClass.get_collision_config()
+	var collision_damage = collision_config.get("damage_base", 20)
+
+	# Step-by-step movement with collision detection
+	var current_pos = target_pos
+	for step in range(distance):
+		var next_pos = current_pos + dir_vec
+
+		# Off grid edge -> collision with wall
+		if next_pos.x < 0 or next_pos.x >= GRID_SIZE.x or next_pos.y < 0 or next_pos.y >= GRID_SIZE.y:
+			_apply_damage(target, collision_damage)
+			_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+			_log_action("  %s slams into the wall for %d damage!" % [target_name, collision_damage], Color(1.0, 0.5, 0.2))
+			break
+
+		# Obstacle collision
+		if tile_env_manager.is_impassable(next_pos):
+			var obstacle = tile_env_manager.get_obstacle_at(next_pos)
+			var obstacle_name = obstacle.get("type", "obstacle")
+			_apply_damage(target, collision_damage)
+			_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+			_log_action("  %s crashes into %s for %d damage!" % [target_name, obstacle_name, collision_damage], Color(1.0, 0.5, 0.2))
+			var destroyed = tile_env_manager.damage_obstacle(next_pos, collision_damage)
+			if destroyed:
+				_log_action("  %s is destroyed!" % obstacle_name, Color(0.8, 0.6, 0.2))
+			break
+
+		# Unit collision
+		if grid.has(next_pos):
+			var other_id = grid[next_pos]
+			var other_unit = _find_unit_by_id(other_id)
+			if not other_unit.is_empty():
+				_apply_damage(target, collision_damage)
+				_apply_damage(other_unit, collision_damage)
+				_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+				_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), other_unit, false)
+				_log_action("  %s crashes into %s! Both take %d damage!" % [target_name, other_unit.get("name", "?"), collision_damage], Color(1.0, 0.5, 0.2))
+			break
+
+		current_pos = next_pos
+
+	# Apply final position
+	if current_pos != target_pos:
 		grid.erase(target_pos)
-		target["grid_position"] = new_pos
-		grid[new_pos] = target.get("id", "")
-		_log_action("  %s pushed to (%d,%d)!" % [target.get("name", "?"), new_pos.x, new_pos.y], Color(0.9, 0.7, 0.3))
-		EventBus.position_changed.emit(target.get("id", ""), target_pos, new_pos)
-		_update_unit_visuals()
-	elif new_pos != target_pos:
-		_log_action("  %s can't be moved (blocked)!" % target.get("name", "?"), Color(0.6, 0.6, 0.6))
+		target["grid_position"] = current_pos
+		grid[current_pos] = target_id
+		_log_action("  %s pushed to (%d,%d)!" % [target_name, current_pos.x, current_pos.y], Color(0.9, 0.7, 0.3))
+		EventBus.position_changed.emit(target_id, target_pos, current_pos)
+		_apply_on_enter_effects(target, current_pos)
+
+	_remove_defeated_units()
+	_update_unit_visuals()
+	_draw_grid_background()
 
 
 ## Handle self-repositioning after attack (e.g., Falcon Strike retreat)
@@ -1366,6 +1618,32 @@ func _apply_self_reposition(effect: Dictionary, user: Dictionary, target: Dictio
 
 
 ## Find which equipment grants a skill for a unit
+## Handle element interaction results from tile effect placement
+func _handle_tile_interaction(interaction: Dictionary) -> void:
+	var result_type = interaction.get("result", "")
+	var pos: Vector2i = interaction.get("pos", Vector2i(0, 0))
+
+	match result_type:
+		"remove_both":
+			_log_action("  Elements neutralize at (%d,%d)!" % [pos.x, pos.y], Color(0.7, 0.7, 1.0))
+			_spawn_floating_text("Neutralized!", Color(0.7, 0.7, 1.0), {"grid_position": pos}, false)
+		"explode":
+			var radius = interaction.get("explode_radius", 1)
+			var explode_damage = interaction.get("explode_damage", 0)
+			_log_action("  Elemental explosion at (%d,%d)!" % [pos.x, pos.y], Color(1.0, 0.5, 0.2))
+			_spawn_floating_text("EXPLOSION!", Color(1.0, 0.4, 0.1), {"grid_position": pos}, true)
+
+			# Damage all units within radius
+			if explode_damage > 0:
+				for unit_id in all_units:
+					var unit = all_units[unit_id]
+					var unit_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
+					if GridPathfinderClass.hex_distance(pos, unit_pos) <= radius:
+						_apply_damage(unit, explode_damage)
+						_spawn_floating_text(str(explode_damage), Color(1.0, 0.4, 0.1), unit, false)
+						_log_action("  %s hit for %d explosion damage" % [unit.get("name", "?"), explode_damage], Color(1.0, 0.5, 0.2))
+
+
 func _get_skill_equipment(unit: Dictionary, skill_id: String) -> String:
 	for equip_id in unit.get("equipment", []):
 		var equip = equipment_data.get(equip_id, {})
@@ -1393,6 +1671,10 @@ func _end_turn() -> void:
 
 	# Tick tile effect decay
 	tile_env_manager.tick_decay()
+
+	# Tick category effect durations (surfaces, obstacles)
+	tile_env_manager.tick_durations()
+	_draw_grid_background()
 
 	# Process DOT damage (data-driven - any status with damage_per_turn)
 	var all_statuses = status_manager.get_statuses(current_unit.id)
@@ -1459,11 +1741,28 @@ func _remove_defeated_units() -> void:
 	var defeated_ids: Array = []
 	for uid in all_units:
 		if all_units[uid].get("current_hp", 0) <= 0:
+			var unit = all_units[uid]
 			status_manager.clear_unit(uid)
 			_ctb_manager.remove_unit(uid)
 			_ap_system.remove_unit(uid)
 			tile_env_manager.clear_unit(uid)
 			defeated_ids.append(uid)
+
+			# Place death tile effect if defined
+			var death_effect = unit.get("death_tile_effect", {})
+			if not death_effect.is_empty():
+				var death_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
+				var params = {
+					"type": death_effect.get("terrain", ""),
+					"intensity": death_effect.get("intensity", 1),
+					"duration": death_effect.get("duration", -1),
+					"owner_id": unit.get("id", ""),
+				}
+				var result = tile_env_manager.place_effect(death_pos, params)
+				if result.get("placed", false):
+					_log_action("  %s leaves behind %s!" % [unit.get("name", "?"), death_effect.get("terrain", "")], Color(0.7, 0.5, 0.8))
+				for interaction in result.get("interactions", []):
+					_handle_tile_interaction(interaction)
 
 	for uid in defeated_ids:
 		all_units.erase(uid)
@@ -1702,14 +2001,14 @@ func _on_move_pressed() -> void:
 	status_label.text = "Select position to move to..."
 	action_panel.visible = false
 
-	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, HEX_SIZE)
+	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, HEX_SIZE, _get_impassable_positions())
 
 
 func _on_move_position_selected(position: Vector2i) -> void:
 	_ap_system.spend_action(current_unit.id, "move")
 
 	var old_pos: Vector2i = current_unit.get("grid_position", Vector2i(0, 0))
-	var path = GridPathfinderClass.find_path(old_pos, position, grid, GRID_SIZE)
+	var path = GridPathfinderClass.find_path(old_pos, position, grid, GRID_SIZE, _get_impassable_positions())
 	await _execute_movement(current_unit, position, path)
 
 	_draw_grid()

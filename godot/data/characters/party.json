@@ -67,7 +67,7 @@
       },
       "equipment_proficiencies": ["gauntlet", "fist", "heavy_armor"],
       "equipment": ["earth_gauntlets"],
-      "starting_abilities": ["basic_attack", "one_two", "ironflesh", "derisive_snort", "ready_stance", "protective_instinct", "intercede", "again_with_vigor", "uppercut", "headclap", "smash", "thunderfist", "striking_tips", "unerring_menace"],
+      "starting_abilities": ["basic_attack", "one_two", "ironflesh", "derisive_snort", "ready_stance", "protective_instinct", "intercede", "again_with_vigor", "uppercut", "headclap", "smash", "thunderfist", "striking_tips", "unerring_menace", "ignite_ground", "frost_sheet"],
       "burst_mode": {
         "name": "Mountain King",
         "duration": 6,

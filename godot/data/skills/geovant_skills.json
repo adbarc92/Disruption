@@ -10,7 +10,7 @@
       "equipment_charge_cost": 1,
       "effect": {
         "type": "create_terrain",
-        "terrain": "wall",
+        "terrain": "stone_pillar",
         "hp_percent_of_caster": 0.75,
         "placement": "front_column"
       },

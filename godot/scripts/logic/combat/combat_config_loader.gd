@@ -176,3 +176,32 @@ static func get_burst_gauge_carry() -> float:
 	_ensure_loaded()
 	var burst = _config.get("burst", {})
 	return burst.get("gauge_carry_between_combats", 0.0)
+
+
+## Get the full definition for a tile effect type (fire, ice_sheet, etc.)
+static func get_tile_effect_type(type_name: String) -> Dictionary:
+	_ensure_loaded()
+	var types = _config.get("tile_effects", {}).get("effect_types", {})
+	return types.get(type_name, {})
+
+
+## Get all tile effect type definitions
+static func get_all_tile_effect_types() -> Dictionary:
+	_ensure_loaded()
+	return _config.get("tile_effects", {}).get("effect_types", {})
+
+
+## Get element interaction rules
+static func get_element_interactions() -> Array:
+	_ensure_loaded()
+	return _config.get("tile_effects", {}).get("element_interactions", [])
+
+
+## Get collision config
+static func get_collision_config() -> Dictionary:
+	_ensure_loaded()
+	return _config.get("tile_effects", {}).get("collision", {
+		"damage_base": 20,
+		"damage_type": "blunt",
+		"destroys_obstacle_on_kill": true
+	})
