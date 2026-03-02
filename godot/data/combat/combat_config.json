@@ -40,6 +40,60 @@
         { "damage_mult": 0.05, "damage_reduction": 0.10, "mp_regen": 0 },
         { "damage_mult": 0.10, "damage_reduction": 0.10, "mp_regen": 1 }
       ]
+    },
+    "effect_types": {
+      "fire": {
+        "category": "surface",
+        "element": "fire",
+        "default_duration": 3,
+        "default_intensity": 1,
+        "on_enter": { "damage": 15, "damage_type": "fire" },
+        "on_turn": { "damage": 10, "damage_type": "fire" },
+        "visual": { "color": [1.0, 0.4, 0.1], "alpha_base": 0.25, "alpha_per_intensity": 0.1 }
+      },
+      "ice_sheet": {
+        "category": "surface",
+        "element": "ice",
+        "default_duration": -1,
+        "default_intensity": 1,
+        "on_enter": { "ends_movement": true },
+        "on_turn": {},
+        "visual": { "color": [0.5, 0.8, 1.0], "alpha_base": 0.3, "alpha_per_intensity": 0.08 }
+      },
+      "poison_cloud": {
+        "category": "surface",
+        "element": "poison",
+        "default_duration": 4,
+        "default_intensity": 1,
+        "on_enter": { "apply_status": "poisoned", "status_duration": 3 },
+        "on_turn": { "damage": 8, "damage_type": "poison" },
+        "visual": { "color": [0.3, 0.7, 0.2], "alpha_base": 0.2, "alpha_per_intensity": 0.1 }
+      },
+      "stone_pillar": {
+        "category": "obstacle",
+        "element": "earth",
+        "default_duration": -1,
+        "default_hp_base": 150,
+        "impassable": true,
+        "visual": { "color": [0.5, 0.45, 0.35], "alpha_base": 0.6 }
+      },
+      "ice_pillar": {
+        "category": "obstacle",
+        "element": "ice",
+        "default_duration": -1,
+        "default_hp_base": 100,
+        "impassable": true,
+        "visual": { "color": [0.6, 0.85, 1.0], "alpha_base": 0.55 }
+      }
+    },
+    "element_interactions": [
+      { "a": "fire", "b": "ice", "result": "remove_both" },
+      { "a": "fire", "b": "poison", "result": "explode", "explode_damage": 25, "explode_radius": 1 }
+    ],
+    "collision": {
+      "damage_base": 20,
+      "damage_type": "blunt",
+      "destroys_obstacle_on_kill": true
     }
   },
   "burst": {
