@@ -1480,40 +1480,87 @@ func _apply_forced_movement(effect: Dictionary, user: Dictionary, target: Dictio
 	var distance = effect.get("distance", 1)
 	var target_pos: Vector2i = target.get("grid_position", Vector2i(0, 0))
 	var user_pos: Vector2i = user.get("grid_position", Vector2i(0, 0))
-	var new_pos = target_pos
+	var target_id = target.get("id", "")
+	var target_name = target.get("name", "?")
 
 	# Check if target has braced status (negates forced movement)
-	if status_manager.has_status(target.get("id", ""), "braced"):
-		var braced_data = status_manager.get_status_data(target.get("id", ""), "braced")
+	if status_manager.has_status(target_id, "braced"):
+		var braced_data = status_manager.get_status_data(target_id, "braced")
 		if braced_data.get("negates_forced_movement", false):
-			_log_action("  %s resists forced movement (Braced)!" % target.get("name", "?"), Color(0.8, 0.8, 0.2))
+			_log_action("  %s resists forced movement (Braced)!" % target_name, Color(0.8, 0.8, 0.2))
 			return
 
+	# Calculate movement direction vector
+	var dir_vec = Vector2i.ZERO
 	match direction:
 		"up":
-			new_pos = Vector2i(target_pos.x, max(0, target_pos.y - distance))
+			dir_vec = Vector2i(0, -1)
 		"down":
-			new_pos = Vector2i(target_pos.x, min(GRID_SIZE.y - 1, target_pos.y + distance))
+			dir_vec = Vector2i(0, 1)
 		"away":
 			var dx = sign(target_pos.x - user_pos.x) if target_pos.x != user_pos.x else 1
-			new_pos = Vector2i(clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1), target_pos.y)
+			dir_vec = Vector2i(dx, 0)
 		"toward_caster":
 			var dx = sign(user_pos.x - target_pos.x) if target_pos.x != user_pos.x else 0
 			var dy = sign(user_pos.y - target_pos.y) if target_pos.y != user_pos.y else 0
-			new_pos = Vector2i(
-				clamp(target_pos.x + dx * distance, 0, GRID_SIZE.x - 1),
-				clamp(target_pos.y + dy * distance, 0, GRID_SIZE.y - 1)
-			)
+			dir_vec = Vector2i(dx, dy)
 
-	if new_pos != target_pos and not grid.has(new_pos):
+	if dir_vec == Vector2i.ZERO:
+		return
+
+	var collision_config = CombatConfigLoaderClass.get_collision_config()
+	var collision_damage = collision_config.get("damage_base", 20)
+
+	# Step-by-step movement with collision detection
+	var current_pos = target_pos
+	for step in range(distance):
+		var next_pos = current_pos + dir_vec
+
+		# Off grid edge -> collision with wall
+		if next_pos.x < 0 or next_pos.x >= GRID_SIZE.x or next_pos.y < 0 or next_pos.y >= GRID_SIZE.y:
+			_apply_damage(target, collision_damage)
+			_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+			_log_action("  %s slams into the wall for %d damage!" % [target_name, collision_damage], Color(1.0, 0.5, 0.2))
+			break
+
+		# Obstacle collision
+		if tile_env_manager.is_impassable(next_pos):
+			var obstacle = tile_env_manager.get_obstacle_at(next_pos)
+			var obstacle_name = obstacle.get("type", "obstacle")
+			_apply_damage(target, collision_damage)
+			_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+			_log_action("  %s crashes into %s for %d damage!" % [target_name, obstacle_name, collision_damage], Color(1.0, 0.5, 0.2))
+			var destroyed = tile_env_manager.damage_obstacle(next_pos, collision_damage)
+			if destroyed:
+				_log_action("  %s is destroyed!" % obstacle_name, Color(0.8, 0.6, 0.2))
+			break
+
+		# Unit collision
+		if grid.has(next_pos):
+			var other_id = grid[next_pos]
+			var other_unit = _find_unit_by_id(other_id)
+			if not other_unit.is_empty():
+				_apply_damage(target, collision_damage)
+				_apply_damage(other_unit, collision_damage)
+				_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), target, false)
+				_spawn_floating_text(str(collision_damage), Color(1.0, 0.5, 0.2), other_unit, false)
+				_log_action("  %s crashes into %s! Both take %d damage!" % [target_name, other_unit.get("name", "?"), collision_damage], Color(1.0, 0.5, 0.2))
+			break
+
+		current_pos = next_pos
+
+	# Apply final position
+	if current_pos != target_pos:
 		grid.erase(target_pos)
-		target["grid_position"] = new_pos
-		grid[new_pos] = target.get("id", "")
-		_log_action("  %s pushed to (%d,%d)!" % [target.get("name", "?"), new_pos.x, new_pos.y], Color(0.9, 0.7, 0.3))
-		EventBus.position_changed.emit(target.get("id", ""), target_pos, new_pos)
-		_update_unit_visuals()
-	elif new_pos != target_pos:
-		_log_action("  %s can't be moved (blocked)!" % target.get("name", "?"), Color(0.6, 0.6, 0.6))
+		target["grid_position"] = current_pos
+		grid[current_pos] = target_id
+		_log_action("  %s pushed to (%d,%d)!" % [target_name, current_pos.x, current_pos.y], Color(0.9, 0.7, 0.3))
+		EventBus.position_changed.emit(target_id, target_pos, current_pos)
+		_apply_on_enter_effects(target, current_pos)
+
+	_remove_defeated_units()
+	_update_unit_visuals()
+	_draw_grid_background()
 
 
 ## Handle self-repositioning after attack (e.g., Falcon Strike retreat)
