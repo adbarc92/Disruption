@@ -70,7 +70,8 @@
       "abilities": ["dark_bolt", "lightning_bolt", "ignite"],
       "ai_behavior": "aggressive",
       "challenge_rating": 3,
-      "preferred_position": "back"
+      "preferred_position": "back",
+      "death_tile_effect": { "terrain": "fire", "intensity": 1, "duration": 3 }
     },
 
     {

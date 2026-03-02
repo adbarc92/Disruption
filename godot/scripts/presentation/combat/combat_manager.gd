@@ -333,8 +333,10 @@ func _hot_reload_data() -> void:
 	# Update visuals with new data
 	_update_unit_visuals()
 
-	# Reset tile environment on hot reload
+	# Reset tile environment on hot reload and re-apply starting effects
 	tile_env_manager.clear_all()
+	_place_starting_tile_effects()
+	_draw_grid()
 
 	# Update skill panel if visible
 	if skill_panel.visible:
@@ -366,6 +368,9 @@ func _initialize_combat() -> void:
 
 	# Place units on grid
 	_place_units_on_grid()
+
+	# Place starting tile effects from encounter data
+	_place_starting_tile_effects()
 
 	# Initialize CTB + AP systems
 	_initialize_turn_systems()
@@ -507,6 +512,27 @@ func _load_units_from_encounter() -> void:
 
 			all_units[enemy.id] = enemy
 			_init_burst_fields(enemy)
+
+
+## Place starting tile effects defined in the encounter data
+func _place_starting_tile_effects() -> void:
+	var encounter_id = GameManager.story_flags.get("_combat_encounter_id", "")
+	if encounter_id == "":
+		return
+	var encounter_data = DataLoaderClass.get_encounter(encounter_id)
+	var starting_effects = encounter_data.get("starting_tile_effects", [])
+	for effect_data in starting_effects:
+		var pos_arr = effect_data.get("position", [0, 0])
+		var pos = Vector2i(pos_arr[0], pos_arr[1])
+		var params = {
+			"type": effect_data.get("terrain", ""),
+			"intensity": effect_data.get("intensity", 1),
+			"duration": effect_data.get("duration", -1),
+			"owner_id": "",
+		}
+		if effect_data.has("hp"):
+			params["hp"] = effect_data["hp"]
+		tile_env_manager.place_effect(pos, params)
 
 
 func _get_default_ally_position(index: int) -> Vector2i:
@@ -1709,11 +1735,28 @@ func _remove_defeated_units() -> void:
 	var defeated_ids: Array = []
 	for uid in all_units:
 		if all_units[uid].get("current_hp", 0) <= 0:
+			var unit = all_units[uid]
 			status_manager.clear_unit(uid)
 			_ctb_manager.remove_unit(uid)
 			_ap_system.remove_unit(uid)
 			tile_env_manager.clear_unit(uid)
 			defeated_ids.append(uid)
+
+			# Place death tile effect if defined
+			var death_effect = unit.get("death_tile_effect", {})
+			if not death_effect.is_empty():
+				var death_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
+				var params = {
+					"type": death_effect.get("terrain", ""),
+					"intensity": death_effect.get("intensity", 1),
+					"duration": death_effect.get("duration", -1),
+					"owner_id": unit.get("id", ""),
+				}
+				var result = tile_env_manager.place_effect(death_pos, params)
+				if result.get("placed", false):
+					_log_action("  %s leaves behind %s!" % [unit.get("name", "?"), death_effect.get("terrain", "")], Color(0.7, 0.5, 0.8))
+				for interaction in result.get("interactions", []):
+					_handle_tile_interaction(interaction)
 
 	for uid in defeated_ids:
 		all_units.erase(uid)

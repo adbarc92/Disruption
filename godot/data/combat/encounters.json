@@ -22,7 +22,11 @@
       "id": "full_squad",
       "name": "Full Squad (3v3)",
       "description": "One of each enemy type. Tests a full 3v3 encounter with all archetypes.",
-      "enemy_ids": ["corrupted_scout", "corrupted_brute", "corrupted_caster"]
+      "enemy_ids": ["corrupted_scout", "corrupted_brute", "corrupted_caster"],
+      "starting_tile_effects": [
+        { "position": [3, 2], "terrain": "fire", "intensity": 1 },
+        { "position": [4, 1], "terrain": "stone_pillar" }
+      ]
     },
     {
       "id": "double_brute",

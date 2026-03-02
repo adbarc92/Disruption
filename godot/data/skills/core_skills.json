@@ -464,6 +464,40 @@
       },
       "burst_gauge_gain": 8,
       "burst_charge_type": "defensive"
+    },
+
+    {
+      "id": "ignite_ground",
+      "name": "Ignite Ground",
+      "description": "Set the target hex ablaze.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "fire",
+        "intensity": 1,
+        "duration": 3,
+        "placement": "target_hex"
+      },
+      "targeting": { "type": "single_enemy", "range_band": "distant" },
+      "burst_gauge_gain": 5,
+      "roles": ["geovant"]
+    },
+    {
+      "id": "frost_sheet",
+      "name": "Frost Sheet",
+      "description": "Cover the target hex in slippery ice.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "ice_sheet",
+        "intensity": 1,
+        "placement": "target_hex"
+      },
+      "targeting": { "type": "single_enemy", "range_band": "distant" },
+      "burst_gauge_gain": 5,
+      "roles": ["geovant"]
     }
   ]
 }
