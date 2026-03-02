@@ -1,0 +1,31 @@
+{
+  "_COMMENT": "Warcrier role skills - Vaughn leadership and party buffs",
+  "skills": [
+    {
+      "id": "leadership",
+      "name": "Leadership",
+      "description": "Inspire allies with stat bonuses. Stacks up to 4 times.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "party_buff",
+        "status": "inspired",
+        "stat_modifier": {
+          "strength": 0.05,
+          "vigor": 0.05,
+          "dexterity": 0.05
+        },
+        "duration": 4,
+        "stackable": true,
+        "max_stacks": 4
+      },
+      "targeting": {
+        "type": "all_allies"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "support",
+      "roles": ["warcrier"]
+    }
+  ]
+}
