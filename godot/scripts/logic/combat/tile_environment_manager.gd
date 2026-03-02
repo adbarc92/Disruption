@@ -197,6 +197,7 @@ func place_effect(pos: Vector2i, params: Dictionary) -> Dictionary:
 		return { "placed": false, "interactions": interactions }
 
 	# If the slot is already occupied, overwrite it
+	var hp_value = params.get("hp", type_def.get("default_hp_base", 0))
 	var effect := {
 		"type": type_name,
 		"category": category,
@@ -204,7 +205,8 @@ func place_effect(pos: Vector2i, params: Dictionary) -> Dictionary:
 		"owner_id": params.get("owner_id", ""),
 		"intensity": params.get("intensity", type_def.get("default_intensity", 1)),
 		"duration": params.get("duration", type_def.get("default_duration", -1)),
-		"hp": params.get("hp", type_def.get("default_hp_base", 0)),
+		"hp": hp_value,
+		"max_hp": hp_value,
 		"impassable": type_def.get("impassable", false),
 		"on_enter": type_def.get("on_enter", {}),
 		"on_turn": type_def.get("on_turn", {}),
