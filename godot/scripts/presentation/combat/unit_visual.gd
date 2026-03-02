@@ -102,10 +102,10 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	mp_bar_fill = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.4, 0.9))
 	add_child(mp_bar_fill)
 
-	# Burst gauge bar (only for allies) - above the unit body
+	# Burst gauge bar (only for allies) - below MP bar
 	if is_ally:
-		var burst_y = -4 - BAR_HEIGHT  # Above the unit, below the name
-		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, Color(0.15, 0.15, 0.15))
+		var burst_y = UNIT_HEIGHT + 2
+		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
 		add_child(burst_bar_bg)
 
 		burst_bar_fill = _create_bar(BAR_OFFSET_X, burst_y, 0, BAR_HEIGHT, Color(0.9, 0.75, 0.1))
@@ -117,7 +117,7 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 		burst_turns_label.add_theme_font_size_override("font_size", 9)
 		burst_turns_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
 		burst_turns_label.size = Vector2(UNIT_WIDTH, 12)
-		burst_turns_label.position = Vector2(0, burst_y - 13)
+		burst_turns_label.position = Vector2(0, burst_y + BAR_HEIGHT + 1)
 		burst_turns_label.visible = false
 		add_child(burst_turns_label)
 
@@ -132,7 +132,7 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 
 	# Status effect container
 	status_container = Node2D.new()
-	status_container.position = Vector2(0, UNIT_HEIGHT + 2)
+	status_container.position = Vector2(0, UNIT_HEIGHT + BAR_HEIGHT + 16)
 	add_child(status_container)
 
 	# Soil intensity badge (hidden by default)
@@ -202,7 +202,7 @@ func update_scale(p_cell_size: Vector2) -> void:
 		])
 
 	if status_container:
-		status_container.position = Vector2(0, UNIT_HEIGHT + 2)
+		status_container.position = Vector2(0, UNIT_HEIGHT + BAR_HEIGHT + 16)
 
 	# Recalculate bar positions
 	var hp_y = UNIT_HEIGHT - BAR_HEIGHT * 2 - 4
@@ -224,15 +224,15 @@ func update_scale(p_cell_size: Vector2) -> void:
 		mp_bar_fill.position = Vector2(BAR_OFFSET_X, mp_y)
 
 	if burst_bar_bg:
-		var burst_y = -4 - BAR_HEIGHT
+		var burst_y = UNIT_HEIGHT + 2
 		burst_bar_bg.position = Vector2(BAR_OFFSET_X, burst_y)
 		burst_bar_bg.polygon = PackedVector2Array([
 			Vector2(0, 0), Vector2(BAR_WIDTH, 0), Vector2(BAR_WIDTH, BAR_HEIGHT), Vector2(0, BAR_HEIGHT)
 		])
 	if burst_bar_fill:
-		burst_bar_fill.position = Vector2(BAR_OFFSET_X, -4 - BAR_HEIGHT)
+		burst_bar_fill.position = Vector2(BAR_OFFSET_X, UNIT_HEIGHT + 2)
 	if burst_turns_label:
-		burst_turns_label.position = Vector2(0, -4 - BAR_HEIGHT - 13)
+		burst_turns_label.position = Vector2(0, UNIT_HEIGHT + 2 + BAR_HEIGHT + 1)
 
 
 func update_stats(unit: Dictionary) -> void:

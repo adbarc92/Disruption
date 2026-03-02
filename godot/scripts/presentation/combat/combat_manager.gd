@@ -889,6 +889,9 @@ func _init_burst_fields(unit: Dictionary) -> void:
 	unit["burst_active"] = false
 	unit["burst_turns_remaining"] = 0
 	unit["burst_effects"] = {}
+	# TESTING: Start with full burst gauge for allies
+	if unit.get("is_ally", false):
+		unit["burst_gauge"] = CombatConfigLoaderClass.get_burst_max_gauge()
 
 
 func _handle_ai_turn() -> void:
