@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.0] - 2026-03-02
+
+### Added
+
+- **Tile effects system** — category-slotted effects per hex: one surface (fire, ice_sheet, poison_cloud), one obstacle (stone_pillar, ice_pillar), plus existing soil
+- **Element interactions** — data-driven bidirectional rules: fire+ice neutralize (remove_both), fire+poison explode (AoE damage)
+- **On-enter tile triggers** — fire deals damage, ice halts movement, poison applies status when a unit steps onto a surface tile
+- **On-turn tile triggers** — standing on fire/poison deals damage at turn start
+- **Collision mechanics** — forced movement detects wall, obstacle, and unit collisions step-by-step; configurable collision damage; obstacles take damage and can be destroyed
+- **Impassable obstacles** — stone/ice pillars block pathfinding for both AI and player movement
+- **Encounter starting effects** — encounters can define `starting_tile_effects` to pre-place terrain
+- **Enemy death effects** — enemies with `death_tile_effect` leave behind terrain when defeated (e.g., corrupted_caster leaves fire)
+- **Test terrain skills** — `ignite_ground` (fire) and `frost_sheet` (ice) added to Phaidros for testing
+- **Obstacle HP bars** — visual HP bar rendered on obstacle tiles
+- **Surface color overlays** — configurable per-effect-type color and alpha rendering on hex grid
+- Config loader getters: `get_tile_effect_type()`, `get_all_tile_effect_types()`, `get_element_interactions()`, `get_collision_config()`
+- Tile effects design document and implementation plan
+
+### Changed
+
+- **`the_wall` skill** — now creates `stone_pillar` obstacles instead of placeholder terrain
+- **Forced movement** — rewritten with step-by-step collision detection replacing simple position clamping
+- **Movement execution** — on-enter effects checked at each step, not just final destination
+- **Hot reload** — F5 now re-applies starting tile effects after clearing
+
 ## [0.1.0] - 2026-03-01
 
 ### Added
