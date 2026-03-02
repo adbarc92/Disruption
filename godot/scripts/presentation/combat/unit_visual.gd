@@ -3,6 +3,8 @@ class_name UnitVisual
 ## UnitVisual - Persistent visual representation of a combat unit
 ## Includes colored border, HP/MP bars, status dots, and damage flash
 
+const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+
 # Base proportions (will scale with cell size)
 const BASE_UNIT_WIDTH = 56.0
 const BASE_UNIT_HEIGHT = 70.0
@@ -31,6 +33,9 @@ var hp_bar_bg: Polygon2D
 var hp_bar_fill: Polygon2D
 var mp_bar_bg: Polygon2D
 var mp_bar_fill: Polygon2D
+var burst_bar_bg: Polygon2D
+var burst_bar_fill: Polygon2D
+var burst_turns_label: Label
 var flash_overlay: Polygon2D
 var status_container: Node2D
 var soil_badge: Label
@@ -96,6 +101,25 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	# MP bar fill
 	mp_bar_fill = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.4, 0.9))
 	add_child(mp_bar_fill)
+
+	# Burst gauge bar (only for allies) - above the unit body
+	if is_ally:
+		var burst_y = -4 - BAR_HEIGHT  # Above the unit, below the name
+		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, Color(0.15, 0.15, 0.15))
+		add_child(burst_bar_bg)
+
+		burst_bar_fill = _create_bar(BAR_OFFSET_X, burst_y, 0, BAR_HEIGHT, Color(0.9, 0.75, 0.1))
+		add_child(burst_bar_fill)
+
+		burst_turns_label = Label.new()
+		burst_turns_label.text = ""
+		burst_turns_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		burst_turns_label.add_theme_font_size_override("font_size", 9)
+		burst_turns_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		burst_turns_label.size = Vector2(UNIT_WIDTH, 12)
+		burst_turns_label.position = Vector2(0, burst_y - 13)
+		burst_turns_label.visible = false
+		add_child(burst_turns_label)
 
 	# Flash overlay (invisible by default)
 	flash_overlay = Polygon2D.new()
@@ -199,6 +223,17 @@ func update_scale(p_cell_size: Vector2) -> void:
 	if mp_bar_fill:
 		mp_bar_fill.position = Vector2(BAR_OFFSET_X, mp_y)
 
+	if burst_bar_bg:
+		var burst_y = -4 - BAR_HEIGHT
+		burst_bar_bg.position = Vector2(BAR_OFFSET_X, burst_y)
+		burst_bar_bg.polygon = PackedVector2Array([
+			Vector2(0, 0), Vector2(BAR_WIDTH, 0), Vector2(BAR_WIDTH, BAR_HEIGHT), Vector2(0, BAR_HEIGHT)
+		])
+	if burst_bar_fill:
+		burst_bar_fill.position = Vector2(BAR_OFFSET_X, -4 - BAR_HEIGHT)
+	if burst_turns_label:
+		burst_turns_label.position = Vector2(0, -4 - BAR_HEIGHT - 13)
+
 
 func update_stats(unit: Dictionary) -> void:
 	var current_hp = unit.get("current_hp", 0)
@@ -219,6 +254,8 @@ func update_stats(unit: Dictionary) -> void:
 	# Update MP bar
 	var mp_ratio = float(current_mp) / float(max(max_mp, 1))
 	_update_bar_fill(mp_bar_fill, mp_ratio, BAR_OFFSET_X, mp_bar_bg.position.y)
+
+	update_burst(unit)
 
 
 func update_statuses(statuses: Array) -> void:
@@ -247,6 +284,45 @@ func update_soil(intensity: int) -> void:
 		soil_badge.visible = true
 	else:
 		soil_badge.visible = false
+
+
+func update_burst(unit: Dictionary) -> void:
+	if not is_ally:
+		return
+
+	var gauge = unit.get("burst_gauge", 0)
+	var max_gauge = CombatConfigLoaderClass.get_burst_max_gauge()
+	var burst_active = unit.get("burst_active", false)
+	var turns_remaining = unit.get("burst_turns_remaining", 0)
+
+	# Update burst gauge bar fill
+	if burst_bar_fill:
+		var ratio = float(gauge) / float(max(max_gauge, 1))
+		_update_bar_fill(burst_bar_fill, ratio, BAR_OFFSET_X, burst_bar_bg.position.y)
+
+		# Pulse gold when full and not yet activated
+		if gauge >= max_gauge and not burst_active:
+			burst_bar_fill.color = Color(1.0, 0.9, 0.3)  # Bright gold pulse
+		else:
+			burst_bar_fill.color = Color(0.9, 0.75, 0.1)  # Normal amber
+
+	# Show burst info label: turns remaining when active, gauge value when building
+	if burst_turns_label:
+		if burst_active:
+			burst_turns_label.text = "B:%d" % turns_remaining
+			burst_turns_label.visible = true
+		elif gauge > 0:
+			burst_turns_label.text = "%d/%d" % [gauge, max_gauge]
+			burst_turns_label.visible = true
+		else:
+			burst_turns_label.visible = false
+
+	# Gold border tint when burst is active
+	if border_rect:
+		if burst_active:
+			border_rect.color = Color(1.0, 0.85, 0.2)  # Gold
+		else:
+			border_rect.color = Color(0.3, 0.5, 0.8) if is_ally else Color(0.8, 0.2, 0.2)
 
 
 func flash_damage() -> void:

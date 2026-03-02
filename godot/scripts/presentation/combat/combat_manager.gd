@@ -178,6 +178,7 @@ func _ready() -> void:
 	$UI/ActionPanel/ActionButtons/ItemButton.pressed.connect(_on_item_pressed)
 	$UI/ActionPanel/ActionButtons/MoveButton.pressed.connect(_on_move_pressed)
 	$UI/ActionPanel/ActionButtons/DefendButton.pressed.connect(_on_defend_pressed)
+	$UI/ActionPanel/ActionButtons/BurstButton.pressed.connect(_on_burst_pressed)
 	$UI/ActionPanel/ActionButtons/EndTurnButton.pressed.connect(_on_end_turn_pressed)
 	$UI/BackButton.pressed.connect(_on_back_pressed)
 
@@ -430,6 +431,7 @@ func _load_units_from_encounter() -> void:
 		member["equipment_charges"] = equip_charges
 
 		all_units[member["id"]] = member
+		_init_burst_fields(member)
 
 	# Load enemies from encounter data or legacy story_flags
 	var enemy_spawns = encounter_data.get("enemy_spawns", [])
@@ -469,6 +471,7 @@ func _load_units_from_encounter() -> void:
 				suffix += 1
 			enemy["id"] = uid
 			all_units[uid] = enemy
+			_init_burst_fields(enemy)
 	else:
 		# Legacy loading from story_flags (used by configurator flow)
 		var enemy_data = GameManager.story_flags.get("_combat_enemies", [])
@@ -490,6 +493,7 @@ func _load_units_from_encounter() -> void:
 			enemy["constitution"] = e_vigor
 
 			all_units[enemy.id] = enemy
+			_init_burst_fields(enemy)
 
 
 func _get_default_ally_position(index: int) -> Vector2i:
@@ -598,6 +602,14 @@ func _update_action_buttons() -> void:
 	skill_btn.disabled = not _ap_system.can_afford(current_unit.id, "skill_light")
 	item_btn.disabled = not _ap_system.can_afford(current_unit.id, "item")
 	move_btn.disabled = not _ap_system.can_afford(current_unit.id, "move")
+
+	# Burst button: only visible when gauge is full, burst not already active, and unit is ally
+	var burst_btn = $UI/ActionPanel/ActionButtons/BurstButton
+	var threshold = CombatConfigLoaderClass.get_burst_activation_threshold()
+	var gauge = current_unit.get("burst_gauge", 0)
+	var already_active = current_unit.get("burst_active", false)
+	var is_ally_unit = current_unit.get("is_ally", false)
+	burst_btn.visible = is_ally_unit and gauge >= threshold and not already_active
 
 
 # --- Grid Drawing ---
@@ -806,7 +818,8 @@ func _start_next_turn() -> void:
 	# Start AP for this turn
 	var available_ap = _ap_system.start_turn(current_unit.id)
 
-	status_label.text = "%s's turn (AP: %d)" % [current_unit.name, available_ap]
+	var burst_tag = " [BURST]" if current_unit.get("burst_active", false) else ""
+	status_label.text = "%s's turn (AP: %d)%s" % [current_unit.name, available_ap, burst_tag]
 	_update_turn_order_ui()
 	_highlight_current_unit()
 
@@ -869,6 +882,13 @@ func _apply_stat_modifiers(unit: Dictionary, modifiers: Dictionary) -> void:
 			modified_stats[stat_name] = base_value * (1.0 + modifiers[stat_name])
 
 	unit["base_stats"] = modified_stats
+
+
+## Initialize burst mode runtime fields on a unit
+func _init_burst_fields(unit: Dictionary) -> void:
+	unit["burst_active"] = false
+	unit["burst_turns_remaining"] = 0
+	unit["burst_effects"] = {}
 
 
 func _handle_ai_turn() -> void:
@@ -1005,12 +1025,24 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 			status_manager.remove_status(user.get("id", ""), "pitched_stance")
 			_log_action("  Stance of Pitch activates! 2x damage!", Color(1.0, 0.9, 0.2))
 
+		# Pass burst crit bonus to damage calculator
+		if user.get("burst_active", false):
+			user["burst_crit_rate_bonus"] = user.get("burst_effects", {}).get("crit_rate_bonus", 0.0)
+		else:
+			user["burst_crit_rate_bonus"] = 0.0
+
 		var total_damage = 0
 		for hit_i in range(hit_count):
 			var result = DamageCalculatorClass.calculate_damage(skill, user, target)
 
 			# Apply stance multiplier
 			result.damage = int(ceil(result.damage * stance_mult))
+
+			# Apply burst mode damage multiplier
+			if user.get("burst_active", false):
+				var burst_dmg_mult = user.get("burst_effects", {}).get("damage_multiplier", 1.0)
+				if burst_dmg_mult != 1.0:
+					result.damage = int(ceil(result.damage * burst_dmg_mult))
 
 			# Apply tile environment damage bonus (attacker's Soil)
 			var attacker_pos = user.get("grid_position", Vector2i(0, 0))
@@ -1030,6 +1062,12 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 				result.damage = DamageCalculatorClass.apply_damage_reduction(
 					result.damage, result.damage_type, reductions
 				)
+
+			# Apply burst mode damage reduction (defender)
+			if target.get("burst_active", false):
+				var burst_dr = target.get("burst_effects", {}).get("damage_reduction", 0.0)
+				if burst_dr > 0.0:
+					result.damage = int(floor(result.damage * (1.0 - burst_dr)))
 
 			_apply_damage(target, result.damage)
 			total_damage += result.damage
@@ -1088,10 +1126,12 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 	if skill.has("effect"):
 		await _apply_skill_effect(skill, user, target)
 
-	# Add burst gauge
-	var burst_gain = skill.get("burst_gauge_gain", 5)
-	user["burst_gauge"] = min(100, user.get("burst_gauge", 0) + burst_gain)
-	EventBus.burst_gauge_changed.emit(user.get("id", ""), user["burst_gauge"])
+	# Add burst gauge (only when burst is not active and unit is ally)
+	if not user.get("burst_active", false) and user.get("is_ally", false):
+		var burst_gain = skill.get("burst_gauge_gain", 5)
+		var max_gauge = CombatConfigLoaderClass.get_burst_max_gauge()
+		user["burst_gauge"] = min(max_gauge, user.get("burst_gauge", 0) + burst_gain)
+		EventBus.burst_gauge_changed.emit(user.get("id", ""), user["burst_gauge"])
 
 	_update_unit_visuals()
 	await get_tree().create_timer(1.0).timeout
@@ -1353,6 +1393,21 @@ func _end_turn() -> void:
 			_spawn_floating_text(str(dot_damage), dot_color, current_unit, false)
 			_log_action("  %s takes %d %s damage" % [current_unit.get("name", "?"), dot_damage, status_info.status], dot_color)
 
+	# Burst mode turn countdown (save state before countdown for speed bonus)
+	var was_burst_active = current_unit.get("burst_active", false)
+	var saved_burst_effects = current_unit.get("burst_effects", {})
+	if was_burst_active:
+		current_unit["burst_turns_remaining"] -= 1
+		if current_unit["burst_turns_remaining"] <= 0:
+			current_unit["burst_active"] = false
+			current_unit["burst_effects"] = {}
+			current_unit["burst_turns_remaining"] = 0
+			var burst_name = current_unit.get("burst_mode", {}).get("name", "Burst Mode")
+			EventBus.burst_mode_ended.emit(current_unit.get("id", ""))
+			_log_action("%s's %s fades." % [current_unit.get("name", "?"), burst_name],
+				Color(0.6, 0.6, 0.6))
+			_update_unit_visuals()
+
 	# Process status effect tick
 	var expired = status_manager.tick_turn_end(current_unit.id)
 	for status_name in expired:
@@ -1371,6 +1426,11 @@ func _end_turn() -> void:
 	_log_action("--- %s ends turn (AP left: %d) ---" % [unit_name, remaining_ap], log_color)
 
 	var speed = current_unit.get("speed", 5)
+	# Burst speed bonus reduces effective ticks (use saved state from before countdown)
+	if was_burst_active:
+		var speed_bonus = saved_burst_effects.get("speed_bonus", 0.0)
+		if speed_bonus > 0.0:
+			speed = int(ceil(speed * (1.0 + speed_bonus)))
 	_ctb_manager.end_turn(current_unit.id, speed, remaining_ap)
 
 	# Remove defeated units
@@ -1457,7 +1517,8 @@ func _return_to_action_selection() -> void:
 
 	current_phase = CombatPhase.SELECTING_ACTION
 	action_panel.visible = true
-	status_label.text = "%s's turn (AP: %d)" % [current_unit.get("name", "?"), remaining_ap]
+	var burst_tag = " [BURST]" if current_unit.get("burst_active", false) else ""
+	status_label.text = "%s's turn (AP: %d)%s" % [current_unit.get("name", "?"), remaining_ap, burst_tag]
 	_log_action("  %s has %d AP remaining" % [current_unit.get("name", "?"), remaining_ap], Color(0.6, 0.8, 0.6))
 	_update_ap_display()
 	_update_action_buttons()
@@ -1660,6 +1721,36 @@ func _on_defend_pressed() -> void:
 
 	await get_tree().create_timer(0.5).timeout
 	_end_turn()
+
+
+func _on_burst_pressed() -> void:
+	if current_phase != CombatPhase.SELECTING_ACTION:
+		return
+
+	if not current_unit.get("is_ally", false):
+		return
+
+	var burst_data = current_unit.get("burst_mode", {})
+	if burst_data.is_empty():
+		return
+
+	# Activate burst mode
+	current_unit["burst_active"] = true
+	current_unit["burst_turns_remaining"] = burst_data.get("duration", 5)
+	current_unit["burst_effects"] = burst_data.get("effects", {}).duplicate()
+	current_unit["burst_gauge"] = 0
+
+	var burst_name = burst_data.get("name", "Burst Mode")
+	var duration = current_unit["burst_turns_remaining"]
+	EventBus.burst_mode_activated.emit(current_unit.get("id", ""))
+	EventBus.burst_gauge_changed.emit(current_unit.get("id", ""), 0)
+
+	_log_action("%s activates %s! (%d turns)" % [current_unit.get("name", "?"), burst_name, duration],
+		Color(1.0, 0.85, 0.2))
+	status_label.text = "%s activates %s!" % [current_unit.get("name", "?"), burst_name]
+
+	_update_unit_visuals()
+	_update_action_buttons()
 
 
 func _on_end_turn_pressed() -> void:

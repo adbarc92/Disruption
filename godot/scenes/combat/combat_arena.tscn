@@ -77,6 +77,10 @@ text = "Items"
 custom_minimum_size = Vector2(100, 40)
 text = "Move"
 
+[node name="BurstButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
+custom_minimum_size = Vector2(100, 40)
+text = "Burst"
+
 [node name="DefendButton" type="Button" parent="UI/ActionPanel/ActionButtons"]
 custom_minimum_size = Vector2(100, 40)
 text = "Defend"

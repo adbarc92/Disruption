@@ -50,6 +50,9 @@ static func calculate_damage(skill: Dictionary, attacker_stats: Dictionary, defe
 	# Check for critical hit (from config)
 	var crit_rate = CombatConfigLoaderClass.get_balance("crit_rate_per_dexterity", 0.05)
 	var crit_chance = _get_stat_value(attacker_stats, "dexterity") * crit_rate
+	# Add burst mode crit rate bonus
+	var burst_crit_bonus = attacker_stats.get("burst_crit_rate_bonus", 0.0)
+	crit_chance += burst_crit_bonus
 	result.is_critical = randf() < crit_chance
 	var crit_multiplier = CombatConfigLoaderClass.get_balance("crit_multiplier", 1.5) if result.is_critical else 1.0
 
