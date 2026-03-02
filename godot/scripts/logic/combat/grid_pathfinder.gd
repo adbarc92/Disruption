@@ -16,7 +16,7 @@ enum RangeBand {
 ## grid_size: Vector2i(columns, rows)
 ## Returns array of Vector2i positions from start to end (inclusive)
 ## Occupied cells are impassable except the destination
-static func find_path(start: Vector2i, end: Vector2i, grid: Dictionary, grid_size: Vector2i) -> Array[Vector2i]:
+static func find_path(start: Vector2i, end: Vector2i, grid: Dictionary, grid_size: Vector2i, impassable: Dictionary = {}) -> Array[Vector2i]:
 	if start == end:
 		return [start]
 
@@ -47,6 +47,9 @@ static func find_path(start: Vector2i, end: Vector2i, grid: Dictionary, grid_siz
 			# Occupied cells are impassable (except destination)
 			if neighbor != end and grid.has(neighbor):
 				continue
+			# Obstacle cells are always impassable
+			if impassable.has(neighbor):
+				continue
 
 			var tentative_g = g_score.get(current, 999999) + 1
 
@@ -64,7 +67,7 @@ static func find_path(start: Vector2i, end: Vector2i, grid: Dictionary, grid_siz
 
 ## Get all cells reachable within movement range using BFS flood fill
 ## Returns array of Vector2i positions (excludes start position)
-static func get_cells_in_range(origin: Vector2i, move_range: int, grid: Dictionary, grid_size: Vector2i) -> Array[Vector2i]:
+static func get_cells_in_range(origin: Vector2i, move_range: int, grid: Dictionary, grid_size: Vector2i, impassable: Dictionary = {}) -> Array[Vector2i]:
 	var reachable: Array[Vector2i] = []
 	var visited: Dictionary = {origin: 0}  # Vector2i -> distance
 	var queue: Array = [[origin, 0]]
@@ -84,8 +87,8 @@ static func get_cells_in_range(origin: Vector2i, move_range: int, grid: Dictiona
 		for neighbor in neighbors:
 			if visited.has(neighbor):
 				continue
-			# Can't move through occupied cells
-			if grid.has(neighbor):
+			# Can't move through occupied or impassable cells
+			if grid.has(neighbor) or impassable.has(neighbor):
 				continue
 			visited[neighbor] = dist + 1
 			queue.append([neighbor, dist + 1])
