@@ -1350,24 +1350,29 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 	if path.is_empty():
 		return
 
-	# Animate step-by-step
+	# Animate step-by-step, checking on-enter effects at each tile
+	var final_pos = old_pos
 	for i in range(1, path.size()):
 		var step_pos = path[i]
 		grid.erase(unit.get("grid_position", Vector2i(0, 0)))
 		unit["grid_position"] = step_pos
 		grid[step_pos] = unit_id
+		final_pos = step_pos
 
 		_update_unit_visuals()
 		await get_tree().create_timer(0.15).timeout
 
-	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), target_pos.x, target_pos.y], Color(0.7, 0.9, 1.0))
-	EventBus.position_changed.emit(unit_id, old_pos, target_pos)
+		# Check on-enter tile effects at each step
+		_apply_on_enter_effects(unit, step_pos)
+		if unit.get("current_hp", 0) <= 0:
+			break
+		if unit.get("_movement_ended_by_tile", false):
+			unit.erase("_movement_ended_by_tile")
+			_log_action("  %s's movement halted by tile effect!" % unit.get("name", "?"), Color(1.0, 0.6, 0.3))
+			break
 
-	# Tile on-enter effects
-	_apply_on_enter_effects(unit, target_pos)
-	if unit.get("_movement_ended_by_tile", false):
-		unit.erase("_movement_ended_by_tile")
-		_log_action("  %s's movement halted by tile effect!" % unit.get("name", "?"), Color(1.0, 0.6, 0.3))
+	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), final_pos.x, final_pos.y], Color(0.7, 0.9, 1.0))
+	EventBus.position_changed.emit(unit_id, old_pos, final_pos)
 
 
 func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:
@@ -1497,6 +1502,7 @@ func _apply_skill_effect(skill: Dictionary, user: Dictionary, target: Dictionary
 				for interaction in result.get("interactions", []):
 					_handle_tile_interaction(interaction)
 
+			_remove_defeated_units()
 			_draw_grid_background()
 
 
@@ -1995,7 +2001,7 @@ func _on_move_pressed() -> void:
 	status_label.text = "Select position to move to..."
 	action_panel.visible = false
 
-	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, HEX_SIZE)
+	target_selector.start_move_targeting(current_unit, grid, GRID_SIZE, grid_node, HEX_SIZE, _get_impassable_positions())
 
 
 func _on_move_position_selected(position: Vector2i) -> void:

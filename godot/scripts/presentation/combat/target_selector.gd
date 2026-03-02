@@ -127,7 +127,7 @@ func start_targeting(skill: Dictionary, user: Dictionary, p_all_units: Dictionar
 
 
 ## Start move targeting - highlights valid reachable cells
-func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_hex_size: float = 0.0) -> void:
+func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vector2i, p_grid_node: Node2D, p_hex_size: float = 0.0, p_impassable: Dictionary = {}) -> void:
 	current_user = unit
 	grid_ref = p_grid
 	grid_size_ref = p_grid_size
@@ -141,7 +141,7 @@ func start_move_targeting(unit: Dictionary, p_grid: Dictionary, p_grid_size: Vec
 	is_active = true
 	is_move_mode = true
 
-	valid_move_positions = PositionValidatorClass.get_valid_move_positions(unit, p_grid, p_grid_size)
+	valid_move_positions = PositionValidatorClass.get_valid_move_positions(unit, p_grid, p_grid_size, p_impassable)
 
 	if valid_move_positions.is_empty():
 		is_active = false

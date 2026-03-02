@@ -130,10 +130,10 @@ static func get_movement_range(unit: Dictionary) -> int:
 
 
 ## Get valid movement positions for a unit (delegates to GridPathfinder)
-static func get_valid_move_positions(unit: Dictionary, grid: Dictionary, grid_size: Vector2i) -> Array[Vector2i]:
+static func get_valid_move_positions(unit: Dictionary, grid: Dictionary, grid_size: Vector2i, impassable: Dictionary = {}) -> Array[Vector2i]:
 	var origin: Vector2i = unit.get("grid_position", Vector2i(0, 0))
 	var move_range = get_movement_range(unit)
-	return GridPathfinderClass.get_cells_in_range(origin, move_range, grid, grid_size)
+	return GridPathfinderClass.get_cells_in_range(origin, move_range, grid, grid_size, impassable)
 
 
 ## Get the targeting type for a skill
