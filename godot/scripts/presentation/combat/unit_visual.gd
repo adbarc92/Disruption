@@ -51,6 +51,9 @@ var soil_badge: Label
 var flash_timer: float = 0.0
 const FLASH_DURATION = 0.15
 
+enum DetailLevel { FULL, REDUCED, MINIMAL }
+var detail_level: DetailLevel = DetailLevel.FULL
+
 
 func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48)) -> void:
 	unit_id = unit.get("id", "")
@@ -227,6 +230,50 @@ func update_scale(p_cell_size: Vector2) -> void:
 		flash_overlay.polygon = _rect(INSET, INSET, UNIT_WIDTH - INSET, UNIT_HEIGHT - INSET)
 
 	_apply_layout()
+	update_detail_level(p_cell_size.y / 2.0)  # Approximate hex_size from cell height
+
+
+func update_detail_level(hex_size: float) -> void:
+	var new_level: DetailLevel
+	if hex_size >= 40.0:
+		new_level = DetailLevel.FULL
+	elif hex_size >= 28.0:
+		new_level = DetailLevel.REDUCED
+	else:
+		new_level = DetailLevel.MINIMAL
+
+	if new_level == detail_level:
+		return
+	detail_level = new_level
+	_apply_detail_level()
+
+
+func _apply_detail_level() -> void:
+	match detail_level:
+		DetailLevel.FULL:
+			if mp_bar_bg: mp_bar_bg.visible = true
+			if mp_bar_fill: mp_bar_fill.visible = true
+			if burst_bar_bg: burst_bar_bg.visible = true
+			if burst_bar_fill: burst_bar_fill.visible = true
+			if burst_info_label: burst_info_label.visible = true
+			if status_container: status_container.visible = true
+			if soil_badge: soil_badge.visible = true
+		DetailLevel.REDUCED:
+			if mp_bar_bg: mp_bar_bg.visible = true
+			if mp_bar_fill: mp_bar_fill.visible = true
+			if burst_bar_bg: burst_bar_bg.visible = true
+			if burst_bar_fill: burst_bar_fill.visible = true
+			if burst_info_label: burst_info_label.visible = false
+			if status_container: status_container.visible = true
+			if soil_badge: soil_badge.visible = false
+		DetailLevel.MINIMAL:
+			if mp_bar_bg: mp_bar_bg.visible = false
+			if mp_bar_fill: mp_bar_fill.visible = false
+			if burst_bar_bg: burst_bar_bg.visible = false
+			if burst_bar_fill: burst_bar_fill.visible = false
+			if burst_info_label: burst_info_label.visible = false
+			if status_container: status_container.visible = false
+			if soil_badge: soil_badge.visible = false
 
 
 func update_stats(unit: Dictionary) -> void:
