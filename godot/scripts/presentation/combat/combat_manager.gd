@@ -87,6 +87,11 @@ const ACTION_LOG_MAX_LINES = 200
 # Turn highlight pulse state
 var _highlight_pulse_time: float = 0.0
 
+# Overlay toolbar (for medium/narrow breakpoints)
+var _overlay_toolbar: HBoxContainer = null
+var _turn_order_overlay: Panel = null
+var _action_log_overlay: Panel = null
+
 
 ## Convert grid position to visual pixel position (pointy-top, odd-row offset)
 func grid_to_visual_pos(grid_pos: Vector2i) -> Vector2:
@@ -206,6 +211,7 @@ func _ready() -> void:
 
 	# Create action log
 	_setup_action_log()
+	_setup_overlay_toolbar()
 
 	# Initialize combat
 	_initialize_combat()
@@ -623,6 +629,9 @@ func _update_turn_order_ui() -> void:
 		label.add_theme_color_override("font_color", Color.CYAN if unit.get("is_ally", false) else Color.RED)
 		turn_list.add_child(label)
 
+	if _turn_order_overlay and _turn_order_overlay.visible:
+		_sync_turn_order_overlay()
+
 
 func _update_ap_display() -> void:
 	if current_unit.is_empty():
@@ -945,11 +954,193 @@ func _log_action(text: String, color: Color = Color.WHITE) -> void:
 
 	action_log_text.text = current_text
 	_scroll_log_to_bottom.call_deferred()
+	if _action_log_overlay and _action_log_overlay.visible:
+		_sync_action_log_overlay()
 
 
 func _scroll_log_to_bottom() -> void:
 	if action_log_text != null:
 		action_log_text.scroll_vertical = INF  # Scroll to bottom
+
+
+func _setup_overlay_toolbar() -> void:
+	var ui_layer = $UI
+
+	_overlay_toolbar = HBoxContainer.new()
+	_overlay_toolbar.anchors_preset = Control.PRESET_TOP_RIGHT
+	_overlay_toolbar.anchor_left = 1.0
+	_overlay_toolbar.anchor_right = 1.0
+	_overlay_toolbar.offset_left = -110.0
+	_overlay_toolbar.offset_top = 10.0
+	_overlay_toolbar.offset_right = -10.0
+	_overlay_toolbar.offset_bottom = 45.0
+	_overlay_toolbar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_overlay_toolbar.add_theme_constant_override("separation", 5)
+	_overlay_toolbar.visible = false
+	ui_layer.add_child(_overlay_toolbar)
+
+	var turn_btn = Button.new()
+	turn_btn.text = "T"
+	turn_btn.tooltip_text = "Turn Order"
+	turn_btn.custom_minimum_size = Vector2(35, 35)
+	turn_btn.pressed.connect(func(): UILayoutManager.toggle_overlay("turn_order"))
+	_overlay_toolbar.add_child(turn_btn)
+
+	var log_btn = Button.new()
+	log_btn.text = "L"
+	log_btn.tooltip_text = "Action Log"
+	log_btn.custom_minimum_size = Vector2(35, 35)
+	log_btn.pressed.connect(func(): UILayoutManager.toggle_overlay("action_log"))
+	_overlay_toolbar.add_child(log_btn)
+
+	# Create overlay versions of panels
+	_create_turn_order_overlay(ui_layer)
+	_create_action_log_overlay(ui_layer)
+
+	# Connect to layout manager signals
+	UILayoutManager.breakpoint_changed.connect(_on_breakpoint_changed)
+	UILayoutManager.overlay_toggled.connect(_on_overlay_toggled)
+
+
+func _create_turn_order_overlay(ui_layer: CanvasLayer) -> void:
+	_turn_order_overlay = Panel.new()
+	_turn_order_overlay.anchors_preset = Control.PRESET_CENTER_LEFT
+	_turn_order_overlay.anchor_top = 0.0
+	_turn_order_overlay.anchor_bottom = 0.0
+	_turn_order_overlay.offset_left = 10.0
+	_turn_order_overlay.offset_top = 50.0
+	_turn_order_overlay.offset_right = 270.0
+	_turn_order_overlay.offset_bottom = 400.0
+	_turn_order_overlay.visible = false
+	_turn_order_overlay.modulate = Color(1, 1, 1, 0.92)
+	ui_layer.add_child(_turn_order_overlay)
+
+	var title = Label.new()
+	title.text = "Turn Order"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.offset_left = 10.0
+	title.offset_top = 10.0
+	title.offset_right = 250.0
+	title.offset_bottom = 30.0
+	_turn_order_overlay.add_child(title)
+
+	var close_btn = Button.new()
+	close_btn.text = "X"
+	close_btn.offset_left = 230.0
+	close_btn.offset_top = 5.0
+	close_btn.offset_right = 255.0
+	close_btn.offset_bottom = 30.0
+	close_btn.pressed.connect(func(): UILayoutManager.toggle_overlay("turn_order"))
+	_turn_order_overlay.add_child(close_btn)
+
+	var turn_list_overlay = VBoxContainer.new()
+	turn_list_overlay.name = "OverlayTurnList"
+	turn_list_overlay.offset_left = 10.0
+	turn_list_overlay.offset_top = 40.0
+	turn_list_overlay.offset_right = 250.0
+	turn_list_overlay.offset_bottom = 340.0
+	_turn_order_overlay.add_child(turn_list_overlay)
+
+
+func _create_action_log_overlay(ui_layer: CanvasLayer) -> void:
+	_action_log_overlay = Panel.new()
+	_action_log_overlay.anchor_left = 1.0
+	_action_log_overlay.anchor_right = 1.0
+	_action_log_overlay.offset_left = -270.0
+	_action_log_overlay.offset_top = 50.0
+	_action_log_overlay.offset_right = -10.0
+	_action_log_overlay.offset_bottom = 500.0
+	_action_log_overlay.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_action_log_overlay.visible = false
+	_action_log_overlay.modulate = Color(1, 1, 1, 0.92)
+	ui_layer.add_child(_action_log_overlay)
+
+	var title = Label.new()
+	title.text = "Action Log"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.offset_left = 10.0
+	title.offset_top = 10.0
+	title.offset_right = 250.0
+	title.offset_bottom = 30.0
+	_action_log_overlay.add_child(title)
+
+	var close_btn = Button.new()
+	close_btn.text = "X"
+	close_btn.offset_left = 230.0
+	close_btn.offset_top = 5.0
+	close_btn.offset_right = 255.0
+	close_btn.offset_bottom = 30.0
+	close_btn.pressed.connect(func(): UILayoutManager.toggle_overlay("action_log"))
+	_action_log_overlay.add_child(close_btn)
+
+	var log_mirror = TextEdit.new()
+	log_mirror.name = "OverlayLogText"
+	log_mirror.offset_left = 10.0
+	log_mirror.offset_top = 35.0
+	log_mirror.offset_right = 250.0
+	log_mirror.offset_bottom = 440.0
+	log_mirror.editable = false
+	log_mirror.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	log_mirror.add_theme_font_size_override("font_size", 11)
+	_action_log_overlay.add_child(log_mirror)
+
+
+func _on_breakpoint_changed(new_breakpoint: UILayoutManager.LayoutBreakpoint) -> void:
+	var turn_panel = $UI/TurnOrderPanel
+	var action_log_panel = action_log_text.get_parent() if action_log_text else null
+
+	match new_breakpoint:
+		UILayoutManager.LayoutBreakpoint.WIDE:
+			turn_panel.visible = true
+			if action_log_panel: action_log_panel.visible = true
+			_overlay_toolbar.visible = false
+			_turn_order_overlay.visible = false
+			_action_log_overlay.visible = false
+		_:
+			turn_panel.visible = false
+			if action_log_panel: action_log_panel.visible = false
+			_overlay_toolbar.visible = true
+			_turn_order_overlay.visible = false
+			_action_log_overlay.visible = false
+
+
+func _on_overlay_toggled(panel_name: String, is_visible: bool) -> void:
+	match panel_name:
+		"turn_order":
+			_turn_order_overlay.visible = is_visible
+			if is_visible:
+				_sync_turn_order_overlay()
+		"action_log":
+			_action_log_overlay.visible = is_visible
+			if is_visible:
+				_sync_action_log_overlay()
+
+
+func _sync_turn_order_overlay() -> void:
+	var overlay_list = _turn_order_overlay.get_node("OverlayTurnList")
+	for child in overlay_list.get_children():
+		child.queue_free()
+
+	var preview = _ctb_manager.get_turn_order_preview()
+	for i in range(min(preview.size(), 10)):
+		var unit_id = preview[i]
+		var unit = all_units.get(unit_id, {})
+		if unit.is_empty():
+			continue
+		var label = Label.new()
+		var prefix = ">> " if i == 0 else "   "
+		var hp_text = ""
+		if i == 0 and unit.has("current_hp"):
+			hp_text = " [HP:%d/%d]" % [unit.get("current_hp", 0), unit.get("max_hp", 1)]
+		label.text = "%s%s%s" % [prefix, unit.get("name", "???"), hp_text]
+		label.add_theme_color_override("font_color", Color.CYAN if unit.get("is_ally", false) else Color.RED)
+		overlay_list.add_child(label)
+
+
+func _sync_action_log_overlay() -> void:
+	var overlay_log = _action_log_overlay.get_node("OverlayLogText")
+	if action_log_text and overlay_log:
+		overlay_log.text = action_log_text.text
 
 
 # --- Turn Flow ---
