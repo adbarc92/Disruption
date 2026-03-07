@@ -219,18 +219,18 @@ func _ready() -> void:
 
 func _calculate_grid_layout() -> void:
 	var vp_size = UILayoutManager.get_viewport_size()
-	var breakpoint = UILayoutManager.current_breakpoint
+	var current_bp = UILayoutManager.current_breakpoint
 
 	# Panel widths depend on breakpoint
-	var turn_panel_width = 260.0 if breakpoint == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
-	var action_log_width = 250.0 if breakpoint == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
-	var action_panel_height = 200.0
-	var top_margin = 60.0
-	var padding = 40.0
+	var turn_panel_width = 200.0 if current_bp == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
+	var action_log_width = 200.0 if current_bp == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
+	var action_panel_height = 150.0
+	var top_margin = 20.0
+	var padding = 10.0
 
-	# At medium breakpoint, reserve space for compact turn bar at top
-	if breakpoint == UILayoutManager.LayoutBreakpoint.MEDIUM:
-		top_margin = 100.0
+	# At medium breakpoint, reserve space for overlay toolbar at top
+	if current_bp == UILayoutManager.LayoutBreakpoint.MEDIUM:
+		top_margin = 50.0
 
 	var available_width = vp_size.x - turn_panel_width - action_log_width - (padding * 2)
 	var available_height = vp_size.y - action_panel_height - top_margin - (padding * 2)
@@ -239,14 +239,18 @@ func _calculate_grid_layout() -> void:
 	var hex_from_width = available_width / (sqrt(3.0) * (GRID_SIZE.x + 0.5))
 	var hex_from_height = available_height / (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
-	HEX_SIZE = clamp(min(hex_from_width, hex_from_height), 20.0, 60.0)
+	HEX_SIZE = clamp(min(hex_from_width, hex_from_height), 20.0, 120.0)
 
 	# Calculate actual grid dimensions
 	var grid_width = HEX_SIZE * sqrt(3.0) * (GRID_SIZE.x + 0.5)
 	var grid_height = HEX_SIZE * (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
-	var grid_x = turn_panel_width + ((available_width - grid_width) / 2.0) + padding
-	var grid_y = top_margin + ((available_height - grid_height) / 2.0) + padding
+	# Offset by hex overhang: hex centers are at (0,0) but hexes extend
+	# HEX_SIZE above and sqrt(3)/2 * HEX_SIZE left of their center
+	var hex_overhang_x = sqrt(3.0) / 2.0 * HEX_SIZE
+	var hex_overhang_y = HEX_SIZE
+	var grid_x = turn_panel_width + ((available_width - grid_width) / 2.0) + padding + hex_overhang_x
+	var grid_y = top_margin + ((available_height - grid_height) / 2.0) + padding + hex_overhang_y
 
 	battle_grid_container.position = Vector2(grid_x, grid_y)
 
@@ -908,11 +912,15 @@ func _apply_on_turn_effects(unit: Dictionary) -> void:
 func _setup_action_log() -> void:
 	var ui_layer = $UI
 
+	var vp_size = UILayoutManager.get_viewport_size()
 	var panel = Panel.new()
-	panel.offset_left = 1660
-	panel.offset_top = 10
-	panel.offset_right = 1910
-	panel.offset_bottom = 700
+	panel.anchor_left = 1.0
+	panel.anchor_right = 1.0
+	panel.offset_left = -200.0
+	panel.offset_top = 50.0
+	panel.offset_right = -10.0
+	panel.offset_bottom = 700.0
+	panel.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	ui_layer.add_child(panel)
 
 	var title = Label.new()
@@ -920,15 +928,15 @@ func _setup_action_log() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.offset_left = 5
 	title.offset_top = 5
-	title.offset_right = 245
+	title.offset_right = 185
 	title.offset_bottom = 25
 	panel.add_child(title)
 
 	action_log_text = TextEdit.new()
 	action_log_text.offset_left = 5
 	action_log_text.offset_top = 28
-	action_log_text.offset_right = 245
-	action_log_text.offset_bottom = 685
+	action_log_text.offset_right = 185
+	action_log_text.offset_bottom = 645
 	action_log_text.editable = false
 	action_log_text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	action_log_text.scroll_fit_content_height = true
