@@ -17,7 +17,10 @@ const MEDIUM_THRESHOLD = 800.0
 
 func _ready() -> void:
 	get_tree().root.size_changed.connect(_on_viewport_resized)
-	# Initial calculation deferred so all nodes are ready
+	# Set initial breakpoint synchronously so it's correct when scenes read it
+	var width = get_viewport().get_visible_rect().size.x
+	current_breakpoint = _calculate_breakpoint(width)
+	# Deferred emit for late-connecting listeners
 	_on_viewport_resized.call_deferred()
 
 

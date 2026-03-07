@@ -1103,6 +1103,12 @@ func _on_breakpoint_changed(new_breakpoint: UILayoutManager.LayoutBreakpoint) ->
 			_turn_order_overlay.visible = false
 			_action_log_overlay.visible = false
 
+	# Recalculate grid for new panel configuration
+	_calculate_grid_layout()
+	_update_all_unit_scales()
+	_draw_grid()
+	_highlight_current_unit()
+
 
 func _on_overlay_toggled(panel_name: String, is_visible: bool) -> void:
 	match panel_name:
