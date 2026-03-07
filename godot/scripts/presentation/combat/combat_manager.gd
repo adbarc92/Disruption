@@ -212,20 +212,24 @@ func _ready() -> void:
 
 
 func _calculate_grid_layout() -> void:
-	const SCREEN_WIDTH = 1920.0
-	const SCREEN_HEIGHT = 1080.0
-	const TURN_PANEL_WIDTH = 260.0
-	const ACTION_LOG_WIDTH = 250.0
-	const ACTION_PANEL_HEIGHT = 200.0
-	const TOP_MARGIN = 60.0
-	const PADDING = 40.0
+	var vp_size = UILayoutManager.get_viewport_size()
+	var breakpoint = UILayoutManager.current_breakpoint
 
-	var available_width = SCREEN_WIDTH - TURN_PANEL_WIDTH - ACTION_LOG_WIDTH - (PADDING * 2)
-	var available_height = SCREEN_HEIGHT - ACTION_PANEL_HEIGHT - TOP_MARGIN - (PADDING * 2)
+	# Panel widths depend on breakpoint
+	var turn_panel_width = 260.0 if breakpoint == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
+	var action_log_width = 250.0 if breakpoint == UILayoutManager.LayoutBreakpoint.WIDE else 0.0
+	var action_panel_height = 200.0
+	var top_margin = 60.0
+	var padding = 40.0
+
+	# At medium breakpoint, reserve space for compact turn bar at top
+	if breakpoint == UILayoutManager.LayoutBreakpoint.MEDIUM:
+		top_margin = 100.0
+
+	var available_width = vp_size.x - turn_panel_width - action_log_width - (padding * 2)
+	var available_height = vp_size.y - action_panel_height - top_margin - (padding * 2)
 
 	# For pointy-top hexes:
-	# grid_width = hex_size * sqrt(3) * (cols + 0.5)
-	# grid_height = hex_size * 1.5 * (rows - 1) + hex_size * 2
 	var hex_from_width = available_width / (sqrt(3.0) * (GRID_SIZE.x + 0.5))
 	var hex_from_height = available_height / (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
@@ -235,16 +239,21 @@ func _calculate_grid_layout() -> void:
 	var grid_width = HEX_SIZE * sqrt(3.0) * (GRID_SIZE.x + 0.5)
 	var grid_height = HEX_SIZE * (1.5 * (GRID_SIZE.y - 1) + 2.0)
 
-	var grid_x = TURN_PANEL_WIDTH + ((available_width - grid_width) / 2.0) + PADDING
-	var grid_y = TOP_MARGIN + ((available_height - grid_height) / 2.0) + PADDING
+	var grid_x = turn_panel_width + ((available_width - grid_width) / 2.0) + padding
+	var grid_y = top_margin + ((available_height - grid_height) / 2.0) + padding
 
 	battle_grid_container.position = Vector2(grid_x, grid_y)
 
-	print("Hex grid layout: size=%.1f, pos=(%.1f, %.1f)" % [HEX_SIZE, grid_x, grid_y])
+	# Update all unit visual detail levels
+	for unit_id in unit_visuals:
+		var visual = unit_visuals[unit_id]
+		if is_instance_valid(visual):
+			visual.update_detail_level(HEX_SIZE)
 
 
 func _on_window_resized() -> void:
 	_calculate_grid_layout()
+	_update_all_unit_scales()
 	_draw_grid()
 	_highlight_current_unit()
 
