@@ -1,45 +1,108 @@
-# My Favorite Games and What I Love About Them
+# Mechanics to Steal from My Favorite Games
 
-## JRPGs
+## Tabletop Games
 
-### Chrono Trigger
+### RPGs
 
-### Final Fantasy VII
+***Draw Steel***
 
-### Final Fantasy IX
+- No Roll-to-hit
+- Armor reduces damage
+- Class-based design
+- Class-based resources
+- Crit = Additional Action
+- Stamina (Shields)
+- Zero Damage => Counter
+- Kits
 
-### Final Fantasy X
+***Fabula Ultima***
 
-- Story
-- Music
+- Everything has a Soul
+- Game Master Scenes
+- Superiority Points
+- Magic Disciplines
+- 
+
+## Video Games
+
+### JRPGs
+
+***Battle Chasers: Night War***
+
+- Shields
+- Overcharge
+
+***Chrono Trigger***
+
+- Dual/Triple Techs
+
+***Final Fantasy VII***
+
+- Materia
+- Limit Breaks
+
+***Final Fantasy IX***
+
+- Learn from Equipment
+- Ability Stones
+- Quena's Blue Magic
+- Trance
+
+***Final Fantasy X***
+
 - Sphere Grid
-- Worldbuilding
+- Weapon Customization
+- Overdrive (Modes)
+- Conditional Turn-based Combat System
+- Defined Roles for Party Members ("Favorite Enemies")
 
-### Persona 4 Golden
+***Persona 4 Golden***
 
-### Persona 5 Royal
+- All Out Attacks
+- Press Turn - Weaknesses
 
-- Gameplay Loop
-- Combat
-- Story/Themes
+***Persona 5 Royal***
 
-### Honorable Mention - Metaphor - ReFantazio
+- Baton Pass
+- Gun Ammo
 
-## ARPGs
+***Metaphor: ReFantazio***
 
-### Nier Automata
+- Archetypes
 
-### Bloodborne
+***Clair Obscur: Expedition 33***
 
-### Dark Souls
+- Reactive Combat
+- Individual Mechanics
 
-### Dark Souls 3
+### SPRG
 
+***Final Fantasy: Tactics***
 
-## CRPGs
+- Grid-based combat
 
-### Divinity 2
+### ARPGs
 
-## Elsewise
+***Nier Automata***
 
-### Lisa: The Painful
+***Bloodborne***
+
+- Blood Bullets
+
+***Dark Souls***
+
+- Bonfire
+- Kindling
+
+***Dark Souls 3***
+
+### CRPGs
+
+***Divinity 2***
+
+- Environment interactions
+- Feat-based progression
+
+### RPGS
+
+***Lisa: The Painful***
