@@ -1,0 +1,55 @@
+{
+  "roles": [
+    {
+      "id": "universal",
+      "name": "Universal",
+      "description": "Skills available to all characters.",
+      "skills": ["basic_attack", "defend", "shove"]
+    },
+    {
+      "id": "bladewarden",
+      "name": "Bladewarden",
+      "description": "Sword techniques focused on positioning and raw damage.",
+      "skills": [
+        "wide_swing", "raging_blossom", "flat_swing", "stance_of_pitch",
+        "resolve_break", "northern_gale", "southern_breeze", "break_stock",
+        "true_strike", "heavy_swing", "cleave"
+      ]
+    },
+    {
+      "id": "shadowfang",
+      "name": "Shadowfang",
+      "description": "Precision strikes, debuffs, and tactical disruption.",
+      "skills": [
+        "hamstring", "sever_tendons", "commotion", "hook", "falcon_strike",
+        "deduce_vulnerability", "peak_efficiency", "constant_flurry",
+        "poison_coating", "razor_edge", "poison_strike"
+      ]
+    },
+    {
+      "id": "warcrier",
+      "name": "Warcrier",
+      "description": "Leadership and party-wide inspiration.",
+      "skills": ["leadership"]
+    },
+    {
+      "id": "ironskin",
+      "name": "Ironskin",
+      "description": "Defensive techniques, tanking, and brawling.",
+      "skills": [
+        "ready_stance", "protective_instinct", "intercede", "again_with_vigor",
+        "one_two", "uppercut", "headclap", "smash", "thunderfist",
+        "striking_tips", "unerring_menace", "ironflesh", "derisive_snort", "bash"
+      ]
+    },
+    {
+      "id": "geovant",
+      "name": "Geovant",
+      "description": "Earth magic and terrain manipulation.",
+      "skills": [
+        "the_wall", "earthquake", "pitfall", "stonefist",
+        "ignite_ground", "frost_sheet"
+      ]
+    }
+  ]
+}
