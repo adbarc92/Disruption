@@ -29,6 +29,14 @@ func _ready() -> void:
 	visible = false
 
 
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_cancel"):
+		_on_cancel_pressed()
+		get_viewport().set_input_as_handled()
+
+
 ## Show skills for a unit (unified grid version)
 func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6), ap_system = null, equip_data: Dictionary = {}) -> void:
 	current_unit = unit
