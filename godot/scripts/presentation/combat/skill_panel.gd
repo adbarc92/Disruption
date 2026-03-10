@@ -105,7 +105,11 @@ func _populate_skill_list() -> void:
 		# Check equipment charges
 		if charge_cost > 0 and can_use:
 			var has_charges = false
-			for equip_id in current_unit.get("equipment", []):
+			var unit_equipment = current_unit.get("equipment", {})
+			for slot in unit_equipment:
+				var equip_id = unit_equipment[slot]
+				if equip_id == null or equip_id == "":
+					continue
 				if skill.get("id", "") in _equip_data.get(equip_id, {}).get("granted_skills", []):
 					var unit_charges = current_unit.get("equipment_charges", {})
 					if unit_charges.get(equip_id, 0) >= charge_cost:
