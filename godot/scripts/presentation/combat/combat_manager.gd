@@ -1810,6 +1810,7 @@ func _apply_forced_movement(effect: Dictionary, user: Dictionary, target: Dictio
 
 	_remove_defeated_units()
 	_update_unit_visuals()
+	_highlight_current_unit()
 	_draw_grid_background()
 
 
@@ -1833,6 +1834,7 @@ func _apply_self_reposition(effect: Dictionary, user: Dictionary, target: Dictio
 		_log_action("  %s repositions to (%d,%d)" % [user.get("name", "?"), new_pos.x, new_pos.y], Color(0.7, 0.9, 0.7))
 		EventBus.position_changed.emit(user.get("id", ""), user_pos, new_pos)
 		_update_unit_visuals()
+		_highlight_current_unit()
 
 
 ## Find which equipment grants a skill for a unit
