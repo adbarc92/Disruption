@@ -19,18 +19,13 @@ static func load_characters() -> Array:
 	return []
 
 
-## Load all skill definitions from all known skill JSON files
+## Load all skill definitions (player + enemy)
 static func load_skills() -> Dictionary:
 	var skills_by_id = {}
 	var skills_dir = DATA_PATH + "skills/"
 	var skill_files = [
-		"core_skills.json",
-		"bladewarden_skills.json",
-		"synergist_skills.json",
-		"shadowfang_skills.json",
-		"warcrier_skills.json",
-		"ironskin_skills.json",
-		"geovant_skills.json",
+		"skills.json",
+		"enemy_skills.json",
 	]
 	for file_name in skill_files:
 		var path = skills_dir + file_name
@@ -41,6 +36,16 @@ static func load_skills() -> Dictionary:
 			for skill in data.skills:
 				skills_by_id[skill.id] = skill
 	return skills_by_id
+
+
+## Load role definitions from roles.json
+static func load_roles() -> Dictionary:
+	var roles_by_id = {}
+	var data = _load_json_file(DATA_PATH + "roles/roles.json")
+	if data.has("roles"):
+		for role in data.roles:
+			roles_by_id[role.id] = role
+	return roles_by_id
 
 
 ## Load all enemy definitions
@@ -100,69 +105,75 @@ static func get_enemy(enemy_id: String) -> Dictionary:
 
 ## Get all skills for a given role
 static func get_skills_for_role(role: String) -> Array:
+	var roles_db = load_roles()
 	var all_skills = load_skills()
 	var role_skills = []
-	for skill_id in all_skills:
-		var skill = all_skills[skill_id]
-		if skill.has("roles") and role in skill.roles:
-			role_skills.append(skill)
+	var role_data = roles_db.get(role, {})
+	for skill_id in role_data.get("skills", []):
+		if all_skills.has(skill_id):
+			role_skills.append(all_skills[skill_id])
 	return role_skills
 
 
-## Load all equipment definitions from known equipment JSON files
+## Load all equipment definitions
 static func load_equipment() -> Dictionary:
 	var equipment_by_id = {}
-	var equip_dir = DATA_PATH + "equipment/"
-	var equip_files = [
-		"weapons.json",
-		"devices.json",
-		"armor.json",
-	]
-	for file_name in equip_files:
-		var path = equip_dir + file_name
-		if not FileAccess.file_exists(path):
-			continue
-		var data = _load_json_file(path)
-		if data.has("equipment"):
-			for item in data.equipment:
-				equipment_by_id[item.id] = item
+	var data = _load_json_file(DATA_PATH + "equipment/equipment.json")
+	if data.has("equipment"):
+		for item in data.equipment:
+			equipment_by_id[item.id] = item
 	return equipment_by_id
 
 
 ## Resolve a character's full ability list from roles + equipment
 ## Abilities come from three sources:
-##   1. Universal skills (core skills with no role tag)
-##   2. Role skills (any skill tagged with one of the character's roles)
+##   1. Universal role skills (available to everyone)
+##   2. Character role skills (from roles.json)
 ##   3. Equipment-granted skills
 static func resolve_character_abilities(character: Dictionary, equipment_db: Dictionary) -> Array:
 	var abilities: Array = []
-	var all_skills = load_skills()
+	var roles_db = load_roles()
 	var char_roles = character.get("roles", [])
 
-	# Add universal skills (no role tag) and role-matching skills
-	for skill_id in all_skills:
-		var skill = all_skills[skill_id]
-		var skill_roles = skill.get("roles", [])
-		if skill_roles.is_empty():
-			# Universal skill — available to everyone
+	# Always include universal skills
+	var roles_to_check = ["universal"] + char_roles
+	for role_id in roles_to_check:
+		var role_data = roles_db.get(role_id, {})
+		for skill_id in role_data.get("skills", []):
 			if skill_id not in abilities:
 				abilities.append(skill_id)
-		else:
-			# Role skill — available if character has a matching role
-			for role in skill_roles:
-				if role in char_roles:
-					if skill_id not in abilities:
-						abilities.append(skill_id)
-					break
 
-	# Add equipment-granted skills
-	for equip_id in character.get("equipment", []):
+	# Add equipment-granted skills (iterate slot values)
+	var equipment = character.get("equipment", {})
+	for slot in equipment:
+		var equip_id = equipment[slot]
+		if equip_id == null or equip_id == "":
+			continue
 		var equip = equipment_db.get(equip_id, {})
 		for skill_id in equip.get("granted_skills", []):
 			if skill_id not in abilities:
 				abilities.append(skill_id)
 
 	return abilities
+
+
+## Validate that a character doesn't exceed their device limit
+## Devices are equipment with granted_skills or charges
+static func validate_equipment_devices(character: Dictionary, equipment_db: Dictionary) -> bool:
+	var max_devices = character.get("max_devices", 3)
+	var device_count = 0
+	var equipment = character.get("equipment", {})
+	for slot in equipment:
+		var equip_id = equipment[slot]
+		if equip_id == null or equip_id == "":
+			continue
+		var equip = equipment_db.get(equip_id, {})
+		if not equip.get("granted_skills", []).is_empty() or equip.get("charges", 0) > 0:
+			device_count += 1
+	if device_count > max_devices:
+		push_warning("%s has %d devices equipped (max: %d)" % [character.get("id", "?"), device_count, max_devices])
+		return false
+	return true
 
 
 ## Check if a character can equip an item based on proficiencies
