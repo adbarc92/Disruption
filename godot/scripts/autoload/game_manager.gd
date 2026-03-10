@@ -64,8 +64,6 @@ func _create_party_member_from_data(char_data: Dictionary) -> Dictionary:
 		"current_mp": resonance * 5,
 		"max_mp": resonance * 5,
 		"burst_gauge": 0,
-		"starting_abilities": char_data.get("starting_abilities", []),
-		"abilities": char_data.get("starting_abilities", []),
 		"equipment": char_data.get("equipment", []),
 		"equipment_proficiencies": char_data.get("equipment_proficiencies", []),
 		"base_stats": stats,

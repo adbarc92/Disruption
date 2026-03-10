@@ -129,14 +129,31 @@ static func load_equipment() -> Dictionary:
 	return equipment_by_id
 
 
-## Resolve a character's full ability list: starting_abilities + equipment granted_skills
+## Resolve a character's full ability list from roles + equipment
+## Abilities come from three sources:
+##   1. Universal skills (core skills with no role tag)
+##   2. Role skills (any skill tagged with one of the character's roles)
+##   3. Equipment-granted skills
 static func resolve_character_abilities(character: Dictionary, equipment_db: Dictionary) -> Array:
 	var abilities: Array = []
+	var all_skills = load_skills()
+	var char_roles = character.get("roles", [])
 
-	# Add innate starting abilities
-	for ability_id in character.get("starting_abilities", []):
-		if ability_id not in abilities:
-			abilities.append(ability_id)
+	# Add universal skills (no role tag) and role-matching skills
+	for skill_id in all_skills:
+		var skill = all_skills[skill_id]
+		var skill_roles = skill.get("roles", [])
+		if skill_roles.is_empty():
+			# Universal skill — available to everyone
+			if skill_id not in abilities:
+				abilities.append(skill_id)
+		else:
+			# Role skill — available if character has a matching role
+			for role in skill_roles:
+				if role in char_roles:
+					if skill_id not in abilities:
+						abilities.append(skill_id)
+					break
 
 	# Add equipment-granted skills
 	for equip_id in character.get("equipment", []):

@@ -19,7 +19,7 @@
       "slot": "accessory",
       "stat_bonuses": {},
       "charges": 1,
-      "granted_skills": ["poison_coating"],
+      "granted_skills": ["poison_coating", "poison_strike"],
       "type": "device"
     },
     {
@@ -31,6 +31,17 @@
       "stat_bonuses": {},
       "charges": 1,
       "granted_skills": ["razor_edge"],
+      "type": "device"
+    },
+    {
+      "id": "hookshot",
+      "name": "Hookshot",
+      "description": "A mechanical grappling device that pulls distant enemies close.",
+      "category": "gadget",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 3,
+      "granted_skills": ["grapple_pull"],
       "type": "device"
     }
   ]
