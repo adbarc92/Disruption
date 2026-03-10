@@ -456,7 +456,7 @@ func _load_units_from_encounter() -> void:
 			member["current_mp"] = mp
 			member["max_mp"] = mp
 
-		# Resolve abilities from starting_abilities + equipment
+		# Resolve abilities from roles + equipment
 		member["abilities"] = DataLoaderClass.resolve_character_abilities(member, equipment_data)
 
 		# Initialize equipment charges

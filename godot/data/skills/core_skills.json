@@ -27,6 +27,26 @@
     },
 
     {
+      "id": "defend",
+      "name": "Defend",
+      "description": "Brace for incoming attacks, reducing damage taken until your next turn.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "effect": {
+        "type": "self_buff",
+        "status": "defending",
+        "damage_reduction": { "physical": 0.5, "elemental": 0.5, "magical": 0.5 },
+        "duration": 1
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 3,
+      "burst_charge_type": "defensive"
+    },
+
+    {
       "_CATEGORY": "POSITIONING SKILLS",
       "id": "shove",
       "name": "Shove",
@@ -76,7 +96,8 @@
         "range_band": "ranged"
       },
       "burst_gauge_gain": 10,
-      "burst_charge_type": "technical"
+      "burst_charge_type": "technical",
+      "roles": ["equipment"]
     },
 
     {
@@ -98,7 +119,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 8,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
     },
 
     {
@@ -147,7 +169,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 12,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["bladewarden"]
     },
 
     {
@@ -204,7 +227,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 10,
-      "burst_charge_type": "defensive"
+      "burst_charge_type": "defensive",
+      "roles": ["enemy"]
     },
 
     {
@@ -232,7 +256,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 10,
-      "burst_charge_type": "technical"
+      "burst_charge_type": "technical",
+      "roles": ["shadowfang"]
     },
 
     {
@@ -259,7 +284,8 @@
         "range_band": "ranged"
       },
       "burst_gauge_gain": 12,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["enemy"]
     },
 
     {
@@ -281,7 +307,8 @@
         "range_band": "distant"
       },
       "burst_gauge_gain": 8,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["enemy"]
     },
 
     {
@@ -302,7 +329,8 @@
         "range_band": "distant"
       },
       "burst_gauge_gain": 10,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["enemy"]
     },
 
     {
@@ -352,9 +380,9 @@
     },
 
     {
-      "id": "shield_bash",
-      "name": "Shield Bash",
-      "description": "Bash enemy with shield, stunning them.",
+      "id": "bash",
+      "name": "Bash",
+      "description": "Bash an enemy, stunning them.",
       "action_type": "action",
       "ap_cost": 2,
       "mp_cost": 2,
@@ -375,7 +403,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 12,
-      "burst_charge_type": "defensive"
+      "burst_charge_type": "defensive",
+      "roles": ["ironskin"]
     },
 
     {
@@ -398,7 +427,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 10,
-      "burst_charge_type": "aggressive"
+      "burst_charge_type": "aggressive",
+      "roles": ["enemy"]
     },
 
     {
@@ -425,7 +455,8 @@
         "range_band": "ranged"
       },
       "burst_gauge_gain": 8,
-      "burst_charge_type": "technical"
+      "burst_charge_type": "technical",
+      "roles": ["enemy"]
     },
 
     {
@@ -446,7 +477,8 @@
         "range_band": "melee"
       },
       "burst_gauge_gain": 12,
-      "burst_charge_type": "support"
+      "burst_charge_type": "support",
+      "roles": ["enemy"]
     },
 
     {
@@ -463,7 +495,8 @@
         "type": "self"
       },
       "burst_gauge_gain": 8,
-      "burst_charge_type": "defensive"
+      "burst_charge_type": "defensive",
+      "roles": ["enemy"]
     },
 
     {
