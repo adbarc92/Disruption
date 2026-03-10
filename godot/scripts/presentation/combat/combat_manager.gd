@@ -461,7 +461,11 @@ func _load_units_from_encounter() -> void:
 
 		# Initialize equipment charges
 		var equip_charges = {}
-		for equip_id in member.get("equipment", []):
+		var member_equipment = member.get("equipment", {})
+		for slot in member_equipment:
+			var equip_id = member_equipment[slot]
+			if equip_id == null or equip_id == "":
+				continue
 			var equip = equipment_data.get(equip_id, {})
 			if equip.get("charges", 0) > 0:
 				equip_charges[equip_id] = equip.charges
@@ -1806,6 +1810,7 @@ func _apply_forced_movement(effect: Dictionary, user: Dictionary, target: Dictio
 
 	_remove_defeated_units()
 	_update_unit_visuals()
+	_highlight_current_unit()
 	_draw_grid_background()
 
 
@@ -1829,6 +1834,7 @@ func _apply_self_reposition(effect: Dictionary, user: Dictionary, target: Dictio
 		_log_action("  %s repositions to (%d,%d)" % [user.get("name", "?"), new_pos.x, new_pos.y], Color(0.7, 0.9, 0.7))
 		EventBus.position_changed.emit(user.get("id", ""), user_pos, new_pos)
 		_update_unit_visuals()
+		_highlight_current_unit()
 
 
 ## Find which equipment grants a skill for a unit
@@ -1859,7 +1865,11 @@ func _handle_tile_interaction(interaction: Dictionary) -> void:
 
 
 func _get_skill_equipment(unit: Dictionary, skill_id: String) -> String:
-	for equip_id in unit.get("equipment", []):
+	var unit_equipment = unit.get("equipment", {})
+	for slot in unit_equipment:
+		var equip_id = unit_equipment[slot]
+		if equip_id == null or equip_id == "":
+			continue
 		var equip = equipment_data.get(equip_id, {})
 		if skill_id in equip.get("granted_skills", []):
 			return equip_id

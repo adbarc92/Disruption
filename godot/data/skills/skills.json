@@ -1,0 +1,1185 @@
+{
+  "skills": [
+    {
+      "id": "basic_attack",
+      "name": "Attack",
+      "description": "A basic physical attack.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "damage": {
+        "base": 20,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 5,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "defend",
+      "name": "Defend",
+      "description": "Brace for incoming attacks, reducing damage taken until your next turn.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "effect": {
+        "type": "self_buff",
+        "status": "defending",
+        "damage_reduction": { "physical": 0.5, "elemental": 0.5, "magical": 0.5 },
+        "duration": 1
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 3,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "shove",
+      "name": "Shove",
+      "description": "Push an enemy back 1 space, dealing minor damage.",
+      "action_type": "action",
+      "mp_cost": 1,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "knockback",
+        "distance": 1,
+        "direction": "away"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "grapple_pull",
+      "name": "Grapple",
+      "description": "Pull a distant enemy adjacent to you.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 10,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "pull",
+        "distance": 2,
+        "direction": "toward"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "ranged"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "heavy_swing",
+      "name": "Heavy Swing",
+      "description": "A brutal overhead slam that crushes armor.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 45,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "true_strike",
+      "name": "True Strike",
+      "description": "Lunge to target, deal piercing damage that cannot be dodged.",
+      "action_type": "action",
+      "ap_cost": 2,
+      "mp_cost": 2,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "strength",
+        "cannot_dodge": true
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "movement": {
+        "type": "to_target",
+        "ignore_intervening": true
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "cleave",
+      "name": "Cleave",
+      "description": "Strike all adjacent enemies in an arc.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "hamstring",
+      "name": "Hamstring",
+      "description": "Cripple enemy movement and speed.",
+      "action_type": "action",
+      "ap_cost": 2,
+      "mp_cost": 2,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "hamstrung",
+        "stat_modifier": { "agility": -0.5 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "poison_strike",
+      "name": "Poison Strike",
+      "description": "Inflict poison that deals damage over time.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 20,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "poisoned",
+        "damage_per_turn": 8,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "ironflesh",
+      "name": "Ironflesh",
+      "description": "Grant ally physical damage reduction.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "ally_buff",
+        "status": "iron_skin",
+        "damage_reduction": { "physical": 0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_ally",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "support"
+    },
+    {
+      "id": "derisive_snort",
+      "name": "Derisive Snort",
+      "description": "Taunt enemies to attack you.",
+      "action_type": "action",
+      "ap_cost": 2,
+      "mp_cost": 2,
+      "effect": {
+        "type": "enemy_debuff",
+        "status": "taunted",
+        "duration": 2,
+        "attacks_redirected": 3
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "bash",
+      "name": "Bash",
+      "description": "Bash an enemy, stunning them.",
+      "action_type": "action",
+      "ap_cost": 2,
+      "mp_cost": 2,
+      "damage": {
+        "base": 20,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "vigor"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "stunned",
+        "duration": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "ignite_ground",
+      "name": "Ignite Ground",
+      "description": "Set the target hex ablaze.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "fire",
+        "intensity": 1,
+        "duration": 3,
+        "placement": "target_hex"
+      },
+      "targeting": { "type": "single_enemy", "range_band": "distant" },
+      "burst_gauge_gain": 5
+    },
+    {
+      "id": "frost_sheet",
+      "name": "Frost Sheet",
+      "description": "Cover the target hex in slippery ice.",
+      "action_type": "bonus_action",
+      "mp_cost": 2,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "ice_sheet",
+        "intensity": 1,
+        "placement": "target_hex"
+      },
+      "targeting": { "type": "single_enemy", "range_band": "distant" },
+      "burst_gauge_gain": 5
+    },
+    {
+      "id": "wide_swing",
+      "name": "Wide Swing",
+      "description": "Swing across the front-line, hitting all adjacent enemies.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "raging_blossom",
+      "name": "Raging Blossom",
+      "description": "Obliterate the enemy with a series of three strikes.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength",
+        "hits": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "flat_swing",
+      "name": "Flat Swing",
+      "description": "Crush foes with the broadside, reducing their defenses.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "defense_broken",
+        "stat_modifier": { "vigor": -0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "stance_of_pitch",
+      "name": "Stance of Pitch",
+      "description": "Assume the learned form. Your next attack deals double damage.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "pitched_stance",
+        "damage_multiplier": 2.0,
+        "duration": 2,
+        "consumes_on_attack": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "resolve_break",
+      "name": "Resolve Break",
+      "description": "Shatter an opponent's will, weakening their magic and focus.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 25,
+        "type": "special",
+        "subtype": "psychic",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "resolve_broken",
+        "stat_modifier": { "resonance": -0.3, "dexterity": -0.2 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "northern_gale",
+      "name": "Northern Gale",
+      "description": "Displace an enemy upward with a sweeping cut.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "up",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "southern_breeze",
+      "name": "Southern Breeze",
+      "description": "Displace an enemy downward with a low sweep.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "down",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "break_stock",
+      "name": "Break Stock",
+      "description": "Ultimate technique. Spend all remaining MP to slash all enemies multiple times.",
+      "action_type": "action",
+      "ap_cost": 3,
+      "mp_cost": 0,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength"
+      },
+      "special": {
+        "type": "spend_all_mp",
+        "hits_formula": "mp_spent_div_2_min_2"
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "burst_gauge_gain": 25,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "edge_shift",
+      "name": "Edge Shift",
+      "description": "Reconfigure weapon element. Next 3 attacks deal the chosen element.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "weapon_buff",
+        "status": "elemental_edge",
+        "choose_element": true,
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "gout_of_flame",
+      "name": "Gout of Flame",
+      "description": "Slash in a burning arc. Weapon gains Fire for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "fire",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "fire_edge",
+        "element": "fire",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "luminous_tines",
+      "name": "Luminous Tines",
+      "description": "An overhead swing to mimic the wrath of a storm. Weapon gains Lightning for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "lightning",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "lightning_edge",
+        "element": "lightning",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "frozen_thrust",
+      "name": "Frozen Thrust",
+      "description": "A piercing thrust of ice. Weapon gains Ice for 3 hits.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "ice",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "weapon_buff",
+        "status": "ice_edge",
+        "element": "ice",
+        "attacks_remaining": 3,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "infernal_incarnate",
+      "name": "Infernal Incarnate",
+      "description": "Channel the will of the blade. +40% damage, all attacks become current element.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "effect": {
+        "type": "self_buff",
+        "status": "infernal_incarnate",
+        "stat_modifier": { "strength": 0.4 },
+        "converts_attacks_to_element": true,
+        "duration": 4
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "sever_tendons",
+      "name": "Sever Tendons",
+      "description": "Precise cut to reduce physical attack damage by 20%.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "tendon_damage",
+        "stat_modifier": { "strength": -0.2 },
+        "duration": 4
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "commotion",
+      "name": "Commotion",
+      "description": "Distracting maneuvers reduce enemy accuracy by 30%.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "debuff",
+        "status": "distracted",
+        "stat_modifier": { "dexterity": -0.3 },
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "ranged"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "hook",
+      "name": "Hook",
+      "description": "Pull an enemy forward 1 tile with a hooked strike.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "forced_movement",
+        "direction": "toward_caster",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "close"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "falcon_strike",
+      "name": "Falcon Strike",
+      "description": "Strike an enemy, then retreat 1 tile.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "self_reposition",
+        "direction": "away_from_target",
+        "distance": 1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "deduce_vulnerability",
+      "name": "Deduce Vulnerability",
+      "description": "Determine an enemy's resistances and weaknesses for the entire party.",
+      "action_type": "action",
+      "mp_cost": 1,
+      "effect": {
+        "type": "reveal",
+        "reveals": "weaknesses_and_resistances",
+        "duration": -1
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "peak_efficiency",
+      "name": "Peak Efficiency",
+      "description": "Next ability costs 1 less MP and generates +50% Burst Gauge.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "optimized",
+        "mp_cost_reduction": 1,
+        "burst_gauge_bonus": 0.5,
+        "duration": 2,
+        "consumes_on_skill": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "constant_flurry",
+      "name": "Constant Flurry",
+      "description": "All multi-hit attacks gain +1 additional hit for 3 turns.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 3,
+      "effect": {
+        "type": "self_buff",
+        "status": "combat_flow",
+        "multi_hit_bonus": 1,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "poison_coating",
+      "name": "Poison Coating",
+      "description": "Apply poison to weapons. Next 5 attacks may poison enemies.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "poisoned_weapons",
+        "dot_on_hit": { "status": "poisoned", "damage_per_turn": 6, "duration": 3, "apply_chance": 0.6 },
+        "attacks_remaining": 5,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "razor_edge",
+      "name": "Razor Edge",
+      "description": "Apply Rhea's Tears to weapons. Next 5 attacks may cause bleeding.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 0,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "bleeding_weapons",
+        "dot_on_hit": { "status": "bleeding", "damage_per_turn": 8, "duration": 3, "apply_chance": 0.5 },
+        "attacks_remaining": 5,
+        "duration": 99
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "leadership",
+      "name": "Leadership",
+      "description": "Inspire allies with stat bonuses. Stacks up to 4 times.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "party_buff",
+        "status": "inspired",
+        "stat_modifier": {
+          "strength": 0.05,
+          "vigor": 0.05,
+          "dexterity": 0.05
+        },
+        "duration": 4,
+        "stackable": true,
+        "max_stacks": 4
+      },
+      "targeting": {
+        "type": "all_allies"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "support"
+    },
+    {
+      "id": "ready_stance",
+      "name": "Ready Stance",
+      "description": "Brace for the next blow. -50% physical or -25% magical damage, negate push.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "effect": {
+        "type": "self_buff",
+        "status": "braced",
+        "damage_reduction": { "physical": 0.5, "elemental": 0.25, "magical": 0.25 },
+        "negates_forced_movement": true,
+        "duration": 2,
+        "consumes_on_hit": true
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "protective_instinct",
+      "name": "Protective Instinct",
+      "description": "Set counter trigger. If any ally takes damage, counterattack the source.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "self_buff",
+        "status": "protective_instinct",
+        "counter_on_ally_hit": true,
+        "duration": 4
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "intercede",
+      "name": "Intercede",
+      "description": "Block the next hit targeting one ally, taking the damage instead.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "effect": {
+        "type": "ally_buff",
+        "status": "intercepted",
+        "redirect_damage_to": "caster",
+        "duration": 3,
+        "consumes_on_hit": true
+      },
+      "targeting": {
+        "type": "single_ally",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "again_with_vigor",
+      "name": "Again, with Vigor",
+      "description": "Repair personal defenses. Heal 30% of max HP.",
+      "action_type": "bonus_action",
+      "ap_cost": 1,
+      "mp_cost": 2,
+      "healing": {
+        "base_percent": 0.3,
+        "target": "self"
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "one_two",
+      "name": "One-Two",
+      "description": "A quick jab combo.",
+      "action_type": "action",
+      "ap_cost": 1,
+      "mp_cost": 1,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength",
+        "hits": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 6,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "uppercut",
+      "name": "Uppercut",
+      "description": "A rising strike with a chance to stun.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "stunned",
+        "duration": 1,
+        "apply_chance": 0.6
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "headclap",
+      "name": "Headclap",
+      "description": "Crunch an enemy's head between hands, reducing magic power.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 25,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "headclapped",
+        "stat_modifier": { "resonance": -0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "smash",
+      "name": "Smash",
+      "description": "Crushing downward attack. Knocks down small enemies, deals %HP to larger ones.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 40,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "knocked_down",
+        "duration": 1,
+        "size_conditional": true,
+        "knockdown_max_size": 1,
+        "hp_percent_if_large": 0.05
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "thunderfist",
+      "name": "Thunderfist",
+      "description": "A concussive punch that disorients the target.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 35,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "disoriented",
+        "stat_modifier": { "dexterity": -0.2, "agility": -0.2 },
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "striking_tips",
+      "name": "Striking Tips",
+      "description": "Damage all enemies in the front row, applying burning DOTs.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 30,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "burning",
+        "damage_per_turn": 8,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "unerring_menace",
+      "name": "Unerring Menace",
+      "description": "Unleash seven strikes, each inflicting a random negative physical status.",
+      "action_type": "action",
+      "ap_cost": 3,
+      "mp_cost": 5,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength",
+        "hits": 7
+      },
+      "effect": {
+        "type": "random_debuff_per_hit",
+        "debuff_pool": ["weakened", "defense_broken", "disoriented", "hamstrung", "tendon_damage", "distracted", "knocked_down"],
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 25,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "the_wall",
+      "name": "The Wall",
+      "description": "Create a destructible wall along the front column. HP = 75% of caster's max HP.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "create_terrain",
+        "terrain": "stone_pillar",
+        "hp_percent_of_caster": 0.75,
+        "placement": "front_column"
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "defensive"
+    },
+    {
+      "id": "earthquake",
+      "name": "Earthquake",
+      "description": "Shake the entire battlefield with earth damage.",
+      "action_type": "action",
+      "mp_cost": 4,
+      "equipment_charge_cost": 1,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "earth",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "all_enemies"
+      },
+      "burst_gauge_gain": 15,
+      "burst_charge_type": "aggressive"
+    },
+    {
+      "id": "pitfall",
+      "name": "Pitfall",
+      "description": "Collapse the ground beneath an enemy, rooting them in place.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "equipment_charge_cost": 1,
+      "effect": {
+        "type": "debuff",
+        "status": "rooted",
+        "prevents_movement": true,
+        "duration": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "technical"
+    },
+    {
+      "id": "stonefist",
+      "name": "Stonefist",
+      "description": "Rip stone from the ground and launch at an enemy. Chance to knock down.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "equipment_charge_cost": 1,
+      "damage": {
+        "base": 40,
+        "type": "elemental",
+        "subtype": "earth",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "knocked_down",
+        "duration": 1,
+        "apply_chance": 0.5
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    }
+  ]
+}

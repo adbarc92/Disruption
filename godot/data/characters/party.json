@@ -1,5 +1,4 @@
 {
-  "_FIXME": "Values need tweaking - these are placeholder stats for vertical slice",
   "characters": [
     {
       "id": "cyrus",
@@ -14,7 +13,16 @@
         "agility": 6
       },
       "equipment_proficiencies": ["greatsword", "longsword", "device"],
-      "equipment": ["shifting_blade", "tactical_chronometer"],
+      "max_devices": 3,
+      "equipment": {
+        "weapon": "shifting_blade",
+        "helmet": "wooden_helmet",
+        "chest": "wooden_chestplate",
+        "gloves": "wooden_gauntlets",
+        "boots": "wooden_boots",
+        "accessory_1": "tactical_chronometer",
+        "accessory_2": null
+      },
       "burst_mode": {
         "name": "Elemental Mastery",
         "duration": 5,
@@ -39,7 +47,16 @@
         "agility": 8
       },
       "equipment_proficiencies": ["dagger", "shortsword", "consumable_device", "gadget"],
-      "equipment": ["poison_vial", "hookshot"],
+      "max_devices": 3,
+      "equipment": {
+        "weapon": "paired_shortswords",
+        "helmet": "wooden_helmet",
+        "chest": "wooden_chestplate",
+        "gloves": "wooden_gauntlets",
+        "boots": "wooden_boots",
+        "accessory_1": "poison_vial",
+        "accessory_2": "hookshot"
+      },
       "burst_mode": {
         "name": "Master Tactician",
         "duration": 5,
@@ -64,7 +81,16 @@
         "agility": 4
       },
       "equipment_proficiencies": ["gauntlet", "fist", "heavy_armor"],
-      "equipment": ["earth_gauntlets"],
+      "max_devices": 3,
+      "equipment": {
+        "weapon": "earth_gauntlets",
+        "helmet": "wooden_helmet",
+        "chest": "wooden_chestplate",
+        "gloves": "wooden_gauntlets",
+        "boots": "wooden_boots",
+        "accessory_1": null,
+        "accessory_2": null
+      },
       "burst_mode": {
         "name": "Mountain King",
         "duration": 6,

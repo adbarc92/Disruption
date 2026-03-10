@@ -29,6 +29,14 @@ func _ready() -> void:
 	visible = false
 
 
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_cancel"):
+		_on_cancel_pressed()
+		get_viewport().set_input_as_handled()
+
+
 ## Show skills for a unit (unified grid version)
 func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary = {}, grid: Dictionary = {}, grid_size: Vector2i = Vector2i(10, 6), ap_system = null, equip_data: Dictionary = {}) -> void:
 	current_unit = unit
@@ -56,8 +64,8 @@ func _populate_skill_list() -> void:
 	var current_mp = current_unit.get("current_mp", 0)
 
 	for ability_id in abilities:
-		# Skip basic attack (handled by Attack button)
-		if ability_id == "basic_attack":
+		# Skip skills handled by main action buttons
+		if ability_id in ["basic_attack", "defend"]:
 			continue
 
 		var skill = skills_data.get(ability_id, {})
@@ -105,7 +113,11 @@ func _populate_skill_list() -> void:
 		# Check equipment charges
 		if charge_cost > 0 and can_use:
 			var has_charges = false
-			for equip_id in current_unit.get("equipment", []):
+			var unit_equipment = current_unit.get("equipment", {})
+			for slot in unit_equipment:
+				var equip_id = unit_equipment[slot]
+				if equip_id == null or equip_id == "":
+					continue
 				if skill.get("id", "") in _equip_data.get(equip_id, {}).get("granted_skills", []):
 					var unit_charges = current_unit.get("equipment_charges", {})
 					if unit_charges.get(equip_id, 0) >= charge_cost:

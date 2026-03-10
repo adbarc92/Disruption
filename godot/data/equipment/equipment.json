@@ -1,0 +1,86 @@
+{
+  "equipment": [
+    {
+      "id": "shifting_blade",
+      "name": "The Shifting Blade",
+      "description": "A runic greatsword that can reconfigure its elemental affinity. A gift from Phaidros.",
+      "category": "greatsword",
+      "slot": "weapon",
+      "stat_bonuses": { "strength": 2 },
+      "charges": 3,
+      "granted_skills": ["edge_shift", "gout_of_flame", "luminous_tines", "frozen_thrust", "infernal_incarnate"]
+    },
+    {
+      "id": "paired_shortswords",
+      "name": "Paired Shortswords",
+      "description": "A matched set of short blades for dual-wielding.",
+      "category": "shortsword",
+      "slot": "weapon",
+      "stat_bonuses": { "dexterity": 1 }
+    },
+    {
+      "id": "earth_gauntlets",
+      "name": "Earth Gauntlets",
+      "description": "Ancient gauntlets imbued with the power of the earth.",
+      "category": "gauntlet",
+      "slot": "weapon",
+      "stat_bonuses": { "vigor": 1, "strength": 1 },
+      "charges": 4,
+      "granted_skills": ["the_wall", "earthquake", "pitfall", "stonefist"]
+    },
+    {
+      "id": "wooden_helmet",
+      "name": "Wooden Helmet",
+      "description": "A simple helmet carved from hardwood.",
+      "slot": "helmet",
+      "stat_bonuses": { "vigor": 1 }
+    },
+    {
+      "id": "wooden_chestplate",
+      "name": "Wooden Chestplate",
+      "description": "A basic chestplate of layered wood panels.",
+      "slot": "chest",
+      "stat_bonuses": { "vigor": 1 }
+    },
+    {
+      "id": "wooden_gauntlets",
+      "name": "Wooden Gauntlets",
+      "description": "Simple hand guards made from shaped wood.",
+      "slot": "gloves",
+      "stat_bonuses": { "strength": 1 }
+    },
+    {
+      "id": "wooden_boots",
+      "name": "Wooden Boots",
+      "description": "Sturdy wooden-soled boots.",
+      "slot": "boots",
+      "stat_bonuses": { "agility": 1 }
+    },
+    {
+      "id": "tactical_chronometer",
+      "name": "Tactical Chronometer",
+      "description": "A precision device that manipulates turn order.",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 2
+    },
+    {
+      "id": "poison_vial",
+      "name": "Poison Vial",
+      "description": "A vial of potent poison. Apply to weapons to envenom attacks.",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 1,
+      "granted_skills": ["poison_coating", "poison_strike"]
+    },
+    {
+      "id": "hookshot",
+      "name": "Hookshot",
+      "description": "A mechanical grappling device that pulls distant enemies close.",
+      "slot": "accessory",
+      "stat_bonuses": {},
+      "charges": 3,
+      "granted_skills": ["grapple_pull"]
+    }
+  ]
+}
