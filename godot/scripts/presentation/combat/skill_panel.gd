@@ -64,8 +64,8 @@ func _populate_skill_list() -> void:
 	var current_mp = current_unit.get("current_mp", 0)
 
 	for ability_id in abilities:
-		# Skip basic attack (handled by Attack button)
-		if ability_id == "basic_attack":
+		# Skip skills handled by main action buttons
+		if ability_id in ["basic_attack", "defend"]:
 			continue
 
 		var skill = skills_data.get(ability_id, {})
