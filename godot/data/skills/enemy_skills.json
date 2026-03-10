@@ -1,0 +1,186 @@
+{
+  "skills": [
+    {
+      "id": "frenzy",
+      "name": "Frenzy",
+      "description": "Attack twice in rapid succession.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 18,
+        "type": "physical",
+        "subtype": "slash",
+        "stat_scaling": "strength",
+        "hits": 2
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    },
+
+    {
+      "id": "venom_spit",
+      "name": "Venom Spit",
+      "description": "Ranged poison attack.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "pierce",
+        "stat_scaling": "dexterity"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "poisoned",
+        "damage_per_turn": 6,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "ranged"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "technical"
+    },
+
+    {
+      "id": "corrupting_aura",
+      "name": "Corrupting Aura",
+      "description": "Weaken all nearby enemies.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "effect": {
+        "type": "aoe_debuff",
+        "status": "corrupted",
+        "stat_modifier": { "vigor": -0.2, "resonance": -0.2 },
+        "duration": 2
+      },
+      "targeting": {
+        "type": "aoe_adjacent_enemies",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "support"
+    },
+
+    {
+      "id": "heal_self",
+      "name": "Regenerate",
+      "description": "Restore your own HP.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "healing": {
+        "base": 30,
+        "stat_scaling": "vigor"
+      },
+      "targeting": {
+        "type": "self"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "defensive"
+    },
+
+    {
+      "id": "weaken",
+      "name": "Weaken",
+      "description": "Reduce enemy's damage output.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 15,
+        "type": "physical",
+        "subtype": "blunt",
+        "stat_scaling": "strength"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "weakened",
+        "stat_modifier": { "strength": -0.3 },
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "adjacent",
+        "range_band": "melee"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "defensive"
+    },
+
+    {
+      "id": "ignite",
+      "name": "Ignite",
+      "description": "Set enemy ablaze, dealing fire damage over time.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 25,
+        "type": "elemental",
+        "subtype": "fire",
+        "stat_scaling": "resonance"
+      },
+      "effect": {
+        "type": "debuff",
+        "status": "burning",
+        "damage_per_turn": 10,
+        "duration": 3
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "ranged"
+      },
+      "burst_gauge_gain": 12,
+      "burst_charge_type": "aggressive"
+    },
+
+    {
+      "id": "dark_bolt",
+      "name": "Dark Bolt",
+      "description": "Fire a bolt of shadow magic.",
+      "action_type": "action",
+      "mp_cost": 2,
+      "damage": {
+        "base": 30,
+        "type": "magical",
+        "subtype": "arcane",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 8,
+      "burst_charge_type": "aggressive"
+    },
+
+    {
+      "id": "lightning_bolt",
+      "name": "Lightning Bolt",
+      "description": "Strike with chain lightning.",
+      "action_type": "action",
+      "mp_cost": 3,
+      "damage": {
+        "base": 35,
+        "type": "elemental",
+        "subtype": "lightning",
+        "stat_scaling": "resonance"
+      },
+      "targeting": {
+        "type": "single_enemy",
+        "range": "any",
+        "range_band": "distant"
+      },
+      "burst_gauge_gain": 10,
+      "burst_charge_type": "aggressive"
+    }
+  ]
+}
