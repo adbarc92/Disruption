@@ -461,7 +461,11 @@ func _load_units_from_encounter() -> void:
 
 		# Initialize equipment charges
 		var equip_charges = {}
-		for equip_id in member.get("equipment", []):
+		var member_equipment = member.get("equipment", {})
+		for slot in member_equipment:
+			var equip_id = member_equipment[slot]
+			if equip_id == null or equip_id == "":
+				continue
 			var equip = equipment_data.get(equip_id, {})
 			if equip.get("charges", 0) > 0:
 				equip_charges[equip_id] = equip.charges
@@ -1859,7 +1863,11 @@ func _handle_tile_interaction(interaction: Dictionary) -> void:
 
 
 func _get_skill_equipment(unit: Dictionary, skill_id: String) -> String:
-	for equip_id in unit.get("equipment", []):
+	var unit_equipment = unit.get("equipment", {})
+	for slot in unit_equipment:
+		var equip_id = unit_equipment[slot]
+		if equip_id == null or equip_id == "":
+			continue
 		var equip = equipment_data.get(equip_id, {})
 		if skill_id in equip.get("granted_skills", []):
 			return equip_id
