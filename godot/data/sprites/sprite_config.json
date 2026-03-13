@@ -1,0 +1,50 @@
+{
+  "_COMMENT": "Maps unit IDs to sprite data. Party members use animated knight sheets, enemies use static sprites.",
+
+  "party": {
+    "cyrus": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour1",
+      "frame_width": 25,
+      "frame_height": 40,
+      "animations": {
+        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
+        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
+        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
+        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+      }
+    },
+    "vaughn": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour2",
+      "frame_width": 25,
+      "frame_height": 40,
+      "animations": {
+        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
+        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
+        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
+        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+      }
+    },
+    "phaidros": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour1",
+      "frame_width": 25,
+      "frame_height": 40,
+      "animations": {
+        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
+        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
+        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
+        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+      }
+    }
+  },
+
+  "enemies": {
+    "corrupted_scout": { "sprite": "res://assets/sprites/enemies/corrupted_scout.png" },
+    "corrupted_brute": { "sprite": "res://assets/sprites/enemies/corrupted_brute.png" },
+    "corrupted_caster": { "sprite": "res://assets/sprites/enemies/corrupted_caster.png" },
+    "corrupted_hexer": { "sprite": "res://assets/sprites/enemies/corrupted_hexer.png" },
+    "corrupted_brawler": { "sprite": "res://assets/sprites/enemies/corrupted_brawler.png" },
+    "corrupted_leech": { "sprite": "res://assets/sprites/enemies/corrupted_leech.png" },
+    "corrupted_imp": { "sprite": "res://assets/sprites/enemies/corrupted_imp.png" },
+    "corrupted_champion": { "sprite": "res://assets/sprites/enemies/corrupted_champion.png" }
+  }
+}

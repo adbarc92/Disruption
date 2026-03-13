@@ -2,8 +2,13 @@ extends Node2D
 class_name UnitVisual
 ## UnitVisual - Persistent visual representation of a combat unit
 ## All elements (name, bars, status dots) fit within the unit body rect.
+## Displays animated knight sprites for party members, static sprites for enemies.
 
 const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_config_loader.gd")
+
+# Sprite config (loaded once, shared across instances)
+static var _sprite_config: Dictionary = {}
+static var _sprite_config_loaded: bool = false
 
 # Base proportions (will scale with cell size)
 const BASE_UNIT_WIDTH = 56.0
@@ -35,6 +40,7 @@ var cell_size: Vector2 = Vector2(48, 48)
 # Child nodes
 var border_rect: Polygon2D
 var body_rect: Polygon2D
+var unit_sprite: Sprite2D
 var name_label: Label
 var hp_bar_bg: Polygon2D
 var hp_bar_fill: Polygon2D
@@ -47,6 +53,15 @@ var flash_overlay: Polygon2D
 var status_container: Node2D
 var soil_badge: Label
 
+# Sprite animation state
+var _anim_frames: int = 0
+var _anim_fps: float = 0.0
+var _anim_timer: float = 0.0
+var _anim_current_frame: int = 0
+var _frame_width: int = 0
+var _frame_height: int = 0
+var _has_sprite: bool = false
+
 # Flash state
 var flash_timer: float = 0.0
 const FLASH_DURATION = 0.15
@@ -55,12 +70,24 @@ enum DetailLevel { FULL, REDUCED, MINIMAL }
 var detail_level: DetailLevel = DetailLevel.FULL
 
 
+static func _load_sprite_config() -> void:
+	if _sprite_config_loaded:
+		return
+	var file = FileAccess.open("res://data/sprites/sprite_config.json", FileAccess.READ)
+	if file:
+		var json = JSON.new()
+		if json.parse(file.get_as_text()) == OK:
+			_sprite_config = json.data
+	_sprite_config_loaded = true
+
+
 func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48)) -> void:
 	unit_id = unit.get("id", "")
 	is_ally = ally
 	has_burst = not unit.get("burst_mode", {}).is_empty()
 	cell_size = p_cell_size
 	_calculate_scaled_sizes()
+	_load_sprite_config()
 
 	var border_color = Color(0.3, 0.5, 0.8) if is_ally else Color(0.8, 0.2, 0.2)
 	var body_color = Color(0.12, 0.12, 0.18)
@@ -77,29 +104,37 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	body_rect.color = body_color
 	add_child(body_rect)
 
-	# Name label (inside top of body)
+	# Unit sprite (on top of body, behind UI elements)
+	_setup_sprite(unit)
+
+	# Name label (inside top of body, with background for readability over sprite)
 	name_label = Label.new()
 	name_label.text = unit.get("name", "???")
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if _has_sprite:
+		var name_bg = StyleBoxFlat.new()
+		name_bg.bg_color = Color(0.0, 0.0, 0.0, 0.6)
+		name_label.add_theme_stylebox_override("normal", name_bg)
 	add_child(name_label)
 
 	# Bars are stacked from bottom of body upward:
 	# Bottom:   MP bar
 	# Above MP: HP bar
 	# Above HP: Burst bar (allies only)
+	var bar_bg_color = Color(0.1, 0.1, 0.1, 0.85) if _has_sprite else Color(0.2, 0.2, 0.2)
 	var bar_bottom = UNIT_HEIGHT - INSET
 
 	# MP bar
 	var mp_y = bar_bottom - BAR_HEIGHT
-	mp_bar_bg = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
+	mp_bar_bg = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, bar_bg_color)
 	add_child(mp_bar_bg)
 	mp_bar_fill = _create_bar(BAR_OFFSET_X, mp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.4, 0.9))
 	add_child(mp_bar_fill)
 
 	# HP bar
 	var hp_y = mp_y - BAR_HEIGHT - BAR_GAP
-	hp_bar_bg = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
+	hp_bar_bg = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, bar_bg_color)
 	add_child(hp_bar_bg)
 	hp_bar_fill = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.8, 0.2))
 	add_child(hp_bar_fill)
@@ -107,7 +142,7 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	# Burst bar (units with burst_mode data)
 	if has_burst:
 		var burst_y = hp_y - BAR_HEIGHT - BAR_GAP
-		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.2, 0.2))
+		burst_bar_bg = _create_bar(BAR_OFFSET_X, burst_y, BAR_WIDTH, BAR_HEIGHT, bar_bg_color)
 		add_child(burst_bar_bg)
 		burst_bar_fill = _create_bar(BAR_OFFSET_X, burst_y, 0, BAR_HEIGHT, Color(0.9, 0.75, 0.1))
 		add_child(burst_bar_fill)
@@ -142,6 +177,102 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 
 	_apply_layout()
 	update_stats(unit)
+
+
+func _setup_sprite(unit: Dictionary) -> void:
+	var uid = unit.get("id", "")
+	var sprite_data: Dictionary = {}
+
+	# Check party config first, then enemies
+	if _sprite_config.has("party") and _sprite_config["party"].has(uid):
+		sprite_data = _sprite_config["party"][uid]
+		_setup_animated_sprite(sprite_data)
+	elif _sprite_config.has("enemies") and _sprite_config["enemies"].has(uid):
+		sprite_data = _sprite_config["enemies"][uid]
+		_setup_static_sprite(sprite_data)
+
+
+func _setup_animated_sprite(config: Dictionary) -> void:
+	var folder = config.get("sprite_folder", "")
+	var animations = config.get("animations", {})
+	if not animations.has("idle") or folder.is_empty():
+		return
+
+	var idle_anim = animations["idle"]
+	var sheet_path = folder + "/" + idle_anim.get("sheet", "")
+	var texture = load(sheet_path)
+	if texture == null:
+		return
+
+	_frame_width = config.get("frame_width", 120)
+	_frame_height = config.get("frame_height", 80)
+	_anim_frames = idle_anim.get("frames", 1)
+	_anim_fps = idle_anim.get("fps", 8.0)
+	_anim_current_frame = 0
+	_anim_timer = 0.0
+
+	unit_sprite = Sprite2D.new()
+	unit_sprite.texture = texture
+	unit_sprite.hframes = _anim_frames
+	unit_sprite.vframes = 1
+	unit_sprite.frame = 0
+	unit_sprite.centered = true
+	# Flip enemies to face left (party faces right by default)
+	if not is_ally:
+		unit_sprite.flip_h = true
+	add_child(unit_sprite)
+	_has_sprite = true
+	_apply_sprite_layout()
+
+
+func _setup_static_sprite(config: Dictionary) -> void:
+	var sprite_path = config.get("sprite", "")
+	if sprite_path.is_empty():
+		return
+
+	var texture = load(sprite_path)
+	if texture == null:
+		return
+
+	unit_sprite = Sprite2D.new()
+	unit_sprite.texture = texture
+	unit_sprite.centered = true
+	# Flip enemies to face left
+	if not is_ally:
+		unit_sprite.flip_h = true
+	add_child(unit_sprite)
+	_has_sprite = true
+	_anim_frames = 0  # No animation
+	_apply_sprite_layout()
+
+
+func _apply_sprite_layout() -> void:
+	if not unit_sprite:
+		return
+
+	if UNIT_WIDTH <= 0 or UNIT_HEIGHT <= 0:
+		unit_sprite.visible = false
+		return
+
+	# Get frame dimensions
+	var tex_w: float
+	var tex_h: float
+	if _anim_frames > 0:
+		tex_w = float(_frame_width)
+		tex_h = float(_frame_height)
+	else:
+		tex_w = float(unit_sprite.texture.get_width())
+		tex_h = float(unit_sprite.texture.get_height())
+
+	# Scale frame to fit within the unit rect
+	var scale_x = UNIT_WIDTH / tex_w
+	var scale_y = UNIT_HEIGHT / tex_h
+	var sprite_scale = min(scale_x, scale_y)
+	unit_sprite.scale = Vector2(sprite_scale, sprite_scale)
+
+	# With centered=true, the frame center aligns with position.
+	unit_sprite.position = Vector2(UNIT_WIDTH / 2.0, UNIT_HEIGHT / 2.0)
+	unit_sprite.visible = true
 
 
 func _calculate_scaled_sizes() -> void:
@@ -216,6 +347,9 @@ func _apply_layout() -> void:
 		soil_badge.position = Vector2(UNIT_WIDTH - badge_size - INSET, INSET)
 		soil_badge.size = Vector2(badge_size, badge_size)
 		soil_badge.add_theme_font_size_override("font_size", small_font)
+
+	# Update sprite layout when cell size changes
+	_apply_sprite_layout()
 
 
 func update_scale(p_cell_size: Vector2) -> void:
@@ -369,12 +503,22 @@ func flash_damage() -> void:
 
 
 func _process(delta: float) -> void:
+	# Flash damage effect
 	if flash_timer > 0:
 		flash_timer -= delta
 		var alpha = (flash_timer / FLASH_DURATION) * 0.6
 		flash_overlay.color = Color(1.0, 1.0, 1.0, max(0.0, alpha))
 		if flash_timer <= 0:
 			flash_overlay.color = Color(1.0, 1.0, 1.0, 0.0)
+
+	# Sprite idle animation
+	if _has_sprite and _anim_frames > 1 and _anim_fps > 0:
+		_anim_timer += delta
+		var frame_duration = 1.0 / _anim_fps
+		if _anim_timer >= frame_duration:
+			_anim_timer -= frame_duration
+			_anim_current_frame = (_anim_current_frame + 1) % _anim_frames
+			unit_sprite.frame = _anim_current_frame
 
 
 func _create_bar(x: float, y: float, w: float, h: float, color: Color) -> Polygon2D:
