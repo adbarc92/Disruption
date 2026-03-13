@@ -78,6 +78,7 @@ const ACTION_LOG_MAX_LINES = 200
 @onready var grid_node: Node2D = $BattleGrid/Grid
 @onready var turn_list: VBoxContainer = $UI/TurnOrderPanel/TurnList
 @onready var status_label: Label = $UI/StatusLabel
+@onready var battle_music: AudioStreamPlayer = $BattleMusic
 @onready var action_panel: Panel = $UI/ActionPanel
 @onready var ap_label: Label = $UI/ActionPanel/APLabel
 @onready var turn_preview_label: Label = $UI/ActionPanel/TurnPreviewLabel
@@ -2011,6 +2012,12 @@ func _end_combat(victory: bool) -> void:
 	action_panel.visible = false
 	skill_panel.hide_panel()
 	_clear_turn_highlight()
+
+	# Fade out battle music
+	if battle_music and battle_music.playing:
+		var tween = create_tween()
+		tween.tween_property(battle_music, "volume_db", -40.0, 1.5)
+		tween.tween_callback(battle_music.stop)
 
 	status_manager.clear_all()
 	tile_env_manager.clear_all()
