@@ -1,13 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://main_scene"]
+[gd_scene format=3 uid="uid://do3wuoiwr7rk"]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://c0cc4uw50id0b" path="res://scripts/main.gd" id="1_main"]
 
-[node name="Main" type="Node"]
+[node name="Main" type="Node" unique_id=1842725863]
 script = ExtResource("1_main")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=837782740]
 
-[node name="TitleLabel" type="Label" parent="CanvasLayer"]
+[node name="TitleLabel" type="Label" parent="CanvasLayer" unique_id=1044505618]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -24,7 +24,7 @@ text = "DISRUPTION"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SubtitleLabel" type="Label" parent="CanvasLayer"]
+[node name="SubtitleLabel" type="Label" parent="CanvasLayer" unique_id=953949748]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -33,7 +33,6 @@ anchor_bottom = 0.5
 offset_left = -200.0
 offset_top = -40.0
 offset_right = 200.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 18
@@ -41,7 +40,7 @@ text = "Vertical Slice - Development Build"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StartButton" type="Button" parent="CanvasLayer"]
+[node name="StartButton" type="Button" parent="CanvasLayer" unique_id=351833395]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -55,7 +54,7 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Start Game"
 
-[node name="TestCombatButton" type="Button" parent="CanvasLayer"]
+[node name="TestCombatButton" type="Button" parent="CanvasLayer" unique_id=1811049488]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -69,7 +68,7 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Test Combat"
 
-[node name="TestExplorationButton" type="Button" parent="CanvasLayer"]
+[node name="TestExplorationButton" type="Button" parent="CanvasLayer" unique_id=127844358]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -83,7 +82,7 @@ grow_horizontal = 2
 grow_vertical = 2
 text = "Test Exploration"
 
-[node name="VersionLabel" type="Label" parent="CanvasLayer"]
+[node name="VersionLabel" type="Label" parent="CanvasLayer" unique_id=807868165]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
