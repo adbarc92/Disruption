@@ -10,6 +10,9 @@ const CombatConfigLoaderClass = preload("res://scripts/logic/combat/combat_confi
 static var _sprite_config: Dictionary = {}
 static var _sprite_config_loaded: bool = false
 
+# Auto-detected content rects cache (sheet_path -> Rect2)
+static var _content_rect_cache: Dictionary = {}
+
 # Base proportions (will scale with cell size)
 const BASE_UNIT_WIDTH = 56.0
 const BASE_UNIT_HEIGHT = 70.0
@@ -89,6 +92,50 @@ static func _load_sprite_config() -> void:
 		if json.parse(file.get_as_text()) == OK:
 			_sprite_config = json.data
 	_sprite_config_loaded = true
+
+
+## Auto-detect the visible content bounding box for a sprite sheet by scanning
+## pixel alpha. Returns the union bbox across all frames. Results are cached.
+static func _detect_content_rect(texture: Texture2D, frame_w: int, frame_h: int, num_frames: int) -> Rect2:
+	var cache_key = texture.resource_path + ":" + str(num_frames)
+	if _content_rect_cache.has(cache_key):
+		return _content_rect_cache[cache_key]
+
+	var image: Image = texture.get_image()
+	if image == null:
+		return Rect2(0, 0, frame_w, frame_h)
+
+	var min_x := frame_w
+	var min_y := frame_h
+	var max_x := 0
+	var max_y := 0
+
+	for f in range(num_frames):
+		var x_offset = f * frame_w
+		for y in range(frame_h):
+			for x in range(frame_w):
+				if image.get_pixel(x_offset + x, y).a > 0.01:
+					min_x = min(min_x, x)
+					min_y = min(min_y, y)
+					max_x = max(max_x, x + 1)
+					max_y = max(max_y, y + 1)
+
+	var result: Rect2
+	if max_x <= min_x or max_y <= min_y:
+		result = Rect2(0, 0, frame_w, frame_h)
+	else:
+		result = Rect2(min_x, min_y, max_x - min_x, max_y - min_y)
+
+	_content_rect_cache[cache_key] = result
+	return result
+
+
+## Resolve content rect: use manual config if provided, otherwise auto-detect.
+func _resolve_content_rect(anim_data: Dictionary, texture: Texture2D, num_frames: int) -> Rect2:
+	var cr = anim_data.get("content_rect", [])
+	if cr.size() == 4:
+		return Rect2(cr[0], cr[1], cr[2], cr[3])
+	return _detect_content_rect(texture, _frame_width, _frame_height, num_frames)
 
 
 func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48)) -> void:
@@ -219,13 +266,9 @@ func _setup_animated_sprite(config: Dictionary) -> void:
 	if texture == null:
 		return
 
-	var cr = idle_anim.get("content_rect", [])
-	if cr.size() == 4:
-		_content_rect = Rect2(cr[0], cr[1], cr[2], cr[3])
-	else:
-		_content_rect = Rect2(0, 0, _frame_width, _frame_height)
-	_idle_content_rect = _content_rect
 	_anim_frames = idle_anim.get("frames", 1)
+	_content_rect = _resolve_content_rect(idle_anim, texture, _anim_frames)
+	_idle_content_rect = _content_rect
 	_anim_fps = idle_anim.get("fps", 8.0)
 	_anim_current_frame = 0
 	_anim_timer = 0.0
@@ -557,12 +600,7 @@ func play_animation(anim_name: String) -> void:
 	_anim_timer = 0.0
 	_anim_looping = false
 	_oneshot_timer = ONESHOT_HOLD_DURATION if _anim_frames <= 1 else -1.0
-
-	var cr = anim_data.get("content_rect", [])
-	if cr.size() == 4:
-		_content_rect = Rect2(cr[0], cr[1], cr[2], cr[3])
-	else:
-		_content_rect = Rect2(0, 0, _frame_width, _frame_height)
+	_content_rect = _resolve_content_rect(anim_data, texture, _anim_frames)
 
 	unit_sprite.texture = texture
 	unit_sprite.hframes = _anim_frames
@@ -596,12 +634,7 @@ func _return_to_idle() -> void:
 	_anim_current_frame = 0
 	_anim_timer = 0.0
 	_anim_looping = true
-
-	var cr = idle_anim.get("content_rect", [])
-	if cr.size() == 4:
-		_content_rect = Rect2(cr[0], cr[1], cr[2], cr[3])
-	else:
-		_content_rect = Rect2(0, 0, _frame_width, _frame_height)
+	_content_rect = _idle_content_rect
 
 	unit_sprite.texture = texture
 	unit_sprite.hframes = _anim_frames
