@@ -60,6 +60,7 @@ var _anim_timer: float = 0.0
 var _anim_current_frame: int = 0
 var _frame_width: int = 0
 var _frame_height: int = 0
+var _content_rect: Rect2 = Rect2()  # Visible content region within frame (x, y, w, h)
 var _has_sprite: bool = false
 
 # Flash state
@@ -206,6 +207,11 @@ func _setup_animated_sprite(config: Dictionary) -> void:
 
 	_frame_width = config.get("frame_width", 120)
 	_frame_height = config.get("frame_height", 80)
+	var cr = idle_anim.get("content_rect", [])
+	if cr.size() == 4:
+		_content_rect = Rect2(cr[0], cr[1], cr[2], cr[3])
+	else:
+		_content_rect = Rect2(0, 0, _frame_width, _frame_height)
 	_anim_frames = idle_anim.get("frames", 1)
 	_anim_fps = idle_anim.get("fps", 8.0)
 	_anim_current_frame = 0
@@ -254,24 +260,32 @@ func _apply_sprite_layout() -> void:
 		unit_sprite.visible = false
 		return
 
-	# Get frame dimensions
+	# Get frame dimensions and content region
 	var tex_w: float
 	var tex_h: float
+	var content: Rect2
 	if _anim_frames > 0:
 		tex_w = float(_frame_width)
 		tex_h = float(_frame_height)
+		content = _content_rect
 	else:
 		tex_w = float(unit_sprite.texture.get_width())
 		tex_h = float(unit_sprite.texture.get_height())
+		content = Rect2(0, 0, tex_w, tex_h)
 
-	# Scale frame to fit within the unit rect
-	var scale_x = UNIT_WIDTH / tex_w
-	var scale_y = UNIT_HEIGHT / tex_h
+	# Scale so the visible content fits within the unit rect
+	var scale_x = UNIT_WIDTH / content.size.x
+	var scale_y = UNIT_HEIGHT / content.size.y
 	var sprite_scale = min(scale_x, scale_y)
 	unit_sprite.scale = Vector2(sprite_scale, sprite_scale)
 
-	# With centered=true, the frame center aligns with position.
-	unit_sprite.position = Vector2(UNIT_WIDTH / 2.0, UNIT_HEIGHT / 2.0)
+	# Offset so the content center aligns with the rect center.
+	# With centered=true, the full frame center sits at the sprite position.
+	# We shift by the difference between frame center and content center.
+	var frame_center = Vector2(tex_w / 2.0, tex_h / 2.0)
+	var content_center = content.position + content.size / 2.0
+	var offset = (frame_center - content_center) * sprite_scale
+	unit_sprite.position = Vector2(UNIT_WIDTH / 2.0, UNIT_HEIGHT / 2.0) + offset
 	unit_sprite.visible = true
 
 

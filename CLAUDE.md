@@ -113,7 +113,13 @@ data/
 └── combat/              # Battle configurations (JSON)
 ```
 
-**6. Future Unreal Consideration**
+**6. Sprite Sheet Content Rects**
+- Sprite sheet frames often contain large transparent padding around the actual character art
+- Never scale sprites based on the full frame dimensions — use a `content_rect` (the bounding box of visible pixels) per animation in `sprite_config.json`
+- Content rects vary significantly between animations (e.g., idle is tall/narrow, attack is wide) so they must be defined per-animation, not per-character
+- When adding new sprite sheets, measure the content bounding box across all frames of each animation to determine its `content_rect [x, y, w, h]`
+
+**7. Future Unreal Consideration**
 - GDScript classes that contain pure game logic should be written in a style that translates easily to C++ or Blueprints
 - Avoid GDScript-specific idioms where a more universal pattern exists
 - Document any Godot-specific workarounds that would need reimplementation

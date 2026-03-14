@@ -1,38 +1,38 @@
 {
-  "_COMMENT": "Maps unit IDs to sprite data. Party members use animated knight sheets, enemies use static sprites.",
+  "_COMMENT": "Maps unit IDs to sprite data. Per-animation content_rect [x, y, w, h] defines the visible content region within each frame for accurate scaling and centering.",
 
   "party": {
     "cyrus": {
       "sprite_folder": "res://assets/sprites/characters/knight_colour1",
-      "frame_width": 25,
-      "frame_height": 40,
+      "frame_width": 120,
+      "frame_height": 80,
       "animations": {
-        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
-        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
-        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
-        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
       }
     },
     "vaughn": {
       "sprite_folder": "res://assets/sprites/characters/knight_colour2",
-      "frame_width": 25,
-      "frame_height": 40,
+      "frame_width": 120,
+      "frame_height": 80,
       "animations": {
-        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
-        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
-        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
-        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
       }
     },
     "phaidros": {
       "sprite_folder": "res://assets/sprites/characters/knight_colour1",
-      "frame_width": 25,
-      "frame_height": 40,
+      "frame_width": 120,
+      "frame_height": 80,
       "animations": {
-        "idle": { "sheet": "_Idle.png", "frames": 10, "fps": 8 },
-        "attack": { "sheet": "_Attack.png", "frames": 4, "fps": 10 },
-        "hit": { "sheet": "_Hit.png", "frames": 1, "fps": 1 },
-        "death": { "sheet": "_Death.png", "frames": 10, "fps": 8 }
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
       }
     }
   },
