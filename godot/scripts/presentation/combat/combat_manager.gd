@@ -1352,8 +1352,16 @@ func _handle_ai_turn() -> void:
 	_end_turn()
 
 
+func _play_unit_animation(uid: String, anim_name: String) -> void:
+	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
+		await unit_visuals[uid].play_animation_async(anim_name)
+
+
 func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:
 	var skill_name = skill.get("name", "Attack")
+
+	# Play attack animation on the user
+	await _play_unit_animation(user.get("id", ""), "attack")
 
 	# Note: MP is deducted in _on_target_selected before calling this.
 	# AI turns deduct MP in _handle_ai_turn.
@@ -1462,10 +1470,11 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 
 			_spawn_floating_text(str(result.damage), float_color, target, large)
 
-			# Flash target
+			# Flash target and play hit animation
 			var tid = target.get("id", "")
 			if unit_visuals.has(tid) and is_instance_valid(unit_visuals[tid]):
 				unit_visuals[tid].flash_damage()
+				unit_visuals[tid].play_animation("hit")
 
 			# Apply per-hit random debuff if applicable
 			if skill.has("effect") and skill.effect.get("type", "") == "random_debuff_per_hit":
