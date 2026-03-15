@@ -10,7 +10,9 @@
         "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
         "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
         "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
-        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
       }
     },
     "vaughn": {
@@ -21,7 +23,9 @@
         "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
         "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
         "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
-        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
       }
     },
     "phaidros": {
@@ -32,7 +36,9 @@
         "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
         "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
         "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
-        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] }
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
       }
     }
   },

@@ -81,6 +81,7 @@ The following animation names are recognized by the combat system:
 | Name | Purpose | Playback |
 |------|---------|----------|
 | `idle` | **Required.** Default standing animation. Loops continuously. | Loop |
+| `run` | Played during grid movement. Loops for the duration of travel. | Loop, returns to idle on arrival |
 | `attack` | Played when the unit uses a skill. | Once, then returns to idle |
 | `hit` | Played when the unit takes damage. | Once (held briefly), then returns to idle |
 | `death` | Played when the unit is defeated. | Once |

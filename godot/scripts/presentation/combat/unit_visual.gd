@@ -608,6 +608,40 @@ func play_animation(anim_name: String) -> void:
 	_apply_sprite_layout()
 
 
+## Play a named animation in a loop (e.g. "run"). Call stop_looping_animation() to return to idle.
+func play_animation_loop(anim_name: String) -> void:
+	if not _has_sprite or _sprite_folder.is_empty():
+		return
+	if not _animations.has(anim_name):
+		return
+
+	var anim_data = _animations[anim_name]
+	var sheet_path = _sprite_folder + "/" + anim_data.get("sheet", "")
+	var texture = load(sheet_path)
+	if texture == null:
+		return
+
+	_current_anim = anim_name
+	_anim_frames = anim_data.get("frames", 1)
+	_anim_fps = anim_data.get("fps", 8.0)
+	_anim_current_frame = 0
+	_anim_timer = 0.0
+	_anim_looping = true
+	_oneshot_timer = -1.0
+	_content_rect = _resolve_content_rect(anim_data, texture, _anim_frames)
+
+	unit_sprite.texture = texture
+	unit_sprite.hframes = _anim_frames
+	unit_sprite.frame = 0
+	_apply_sprite_layout()
+
+
+## Stop a looping animation and return to idle.
+func stop_looping_animation() -> void:
+	if _current_anim != "idle":
+		_return_to_idle()
+
+
 ## Convenience async wrapper: plays animation and waits for it to finish.
 func play_animation_async(anim_name: String) -> void:
 	play_animation(anim_name)
