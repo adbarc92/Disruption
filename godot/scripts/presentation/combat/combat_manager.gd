@@ -1352,8 +1352,16 @@ func _handle_ai_turn() -> void:
 	_end_turn()
 
 
+func _play_unit_animation(uid: String, anim_name: String) -> void:
+	if unit_visuals.has(uid) and is_instance_valid(unit_visuals[uid]):
+		await unit_visuals[uid].play_animation_async(anim_name)
+
+
 func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> void:
 	var skill_name = skill.get("name", "Attack")
+
+	# Play attack animation on the user
+	await _play_unit_animation(user.get("id", ""), "attack")
 
 	# Note: MP is deducted in _on_target_selected before calling this.
 	# AI turns deduct MP in _handle_ai_turn.
@@ -1462,10 +1470,11 @@ func _execute_skill(skill: Dictionary, user: Dictionary, target: Dictionary) -> 
 
 			_spawn_floating_text(str(result.damage), float_color, target, large)
 
-			# Flash target
+			# Flash target and play hit animation
 			var tid = target.get("id", "")
 			if unit_visuals.has(tid) and is_instance_valid(unit_visuals[tid]):
 				unit_visuals[tid].flash_damage()
+				unit_visuals[tid].play_animation("hit")
 
 			# Apply per-hit random debuff if applicable
 			if skill.has("effect") and skill.effect.get("type", "") == "random_debuff_per_hit":
@@ -1555,7 +1564,9 @@ func _ai_move_toward_enemies(unit: Dictionary) -> bool:
 	return true
 
 
-## Execute movement along a path
+## Execute movement along a path with smooth interpolation
+const MOVE_STEP_DURATION = 0.25  # Seconds per grid step
+
 func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vector2i] = []) -> void:
 	var unit_id = unit.get("id", "")
 	var old_pos: Vector2i = unit.get("grid_position", Vector2i(0, 0))
@@ -1569,17 +1580,32 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 	if path.is_empty():
 		return
 
-	# Animate step-by-step, checking on-enter effects at each tile
+	# Start run animation (loops until we stop it)
+	var visual = unit_visuals.get(unit_id)
+	if visual and is_instance_valid(visual):
+		visual.play_animation_loop("slide")
+
+	# Animate step-by-step with smooth interpolation
 	var final_pos = old_pos
 	for i in range(1, path.size()):
 		var step_pos = path[i]
+		var from_pos = get_centered_unit_position(path[i - 1])
+		var to_pos = get_centered_unit_position(step_pos)
+
+		# Update grid state
 		grid.erase(unit.get("grid_position", Vector2i(0, 0)))
 		unit["grid_position"] = step_pos
 		grid[step_pos] = unit_id
 		final_pos = step_pos
 
-		_update_unit_visuals()
-		await get_tree().create_timer(0.15).timeout
+		# Smoothly tween the visual position
+		if visual and is_instance_valid(visual):
+			var tween = create_tween()
+			tween.tween_property(visual, "position", to_pos, MOVE_STEP_DURATION)\
+				.from(from_pos)\
+				.set_ease(Tween.EASE_IN_OUT)\
+				.set_trans(Tween.TRANS_SINE)
+			await tween.finished
 
 		# Check on-enter tile effects at each step
 		_apply_on_enter_effects(unit, step_pos)
@@ -1589,6 +1615,13 @@ func _execute_movement(unit: Dictionary, target_pos: Vector2i, path: Array[Vecto
 			unit.erase("_movement_ended_by_tile")
 			_log_action("  %s's movement halted by tile effect!" % unit.get("name", "?"), Color(1.0, 0.6, 0.3))
 			break
+
+	# Stop run animation and return to idle
+	if visual and is_instance_valid(visual):
+		visual.stop_looping_animation()
+
+	# Sync all visuals to final grid state
+	_update_unit_visuals()
 
 	_log_action("%s moves to (%d,%d)" % [unit.get("name", "?"), final_pos.x, final_pos.y], Color(0.7, 0.9, 1.0))
 	EventBus.position_changed.emit(unit_id, old_pos, final_pos)

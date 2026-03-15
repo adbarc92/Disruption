@@ -1,0 +1,56 @@
+{
+  "_COMMENT": "Maps unit IDs to sprite data. Per-animation content_rect [x, y, w, h] defines the visible content region within each frame for accurate scaling and centering.",
+
+  "party": {
+    "cyrus": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour1",
+      "frame_width": 120,
+      "frame_height": 80,
+      "animations": {
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
+      }
+    },
+    "vaughn": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour2",
+      "frame_width": 120,
+      "frame_height": 80,
+      "animations": {
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
+      }
+    },
+    "phaidros": {
+      "sprite_folder": "res://assets/sprites/characters/knight_colour1",
+      "frame_width": 120,
+      "frame_height": 80,
+      "animations": {
+        "idle":   { "sheet": "_Idle.png",   "frames": 10, "fps": 8,  "content_rect": [44, 42, 21, 38] },
+        "attack": { "sheet": "_Attack.png", "frames": 4,  "fps": 10, "content_rect": [36, 37, 82, 43] },
+        "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
+        "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
+        "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
+      }
+    }
+  },
+
+  "enemies": {
+    "corrupted_scout": { "sprite": "res://assets/sprites/enemies/corrupted_scout.png" },
+    "corrupted_brute": { "sprite": "res://assets/sprites/enemies/corrupted_brute.png" },
+    "corrupted_caster": { "sprite": "res://assets/sprites/enemies/corrupted_caster.png" },
+    "corrupted_hexer": { "sprite": "res://assets/sprites/enemies/corrupted_hexer.png" },
+    "corrupted_brawler": { "sprite": "res://assets/sprites/enemies/corrupted_brawler.png" },
+    "corrupted_leech": { "sprite": "res://assets/sprites/enemies/corrupted_leech.png" },
+    "corrupted_imp": { "sprite": "res://assets/sprites/enemies/corrupted_imp.png" },
+    "corrupted_champion": { "sprite": "res://assets/sprites/enemies/corrupted_champion.png" }
+  }
+}
