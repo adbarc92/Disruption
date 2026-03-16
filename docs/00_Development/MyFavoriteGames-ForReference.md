@@ -55,6 +55,15 @@
 - Overdrive (Modes)
 - Conditional Turn-based Combat System
 - Defined Roles for Party Members ("Favorite Enemies")
+- Best skills: Haste, Armor Break, Cheer,
+- Story Pacing and Twists
+    - Jecht is Sin - Early
+    - Summoners die - Mid
+    - Auron is unsent
+    - What Sin is
+- Worldbuilding
+    - Pyreflies
+    - Yu Yevon
 
 ***Persona 4 Golden***
 
