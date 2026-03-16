@@ -10,6 +10,10 @@ godot/builds/
 *.pck
 *.zip
 *.exe
+
+# Source assets already copied into godot/assets/
+assets/battleThemeA.mp3
+assets/hyptosis_sprites-and-tiles-for-you.png
 *.ipa
 *.x86_64
 
