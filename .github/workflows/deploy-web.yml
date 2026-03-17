@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir -p godot/builds/web
           cd godot
-          godot --headless --export-release "Web" builds/web/Disruption.html
+          godot --headless --export-release "Web" builds/web/index.html
 
       - name: Deploy to itch.io
         uses: robpc/itchio-upload-action@v1
