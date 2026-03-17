@@ -176,16 +176,16 @@ static func is_adjacent(a: Vector2i, b: Vector2i) -> bool:
 static func _get_neighbors(pos: Vector2i, grid_size: Vector2i) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 
-	# Offsets differ based on row parity (odd rows shift right)
+	# Offsets differ based on row parity (odd rows shift right in odd-r layout)
 	var even_row_offsets = [
-		Vector2i(+1, 0), Vector2i(-1, 0),   # E, W
-		Vector2i(0, -1), Vector2i(+1, -1),  # NW, NE
-		Vector2i(0, +1), Vector2i(+1, +1),  # SW, SE
-	]
-	var odd_row_offsets = [
 		Vector2i(+1, 0), Vector2i(-1, 0),   # E, W
 		Vector2i(-1, -1), Vector2i(0, -1),  # NW, NE
 		Vector2i(-1, +1), Vector2i(0, +1),  # SW, SE
+	]
+	var odd_row_offsets = [
+		Vector2i(+1, 0), Vector2i(-1, 0),   # E, W
+		Vector2i(0, -1), Vector2i(+1, -1),  # NW, NE
+		Vector2i(0, +1), Vector2i(+1, +1),  # SW, SE
 	]
 
 	var offsets = odd_row_offsets if (pos.y & 1) else even_row_offsets

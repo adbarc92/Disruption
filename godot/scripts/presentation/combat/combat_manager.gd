@@ -82,6 +82,7 @@ const ACTION_LOG_MAX_LINES = 200
 @onready var action_panel: Panel = $UI/ActionPanel
 @onready var ap_label: Label = $UI/ActionPanel/APLabel
 @onready var turn_preview_label: Label = $UI/ActionPanel/TurnPreviewLabel
+@onready var action_desc_label: Label = $UI/ActionPanel/ActionDescLabel
 @onready var skill_panel = $UI/SkillPanel
 @onready var target_selector = $TargetSelector
 
@@ -201,7 +202,26 @@ func _ready() -> void:
 	$UI/ActionPanel/ActionButtons/EndTurnButton.pressed.connect(_on_end_turn_pressed)
 	$UI/BackButton.pressed.connect(_on_back_pressed)
 
+	# Connect action button hover for descriptions
+	var action_descriptions = {
+		"AttackButton": "Strike an adjacent enemy. (1 AP)",
+		"SkillButton": "Use a character ability. (1-3 AP)",
+		"ItemButton": "Use an item from your inventory. (1 AP)",
+		"MoveButton": "Move to a new hex on the grid. (1 AP)",
+		"DefendButton": "Brace for attacks. 50% damage reduction. Ends turn.",
+		"BurstButton": "Activate Burst Mode for a powerful transformation.",
+		"EndTurnButton": "End your turn. Unspent AP carries to next turn.",
+	}
+	for btn_name in action_descriptions:
+		var btn = $UI/ActionPanel/ActionButtons.get_node(btn_name)
+		var desc = action_descriptions[btn_name]
+		btn.mouse_entered.connect(_on_action_hover.bind(desc))
+		btn.mouse_exited.connect(_on_action_hover_end)
+		btn.focus_entered.connect(_on_action_hover.bind(desc))
+		btn.focus_exited.connect(_on_action_hover_end)
+
 	# Connect skill panel signals
+	skill_panel.external_desc_label = action_desc_label
 	skill_panel.skill_selected.connect(_on_skill_selected)
 	skill_panel.cancelled.connect(_on_skill_cancelled)
 
@@ -2095,6 +2115,8 @@ func _return_to_action_selection() -> void:
 
 	current_phase = CombatPhase.SELECTING_ACTION
 	action_panel.visible = true
+	if action_desc_label:
+		action_desc_label.text = ""
 	var burst_tag = " [BURST]" if current_unit.get("burst_active", false) else ""
 	status_label.text = "%s's turn (AP: %d)%s" % [current_unit.get("name", "?"), remaining_ap, burst_tag]
 	_log_action("  %s has %d AP remaining" % [current_unit.get("name", "?"), remaining_ap], Color(0.6, 0.8, 0.6))
@@ -2107,6 +2129,16 @@ func _return_to_action_selection() -> void:
 # ============================================================================
 # ACTION HANDLERS
 # ============================================================================
+
+func _on_action_hover(desc: String) -> void:
+	if action_desc_label:
+		action_desc_label.text = desc
+
+
+func _on_action_hover_end() -> void:
+	if action_desc_label:
+		action_desc_label.text = ""
+
 
 func _on_attack_pressed() -> void:
 	if current_phase != CombatPhase.SELECTING_ACTION:

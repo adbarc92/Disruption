@@ -1,4 +1,7 @@
 {
+  "display": {
+    "show_unit_rects": false
+  },
   "grid": {
     "columns": 7,
     "rows": 5,
@@ -18,7 +21,7 @@
     "crit_multiplier": 1.5,
     "speed_per_agility": 2,
     "mp_regen_per_turn": 2,
-    "base_damage_multiplier": 0.25,
+    "base_damage_multiplier": 0.75,
     "min_damage": 1
   },
   "ap": {

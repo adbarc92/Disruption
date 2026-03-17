@@ -100,18 +100,28 @@ custom_minimum_size = Vector2(80, 40)
 size_flags_horizontal = 3
 text = "End Turn"
 
+[node name="ActionDescLabel" type="Label" parent="UI/ActionPanel"]
+offset_left = 20.0
+offset_top = 65.0
+offset_right = -20.0
+offset_bottom = 90.0
+anchors_preset = 10
+anchor_right = 1.0
+text = ""
+horizontal_alignment = 1
+
 [node name="APLabel" type="Label" parent="UI/ActionPanel"]
 offset_left = 20.0
-offset_top = 70.0
-offset_right = 200.0
-offset_bottom = 100.0
+offset_top = 95.0
+offset_right = 300.0
+offset_bottom = 115.0
 text = "AP: 3 / 3"
 
 [node name="TurnPreviewLabel" type="Label" parent="UI/ActionPanel"]
 offset_left = 20.0
-offset_top = 110.0
+offset_top = 120.0
 offset_right = 580.0
-offset_bottom = 160.0
+offset_bottom = 145.0
 text = "End turn now: -- ticks"
 
 [node name="SkillPanel" type="Panel" parent="UI"]
