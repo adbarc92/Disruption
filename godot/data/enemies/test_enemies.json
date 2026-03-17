@@ -14,7 +14,7 @@
         "strength": 7,
         "dexterity": 8,
         "resonance": 2,
-        "agility": 9
+        "agility": 3
       },
       "hp": 60,
       "mp": 15,
@@ -61,7 +61,7 @@
         "strength": 2,
         "dexterity": 6,
         "resonance": 9,
-        "agility": 6
+        "agility": 3
       },
       "hp": 50,
       "mp": 40,
@@ -85,7 +85,7 @@
         "strength": 3,
         "dexterity": 7,
         "resonance": 7,
-        "agility": 5
+        "agility": 3
       },
       "hp": 70,
       "mp": 30,
@@ -108,7 +108,7 @@
         "strength": 7,
         "dexterity": 5,
         "resonance": 3,
-        "agility": 6
+        "agility": 3
       },
       "hp": 90,
       "mp": 20,
@@ -131,7 +131,7 @@
         "strength": 5,
         "dexterity": 4,
         "resonance": 6,
-        "agility": 4
+        "agility": 3
       },
       "hp": 100,
       "mp": 25,
@@ -154,7 +154,7 @@
         "strength": 4,
         "dexterity": 7,
         "resonance": 5,
-        "agility": 8
+        "agility": 3
       },
       "hp": 35,
       "mp": 15,
@@ -177,7 +177,7 @@
         "strength": 9,
         "dexterity": 7,
         "resonance": 6,
-        "agility": 7
+        "agility": 5
       },
       "hp": 200,
       "mp": 50,
