@@ -42,6 +42,13 @@ static func reload() -> void:
 	_ensure_loaded()
 
 
+## Check if unit border/body rectangles should be visible
+static func get_show_unit_rects() -> bool:
+	_ensure_loaded()
+	var display = _config.get("display", {})
+	return display.get("show_unit_rects", false)
+
+
 ## Get grid dimensions as Vector2i(columns, rows)
 static func get_grid_size() -> Vector2i:
 	_ensure_loaded()

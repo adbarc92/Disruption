@@ -52,6 +52,8 @@ var mp_bar_fill: Polygon2D
 var burst_bar_bg: Polygon2D
 var burst_bar_fill: Polygon2D
 var burst_info_label: Label
+var hp_label: Label
+var mp_label: Label
 var flash_overlay: Polygon2D
 var status_container: Node2D
 var soil_badge: Label
@@ -150,28 +152,34 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	var body_color = Color(0.12, 0.12, 0.18)
 
 	# Border
+	var show_rects = CombatConfigLoaderClass.get_show_unit_rects()
 	border_rect = Polygon2D.new()
 	border_rect.polygon = _rect(0, 0, UNIT_WIDTH, UNIT_HEIGHT)
 	border_rect.color = border_color
+	border_rect.visible = show_rects
 	add_child(border_rect)
 
 	# Body (inset)
 	body_rect = Polygon2D.new()
 	body_rect.polygon = _rect(INSET, INSET, UNIT_WIDTH - INSET, UNIT_HEIGHT - INSET)
 	body_rect.color = body_color
+	body_rect.visible = show_rects
 	add_child(body_rect)
 
 	# Unit sprite (on top of body, behind UI elements)
 	_setup_sprite(unit)
 
-	# Name label (inside top of body, with background for readability over sprite)
+	# Name label (compact, anchored to top — does not fill the sprite area)
 	name_label = Label.new()
 	name_label.text = unit.get("name", "???")
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	name_label.clip_text = true
 	if _has_sprite:
 		var name_bg = StyleBoxFlat.new()
 		name_bg.bg_color = Color(0.0, 0.0, 0.0, 0.6)
+		name_bg.content_margin_top = 1
+		name_bg.content_margin_bottom = 1
 		name_label.add_theme_stylebox_override("normal", name_bg)
 	add_child(name_label)
 
@@ -196,6 +204,22 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 	hp_bar_fill = _create_bar(BAR_OFFSET_X, hp_y, BAR_WIDTH, BAR_HEIGHT, Color(0.2, 0.8, 0.2))
 	add_child(hp_bar_fill)
 
+	# HP value label (overlaid on bar)
+	hp_label = Label.new()
+	hp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	hp_label.clip_text = true
+	hp_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
+	add_child(hp_label)
+
+	# MP value label (overlaid on bar)
+	mp_label = Label.new()
+	mp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	mp_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	mp_label.clip_text = true
+	mp_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
+	add_child(mp_label)
+
 	# Burst bar (units with burst_mode data)
 	if has_burst:
 		var burst_y = hp_y - BAR_HEIGHT - BAR_GAP
@@ -210,7 +234,7 @@ func setup(unit: Dictionary, ally: bool, p_cell_size: Vector2 = Vector2(48, 48))
 		burst_info_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		burst_info_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		burst_info_label.clip_text = true
-		burst_info_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.7))
+		burst_info_label.add_theme_color_override("font_color", Color(0.0, 0.0, 0.0))
 		add_child(burst_info_label)
 
 	# Flash overlay
@@ -379,12 +403,13 @@ func _apply_layout() -> void:
 	var hp_y = mp_y - BAR_HEIGHT - BAR_GAP
 	var burst_y = hp_y - BAR_HEIGHT - BAR_GAP
 
-	# Name label: inside top, height fills space above bars
+	# Name label: hovering above the unit
 	var bars_top = burst_y if has_burst else hp_y
-	var name_available_height = bars_top - INSET - BAR_GAP
+	var name_h = NAME_HEIGHT + 4
+	var name_w = UNIT_WIDTH * 1.6  # Wider than unit to avoid clipping long names
 	if name_label:
-		name_label.position = Vector2(INSET, INSET)
-		name_label.size = Vector2(UNIT_WIDTH - INSET * 2, name_available_height)
+		name_label.position = Vector2((UNIT_WIDTH - name_w) / 2.0, -name_h - 2)
+		name_label.size = Vector2(name_w, name_h)
 		name_label.add_theme_font_size_override("font_size", font_size)
 
 	if mp_bar_bg:
@@ -399,16 +424,28 @@ func _apply_layout() -> void:
 	if hp_bar_fill:
 		hp_bar_fill.position = Vector2(BAR_OFFSET_X, hp_y)
 
+	# HP/MP value labels centered on their bars
+	var bar_font = max(5, int(BAR_HEIGHT * 0.9))
+	if hp_label:
+		hp_label.position = Vector2(BAR_OFFSET_X, hp_y - 1)
+		hp_label.size = Vector2(BAR_WIDTH, BAR_HEIGHT + 2)
+		hp_label.add_theme_font_size_override("font_size", bar_font)
+	if mp_label:
+		mp_label.position = Vector2(BAR_OFFSET_X, mp_y - 1)
+		mp_label.size = Vector2(BAR_WIDTH, BAR_HEIGHT + 2)
+		mp_label.add_theme_font_size_override("font_size", bar_font)
+
 	if burst_bar_bg:
 		burst_bar_bg.position = Vector2(BAR_OFFSET_X, burst_y)
 		burst_bar_bg.polygon = _bar_poly(BAR_WIDTH, BAR_HEIGHT)
 	if burst_bar_fill:
 		burst_bar_fill.position = Vector2(BAR_OFFSET_X, burst_y)
 
+	# Burst info label centered on the burst bar
 	if burst_info_label:
-		burst_info_label.position = Vector2(BAR_OFFSET_X, burst_y - NAME_HEIGHT)
-		burst_info_label.size = Vector2(BAR_WIDTH, NAME_HEIGHT)
-		burst_info_label.add_theme_font_size_override("font_size", small_font)
+		burst_info_label.position = Vector2(BAR_OFFSET_X, burst_y - 1)
+		burst_info_label.size = Vector2(BAR_WIDTH, BAR_HEIGHT + 2)
+		burst_info_label.add_theme_font_size_override("font_size", bar_font)
 
 	# Status dots: just above the top bar
 	var status_y = bars_top - STATUS_DOT_SIZE - BAR_GAP
@@ -461,6 +498,8 @@ func _apply_detail_level() -> void:
 		DetailLevel.FULL:
 			if mp_bar_bg: mp_bar_bg.visible = true
 			if mp_bar_fill: mp_bar_fill.visible = true
+			if hp_label: hp_label.visible = true
+			if mp_label: mp_label.visible = true
 			if burst_bar_bg: burst_bar_bg.visible = true
 			if burst_bar_fill: burst_bar_fill.visible = true
 			if burst_info_label: burst_info_label.visible = true
@@ -469,6 +508,8 @@ func _apply_detail_level() -> void:
 		DetailLevel.REDUCED:
 			if mp_bar_bg: mp_bar_bg.visible = true
 			if mp_bar_fill: mp_bar_fill.visible = true
+			if hp_label: hp_label.visible = true
+			if mp_label: mp_label.visible = false
 			if burst_bar_bg: burst_bar_bg.visible = true
 			if burst_bar_fill: burst_bar_fill.visible = true
 			if burst_info_label: burst_info_label.visible = false
@@ -477,6 +518,8 @@ func _apply_detail_level() -> void:
 		DetailLevel.MINIMAL:
 			if mp_bar_bg: mp_bar_bg.visible = false
 			if mp_bar_fill: mp_bar_fill.visible = false
+			if hp_label: hp_label.visible = false
+			if mp_label: mp_label.visible = false
 			if burst_bar_bg: burst_bar_bg.visible = false
 			if burst_bar_fill: burst_bar_fill.visible = false
 			if burst_info_label: burst_info_label.visible = false
@@ -500,9 +543,15 @@ func update_stats(unit: Dictionary) -> void:
 	else:
 		hp_bar_fill.color = Color(0.9, 0.9, 0.2).lerp(Color(0.8, 0.15, 0.15), 1.0 - hp_ratio * 2.0)
 
+	if hp_label:
+		hp_label.text = "%d/%d" % [current_hp, max_hp]
+
 	# Update MP bar
 	var mp_ratio = float(current_mp) / float(max(max_mp, 1))
 	_update_bar_fill(mp_bar_fill, mp_ratio, BAR_OFFSET_X, mp_bar_bg.position.y)
+
+	if mp_label:
+		mp_label.text = "%d/%d" % [current_mp, max_mp]
 
 	update_burst(unit)
 
