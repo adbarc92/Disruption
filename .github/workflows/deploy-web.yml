@@ -1,0 +1,31 @@
+name: Deploy to itch.io
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  export-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Export Godot Web build
+        id: export
+        uses: firebelley/godot-export@v6.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.6.1-stable/Godot_v4.6.1-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.6.1-stable/Godot_v4.6.1-stable_export_templates.tpz
+          relative_project_path: ./godot
+          export_preset: Web
+          archive_output: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to itch.io
+        uses: robpc/itchio-upload-action@v1
+        with:
+          path: godot/builds/web
+          project: redgalt/disruption
+          channel: html5
+          api-key: ${{ secrets.BUTLER_API_KEY }}
