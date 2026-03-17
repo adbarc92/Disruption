@@ -15,6 +15,7 @@ signal cancelled()
 var current_unit: Dictionary = {}
 var skills_data: Dictionary = {}
 var skill_buttons: Array[Button] = []
+var external_desc_label: Label = null  # Optional: also show descriptions in the ActionPanel
 
 # Unified grid references for can_use_skill checks
 var _all_units: Dictionary = {}
@@ -55,6 +56,8 @@ func show_skills(unit: Dictionary, all_skills: Dictionary, all_units: Dictionary
 func hide_panel() -> void:
 	visible = false
 	_clear_skill_list()
+	if external_desc_label:
+		external_desc_label.text = ""
 
 
 func _populate_skill_list() -> void:
@@ -189,6 +192,8 @@ func _on_skill_hover(skill_id: String) -> void:
 			extra_info += "\nEffect: %s (%d turns)" % [status, duration]
 
 	description_label.text = description + extra_info
+	if external_desc_label:
+		external_desc_label.text = description
 
 
 func _on_cancel_pressed() -> void:
