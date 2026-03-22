@@ -3,6 +3,9 @@
 ## Combat Systems
 
 - Taunting, Agro Control
+- Momentum
+- CTB2 combat
+- 
 
 ## Character Development Systems
 
@@ -10,7 +13,9 @@
 
 ## World & Traversal
 
-- Time
+- Times
 
 - City Building
+
+Using materials found in the field and earned in battle, the users can expand the Blacksmith, Armory, General Store.
 

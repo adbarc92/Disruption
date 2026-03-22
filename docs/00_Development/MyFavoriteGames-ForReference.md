@@ -64,11 +64,17 @@
 - Worldbuilding
     - Pyreflies
     - Yu Yevon
+- Play dialog in combat
+- Give immediate control to a particular party member
+- Panning action camera (highlights turns)
+- Evasion and speed are not coupled
 
 ***Persona 4 Golden***
 
 - All Out Attacks
 - Press Turn - Weaknesses
+- Time and Deadlines
+- Social Links
 
 ***Persona 5 Royal***
 
