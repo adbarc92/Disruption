@@ -165,34 +165,43 @@ func _on_typing_complete() -> void:
 func _update_portraits(state: Dictionary) -> void:
 	var speaker_id = state.get("speaker", "")
 	var listener_id = state.get("listener", "")
+	var perspective_id = state.get("perspective", "")
 	var participants = state.get("participants", [])
 
-	# Speaker portrait (bottom-left) — highlighted
-	_set_portrait(speaker_slot, speaker_id, true)
-	speaker_label.text = speaker_id.to_upper()
-	speaker_label.visible = not speaker_id.is_empty()
+	# Bottom-left: always the perspective character (player-controlled)
+	var is_perspective_speaking = (perspective_id == speaker_id)
+	_set_portrait(speaker_slot, perspective_id, is_perspective_speaking)
+	speaker_label.text = perspective_id.to_upper()
+	speaker_label.visible = not perspective_id.is_empty()
 
-	# Listener portrait (top-right)
-	if listener_id.is_empty():
+	# Top-right: the listener (conversation partner facing toward camera)
+	# This is whoever the perspective character is talking to/being talked to by
+	var partner_id = listener_id if speaker_id == perspective_id else speaker_id
+	if partner_id.is_empty() or partner_id == perspective_id:
 		listener_slot.visible = false
 		listener_label.visible = false
 	else:
 		listener_slot.visible = true
-		_set_portrait(listener_slot, listener_id, false)
-		listener_label.text = listener_id.to_upper()
+		var is_partner_speaking = (partner_id == speaker_id)
+		_set_portrait(listener_slot, partner_id, is_partner_speaking)
+		listener_label.text = partner_id.to_upper()
 		listener_label.visible = true
 
-	# Observers (top-left)
+	# Top-left: observers (everyone else)
 	for child in observer_container.get_children():
 		child.queue_free()
 
 	for p in participants:
-		if p != speaker_id and p != listener_id:
+		if p != perspective_id and p != partner_id:
 			var obs_portrait = TextureRect.new()
 			obs_portrait.custom_minimum_size = Vector2(80, 100)
 			obs_portrait.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 			obs_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			obs_portrait.modulate = Color(0.5, 0.5, 0.5, 0.7)
+			var is_obs_speaking = (p == speaker_id)
+			if is_obs_speaking:
+				obs_portrait.modulate = Color(0.8, 0.8, 0.8, 0.9)
+			else:
+				obs_portrait.modulate = Color(0.5, 0.5, 0.5, 0.7)
 			if portrait_map.has(p):
 				obs_portrait.texture = load(portrait_map[p])
 			observer_container.add_child(obs_portrait)
