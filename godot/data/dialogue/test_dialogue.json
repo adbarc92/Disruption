@@ -1,0 +1,92 @@
+{
+  "id": "test_dialogue",
+  "initial_node": "start",
+  "initial_perspective": "cyrus",
+  "participants": ["cyrus", "vaughn", "phaidros"],
+  "nodes": {
+    "start": {
+      "speaker": "cyrus",
+      "listener": "vaughn",
+      "text": "We need to move carefully through here. I can sense something is wrong — the air feels heavy, charged.",
+      "next": "vaughn_responds"
+    },
+    "vaughn_responds": {
+      "speaker": "vaughn",
+      "listener": "cyrus",
+      "text": "What's the plan? We can't stay here forever.",
+      "choices": [
+        {
+          "text": "Push forward — we can handle whatever's ahead.",
+          "next": "push_forward"
+        },
+        {
+          "text": "Vaughn, scout ahead first.",
+          "next": "scout_ahead"
+        },
+        {
+          "text": "Phaidros, what do you think?",
+          "hint": "Builds trust",
+          "next": "ask_phaidros",
+          "effects": {
+            "flags": { "trusted_phaidros": true },
+            "consequences": { "phaidros_trust": 5 }
+          }
+        }
+      ]
+    },
+    "push_forward": {
+      "speaker": "cyrus",
+      "listener": "vaughn",
+      "text": "We push forward. Stay close and keep your guard up.",
+      "next": "vaughn_acknowledges"
+    },
+    "vaughn_acknowledges": {
+      "speaker": "vaughn",
+      "listener": "cyrus",
+      "text": "Understood. I'll watch the flanks."
+    },
+    "scout_ahead": {
+      "speaker": "vaughn",
+      "listener": "cyrus",
+      "text": "On it. Give me a minute.",
+      "next": "vaughn_returns"
+    },
+    "vaughn_returns": {
+      "speaker": "vaughn",
+      "listener": "cyrus",
+      "text": "Path ahead is clear, but the ground is unstable. We should move quickly."
+    },
+    "ask_phaidros": {
+      "perspective_shift": "phaidros",
+      "speaker": "phaidros",
+      "listener": "vaughn",
+      "text": "The ground here is unstable. We should find higher terrain before pressing on.",
+      "next": "phaidros_continues"
+    },
+    "phaidros_continues": {
+      "speaker": "phaidros",
+      "listener": "cyrus",
+      "text": "There's a ridge to the east. It's a longer path, but safer.",
+      "next": "cyrus_responds_to_phaidros"
+    },
+    "cyrus_responds_to_phaidros": {
+      "perspective_shift": "cyrus",
+      "speaker": "cyrus",
+      "listener": "phaidros",
+      "text": "Good thinking. Let's take the ridge.",
+      "next": "conditional_node"
+    },
+    "conditional_node": {
+      "speaker": "vaughn",
+      "listener": "cyrus",
+      "condition": { "flag": "trusted_phaidros", "value": true },
+      "text": "Phaidros has good instincts. We should listen to him more often.",
+      "fallback": "end_node"
+    },
+    "end_node": {
+      "speaker": "cyrus",
+      "listener": "vaughn",
+      "text": "Let's move out."
+    }
+  }
+}
