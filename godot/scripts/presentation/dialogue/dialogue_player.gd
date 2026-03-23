@@ -123,6 +123,10 @@ func _display_state(state: Dictionary) -> void:
 	for consequence_name in effects.get("consequences", {}):
 		GameManager.modify_consequence(consequence_name, effects.consequences[consequence_name])
 
+	# Handle perspective shift
+	if state.get("perspective_shifted", false):
+		print("Perspective shifted to: ", state.get("perspective", ""))
+
 	# Update portraits
 	_update_portraits(state)
 

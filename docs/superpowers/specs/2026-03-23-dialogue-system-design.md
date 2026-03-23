@@ -166,7 +166,7 @@ The `pending_effects` field is populated when `choose()` selects a choice that h
 
 ```
 DialoguePlayer (Control)
-├── Background (TextureRect)
+├── Background (ColorRect)
 ├── PortraitSlots (Control)
 │   ├── SpeakerSlot (bottom-left)
 │   ├── ListenerSlot (top-right)
@@ -176,7 +176,6 @@ DialoguePlayer (Control)
 │   ├── DialogText (RichTextLabel)
 │   ├── ContinueIndicator (Label)
 │   └── ChoiceContainer (VBoxContainer)
-└── InputHandler (Node)
 ```
 
 ### Behavior
