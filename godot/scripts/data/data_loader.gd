@@ -94,6 +94,15 @@ static func get_encounter(encounter_id: String) -> Dictionary:
 	return {}
 
 
+## Load a dialogue tree by ID
+static func load_dialogue(dialogue_id: String) -> Dictionary:
+	var path = DATA_PATH + "dialogue/" + dialogue_id + ".json"
+	var data = _load_json_file(path)
+	if data.is_empty():
+		push_warning("Dialogue not found: " + dialogue_id)
+	return data
+
+
 ## Load a specific enemy by ID
 static func get_enemy(enemy_id: String) -> Dictionary:
 	var enemies = load_enemies()
