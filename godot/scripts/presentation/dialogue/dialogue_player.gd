@@ -23,7 +23,7 @@ var portrait_map: Dictionary = {
 }
 
 # Node references (set in _ready via scene tree)
-@onready var background: ColorRect = $Background
+@onready var background: TextureRect = $Background
 @onready var speaker_slot: TextureRect = $PortraitSlots/SpeakerSlot
 @onready var speaker_label: Label = $PortraitSlots/SpeakerLabel
 @onready var listener_slot: TextureRect = $PortraitSlots/ListenerSlot
@@ -43,6 +43,7 @@ func _ready() -> void:
 
 func start_dialogue(dialogue_data: Dictionary) -> void:
 	_dialogue_id = dialogue_data.get("id", "")
+	print("DialoguePlayer: starting dialogue '%s' with %d nodes" % [_dialogue_id, dialogue_data.get("nodes", {}).size()])
 	_state_machine = DialogueStateMachine.new()
 	_state_machine.load_dialogue(
 		dialogue_data,
@@ -54,6 +55,7 @@ func start_dialogue(dialogue_data: Dictionary) -> void:
 	EventBus.dialog_started.emit(_dialogue_id)
 
 	var state = _state_machine.start()
+	print("DialoguePlayer: first state - speaker=%s, text=%s" % [state.get("speaker", "?"), state.get("text", "?").substr(0, 40)])
 	_display_state(state)
 
 

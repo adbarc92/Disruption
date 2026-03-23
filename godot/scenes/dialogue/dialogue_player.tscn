@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/presentation/dialogue/dialogue_player.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/dialogue/backgrounds/5.png" id="2_bg"]
 
 [node name="DialoguePlayer" type="Control"]
 layout_mode = 3
@@ -11,14 +12,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.04, 0.06, 0.1, 1)
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="PortraitSlots" type="Control" parent="."]
 layout_mode = 1
@@ -120,6 +123,8 @@ text = "SPEAKER"
 [node name="DialogText" type="RichTextLabel" parent="DialogBox/MarginContainer/VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 80)
+theme_override_colors/default_color = Color(0.85, 0.88, 0.92, 1)
+theme_override_font_sizes/normal_font_size = 16
 text = ""
 fit_content = true
 
