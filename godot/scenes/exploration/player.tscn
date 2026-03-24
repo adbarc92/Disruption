@@ -21,12 +21,9 @@ offset_right = 14.0
 offset_bottom = 4.0
 color = Color(0, 0, 0, 0.3)
 
-[node name="Sprite" type="ColorRect" parent="."]
-offset_left = -12.0
-offset_top = -24.0
-offset_right = 12.0
-offset_bottom = 0.0
-color = Color(0.2, 0.5, 0.8, 1)
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -24)
+scale = Vector2(1.5, 1.5)
 
 [node name="InteractionArea" type="Area2D" parent="."]
 position = Vector2(0, -20)
@@ -40,10 +37,14 @@ shape = SubResource("CircleShape2D_player")
 width = 3.0
 default_color = Color(0.6, 0.5, 0.3, 1)
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 5.0
+
 [node name="StateLabel" type="Label" parent="."]
 offset_left = -40.0
-offset_top = -45.0
+offset_top = -55.0
 offset_right = 40.0
-offset_bottom = -25.0
+offset_bottom = -35.0
 horizontal_alignment = 1
 vertical_alignment = 1

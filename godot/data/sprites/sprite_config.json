@@ -12,7 +12,9 @@
         "hit":    { "sheet": "_Hit.png",    "frames": 1,  "fps": 1,  "content_rect": [36, 41, 30, 39] },
         "death":  { "sheet": "_Death.png",  "frames": 10, "fps": 8,  "content_rect": [13, 40, 53, 40] },
         "run":    { "sheet": "_Run.png",   "frames": 10, "fps": 12, "content_rect": [41, 41, 30, 39] },
-        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] }
+        "slide":  { "sheet": "_Slide.png", "frames": 4,  "fps": 8,  "content_rect": [45, 53, 38, 27] },
+        "jump":   { "sheet": "_Jump.png",  "frames": 3,  "fps": 8,  "content_rect": [41, 35, 28, 40] },
+        "roll":   { "sheet": "_Roll.png",  "frames": 12, "fps": 15, "content_rect": [30, 40, 50, 40] }
       }
     },
     "vaughn": {
