@@ -27,4 +27,4 @@ Thumbs.db
 # IDE
 .vscode/settings.json
 *.swp
-*.swo
+*.swo.superpowers/
