@@ -19,6 +19,10 @@ const HOP_HEIGHT = 20.0  # Visual only - we use z-offset for "height"
 const ACCELERATION = 800.0
 const FRICTION = 600.0
 
+# Sprite config
+const FRAME_WIDTH = 120
+const FRAME_HEIGHT = 80
+
 # State machine
 enum State {
 	IDLE,
@@ -31,6 +35,7 @@ enum State {
 
 var current_state: State = State.IDLE
 var facing_direction: Vector2 = Vector2.DOWN  # 8-directional facing
+var facing_right: bool = true
 
 # Hop state
 var hop_timer: float = 0.0
@@ -47,7 +52,7 @@ var is_grappling: bool = false
 var grapple_point: Node2D = null
 
 # Node references
-@onready var sprite: ColorRect = $Sprite
+@onready var sprite: AnimatedSprite2D = $Sprite
 @onready var shadow: ColorRect = $Shadow
 @onready var grapple_line: Line2D = $GrappleLine
 @onready var state_label: Label = $StateLabel
@@ -61,6 +66,66 @@ signal interacted(interactable: Node)
 func _ready() -> void:
 	grapple_line.visible = false
 	_update_facing(Vector2.DOWN)
+	_load_sprite_animations()
+	sprite.play("idle")
+
+
+func _load_sprite_animations() -> void:
+	var config = _load_sprite_config()
+	if config.is_empty():
+		push_warning("PlayerController: sprite_config.json not found, using placeholder")
+		return
+
+	var char_config = config.get("party", {}).get("cyrus", {})
+	if char_config.is_empty():
+		push_warning("PlayerController: cyrus sprite config not found")
+		return
+
+	var sprite_folder = char_config.get("sprite_folder", "")
+	var frame_w = char_config.get("frame_width", FRAME_WIDTH)
+	var frame_h = char_config.get("frame_height", FRAME_HEIGHT)
+	var animations = char_config.get("animations", {})
+
+	var sprite_frames = SpriteFrames.new()
+	# Remove the default animation
+	if sprite_frames.has_animation("default"):
+		sprite_frames.remove_animation("default")
+
+	for anim_name in animations:
+		var anim = animations[anim_name]
+		var sheet_path = sprite_folder + "/" + anim.get("sheet", "")
+		var frame_count = anim.get("frames", 1)
+		var fps = anim.get("fps", 8)
+
+		var texture = load(sheet_path)
+		if not texture:
+			push_warning("PlayerController: failed to load %s" % sheet_path)
+			continue
+
+		sprite_frames.add_animation(anim_name)
+		sprite_frames.set_animation_speed(anim_name, fps)
+		sprite_frames.set_animation_loop(anim_name, anim_name != "jump")
+
+		for i in frame_count:
+			var atlas = AtlasTexture.new()
+			atlas.atlas = texture
+			atlas.region = Rect2(i * frame_w, 0, frame_w, frame_h)
+			sprite_frames.add_frame(anim_name, atlas)
+
+	sprite.sprite_frames = sprite_frames
+
+
+func _load_sprite_config() -> Dictionary:
+	var path = "res://data/sprites/sprite_config.json"
+	if not FileAccess.file_exists(path):
+		return {}
+	var file = FileAccess.open(path, FileAccess.READ)
+	if not file:
+		return {}
+	var json = JSON.new()
+	if json.parse(file.get_as_text()) != OK:
+		return {}
+	return json.data
 
 
 func _physics_process(delta: float) -> void:
@@ -245,10 +310,13 @@ func _update_facing(direction: Vector2) -> void:
 
 	facing_direction = direction.normalized()
 
-	# Update sprite visual based on facing (simple 4-direction for now)
-	# In a real game, this would change the sprite animation
-	if abs(direction.x) > abs(direction.y):
-		sprite.scale.x = sign(direction.x) if direction.x != 0 else 1
+	# Flip sprite based on horizontal direction
+	if direction.x > 0.1:
+		facing_right = true
+		sprite.flip_h = false
+	elif direction.x < -0.1:
+		facing_right = false
+		sprite.flip_h = true
 
 	# Update interaction area position
 	interaction_area.position = facing_direction * 30
@@ -261,18 +329,30 @@ func _change_state(new_state: State) -> void:
 	current_state = new_state
 	state_changed.emit(current_state)
 
-	# Visual feedback based on state
+	# Play animation for state
+	_play_state_animation()
+
+
+func _play_state_animation() -> void:
+	if not sprite or not sprite.sprite_frames:
+		return
+
 	match current_state:
-		State.ROLLING:
-			sprite.color = Color(0.1, 0.4, 0.7, 1)  # Darker blue
-		State.GRAPPLING:
-			sprite.color = Color(0.8, 0.6, 0.2, 1)  # Gold
-		State.SPRINTING:
-			sprite.color = Color(0.3, 0.6, 0.9, 1)  # Light blue
+		State.IDLE:
+			if sprite.sprite_frames.has_animation("idle"):
+				sprite.play("idle")
+		State.WALKING, State.SPRINTING:
+			if sprite.sprite_frames.has_animation("run"):
+				sprite.play("run")
 		State.HOPPING:
-			sprite.color = Color(0.4, 0.7, 0.4, 1)  # Green
-		_:
-			sprite.color = Color(0.2, 0.5, 0.8, 1)  # Default blue
+			if sprite.sprite_frames.has_animation("jump"):
+				sprite.play("jump")
+		State.ROLLING:
+			if sprite.sprite_frames.has_animation("roll"):
+				sprite.play("roll")
+		State.GRAPPLING:
+			if sprite.sprite_frames.has_animation("run"):
+				sprite.play("run")
 
 
 # Check if player is currently "in the air" (hopping)
