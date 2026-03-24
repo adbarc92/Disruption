@@ -1,14 +1,18 @@
-[gd_scene load_steps=7 format=3 uid="uid://test_exploration"]
+[gd_scene load_steps=13 format=3 uid="uid://test_exploration"]
 
 [ext_resource type="Script" path="res://scripts/presentation/exploration/exploration_scene.gd" id="1_exploration"]
 [ext_resource type="PackedScene" path="res://scenes/exploration/player.tscn" id="2_player"]
-[ext_resource type="Texture2D" path="res://assets/dialogue/backgrounds/4.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/6.png" id="bg_sky"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/5.png" id="bg_far"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/4.png" id="bg_mid2"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/3.png" id="bg_mid1"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/2.png" id="bg_near"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/1.png" id="bg_ground"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/forest/0.png" id="bg_foreground"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
-size = Vector2(400, 20)
+size = Vector2(5000, 20)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_v"]
-size = Vector2(20, 300)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_obstacle"]
 size = Vector2(60, 20)
@@ -16,74 +20,81 @@ size = Vector2(60, 20)
 [node name="TestExploration" type="Node2D"]
 script = ExtResource("1_exploration")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(400, 300)
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="Sky" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.05, 0.05)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/Sky"]
+position = Vector2(2500, -300)
+texture = ExtResource("bg_sky")
+
+[node name="FarTrees" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.15, 0.1)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/FarTrees"]
+position = Vector2(2500, -200)
+texture = ExtResource("bg_far")
+
+[node name="MidTrees2" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.3, 0.15)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/MidTrees2"]
+position = Vector2(2500, -100)
+texture = ExtResource("bg_mid2")
+
+[node name="MidTrees1" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.5, 0.2)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/MidTrees1"]
+position = Vector2(2500, 0)
+texture = ExtResource("bg_mid1")
+
+[node name="NearGround" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(0.7, 0.3)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/NearGround"]
+position = Vector2(2500, 100)
+texture = ExtResource("bg_near")
+
+[node name="Ground" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(1, 1)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/Ground"]
+position = Vector2(2500, 300)
+texture = ExtResource("bg_ground")
+
+[node name="Foreground" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2(1.1, 1.1)
+motion_mirroring = Vector2(5000, 0)
+
+[node name="Sprite" type="Sprite2D" parent="ParallaxBackground/Foreground"]
+position = Vector2(2500, 550)
+texture = ExtResource("bg_foreground")
 
 [node name="World" type="Node2D" parent="."]
 
-[node name="Floor" type="TextureRect" parent="World"]
-offset_left = -100.0
-offset_top = -100.0
-offset_right = 900.0
-offset_bottom = 700.0
-texture = ExtResource("3_bg")
-expand_mode = 1
-stretch_mode = 6
-
 [node name="WallTop" type="StaticBody2D" parent="World"]
-position = Vector2(400, 50)
+position = Vector2(2500, 23)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/WallTop"]
 shape = SubResource("RectangleShape2D_wall_h")
 
-[node name="Visual" type="ColorRect" parent="World/WallTop"]
-offset_left = -200.0
-offset_top = -10.0
-offset_right = 200.0
-offset_bottom = 10.0
-color = Color(0.35, 0.3, 0.25, 1)
-
 [node name="WallBottom" type="StaticBody2D" parent="World"]
-position = Vector2(400, 550)
+position = Vector2(2500, 573)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/WallBottom"]
 shape = SubResource("RectangleShape2D_wall_h")
 
-[node name="Visual" type="ColorRect" parent="World/WallBottom"]
-offset_left = -200.0
-offset_top = -10.0
-offset_right = 200.0
-offset_bottom = 10.0
-color = Color(0.35, 0.3, 0.25, 1)
-
-[node name="WallLeft" type="StaticBody2D" parent="World"]
-position = Vector2(50, 300)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/WallLeft"]
-shape = SubResource("RectangleShape2D_wall_v")
-
-[node name="Visual" type="ColorRect" parent="World/WallLeft"]
-offset_left = -10.0
-offset_top = -150.0
-offset_right = 10.0
-offset_bottom = 150.0
-color = Color(0.35, 0.3, 0.25, 1)
-
-[node name="WallRight" type="StaticBody2D" parent="World"]
-position = Vector2(750, 300)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="World/WallRight"]
-shape = SubResource("RectangleShape2D_wall_v")
-
-[node name="Visual" type="ColorRect" parent="World/WallRight"]
-offset_left = -10.0
-offset_top = -150.0
-offset_right = 10.0
-offset_bottom = 150.0
-color = Color(0.35, 0.3, 0.25, 1)
 
 [node name="Obstacle1" type="StaticBody2D" parent="World"]
-position = Vector2(300, 200)
+position = Vector2(600, 300)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Obstacle1"]
 shape = SubResource("RectangleShape2D_obstacle")
@@ -104,7 +115,7 @@ text = "Hop over!"
 horizontal_alignment = 1
 
 [node name="Obstacle2" type="StaticBody2D" parent="World"]
-position = Vector2(500, 350)
+position = Vector2(1200, 450)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="World/Obstacle2"]
 shape = SubResource("RectangleShape2D_obstacle")
@@ -117,7 +128,8 @@ offset_bottom = 10.0
 color = Color(0.5, 0.4, 0.3, 1)
 
 [node name="GrapplePoint1" type="Marker2D" parent="World"]
-position = Vector2(650, 150)
+position = Vector2(900, 100)
+groups = ["grapple_points"]
 
 [node name="Visual" type="ColorRect" parent="World/GrapplePoint1"]
 offset_left = -8.0
@@ -135,7 +147,8 @@ text = "Grapple (Q)"
 horizontal_alignment = 1
 
 [node name="GrapplePoint2" type="Marker2D" parent="World"]
-position = Vector2(650, 450)
+position = Vector2(1800, 200)
+groups = ["grapple_points"]
 
 [node name="Visual" type="ColorRect" parent="World/GrapplePoint2"]
 offset_left = -8.0
@@ -145,7 +158,7 @@ offset_bottom = 8.0
 color = Color(0.9, 0.7, 0.2, 1)
 
 [node name="TestEnemy" type="Area2D" parent="World"]
-position = Vector2(600, 300)
+position = Vector2(1500, 350)
 collision_layer = 2
 collision_mask = 1
 
@@ -165,7 +178,7 @@ text = "Enemy"
 horizontal_alignment = 1
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(150, 300)
+position = Vector2(200, 298)
 
 [node name="UI" type="CanvasLayer" parent="."]
 

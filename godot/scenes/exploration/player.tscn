@@ -37,6 +37,10 @@ shape = SubResource("CircleShape2D_player")
 width = 3.0
 default_color = Color(0.6, 0.5, 0.3, 1)
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position_smoothing_enabled = true
+position_smoothing_speed = 5.0
+
 [node name="StateLabel" type="Label" parent="."]
 offset_left = -40.0
 offset_top = -55.0
