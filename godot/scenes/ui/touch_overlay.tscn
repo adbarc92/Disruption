@@ -1,0 +1,89 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/presentation/ui/touch_overlay.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/presentation/ui/virtual_joystick.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/presentation/ui/touch_action_button.gd" id="3"]
+
+[node name="TouchOverlay" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1")
+
+[node name="JoystickZone" type="Control" parent="."]
+script = ExtResource("2")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Base" type="ColorRect" parent="JoystickZone"]
+visible = false
+custom_minimum_size = Vector2(120, 120)
+size = Vector2(120, 120)
+color = Color(0.3, 0.3, 0.3, 0.4)
+
+[node name="Knob" type="ColorRect" parent="JoystickZone"]
+visible = false
+custom_minimum_size = Vector2(50, 50)
+size = Vector2(50, 50)
+color = Color(0.8, 0.8, 0.8, 0.6)
+
+[node name="ActionButtons" type="VBoxContainer" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -380.0
+offset_right = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 8
+
+[node name="HopButton" type="Button" parent="ActionButtons"]
+script = ExtResource("3")
+custom_minimum_size = Vector2(70, 70)
+text = "HOP"
+action_name = "jump"
+
+[node name="RollButton" type="Button" parent="ActionButtons"]
+script = ExtResource("3")
+custom_minimum_size = Vector2(70, 70)
+text = "ROLL"
+action_name = "roll"
+
+[node name="SprintButton" type="Button" parent="ActionButtons"]
+script = ExtResource("3")
+custom_minimum_size = Vector2(70, 70)
+text = "SPRINT"
+action_name = "sprint"
+
+[node name="GrappleButton" type="Button" parent="ActionButtons"]
+visible = false
+script = ExtResource("3")
+custom_minimum_size = Vector2(70, 70)
+text = "GRAPPLE"
+action_name = "grapple"
+
+[node name="InteractButton" type="Button" parent="ActionButtons"]
+visible = false
+script = ExtResource("3")
+custom_minimum_size = Vector2(70, 70)
+text = "INTERACT"
+action_name = "interact"
+
+[node name="CancelButton" type="Button" parent="."]
+script = ExtResource("3")
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -70.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 70.0
+grow_horizontal = 0
+custom_minimum_size = Vector2(60, 60)
+text = "X"
+action_name = "cancel"
