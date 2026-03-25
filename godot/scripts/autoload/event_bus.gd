@@ -7,6 +7,8 @@ signal player_moved(position: Vector2)
 signal player_interacted(interactable: Node)
 signal area_entered(area_name: String)
 signal obstacle_encountered(obstacle_type: String)
+signal grapple_point_nearby(is_nearby: bool)
+signal interactable_nearby(is_nearby: bool)
 
 # Combat signals
 signal combat_started(enemies: Array)
