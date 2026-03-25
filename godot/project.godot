@@ -27,6 +27,7 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 EventBus="*res://scripts/autoload/event_bus.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 UILayoutManager="*res://scripts/autoload/ui_layout_manager.gd"
+TouchInputManager="*res://scripts/autoload/touch_input_manager.gd"
 
 [display]
 
