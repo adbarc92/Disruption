@@ -154,8 +154,9 @@ func _physics_process(delta: float) -> void:
 	# Apply z-offset to sprite (visual hop height)
 	sprite.position.y = -z_offset - 24  # Base offset + hop
 
-	# Update grapple proximity for touch overlay (requires distance + facing check)
-	_check_grapple_proximity()
+	# Update grapple proximity for touch overlay (only during exploration)
+	if GameManager.current_state == GameManager.GameState.EXPLORATION:
+		_check_grapple_proximity()
 
 	move_and_slide()
 
@@ -316,9 +317,9 @@ func _on_interaction_area_entered(area: Area2D) -> void:
 
 func _on_interaction_area_exited(area: Area2D) -> void:
 	if area.is_in_group("interactables"):
-		# Check if any other interactables still overlap
+		# Check if any other interactables still overlap (exclude the exiting node)
 		for a in interaction_area.get_overlapping_areas():
-			if a.is_in_group("interactables"):
+			if a != area and a.is_in_group("interactables"):
 				return
 		for b in interaction_area.get_overlapping_bodies():
 			if b.is_in_group("interactables"):
@@ -337,7 +338,7 @@ func _on_interaction_body_exited(body: Node2D) -> void:
 			if a.is_in_group("interactables"):
 				return
 		for b in interaction_area.get_overlapping_bodies():
-			if b.is_in_group("interactables"):
+			if b != body and b.is_in_group("interactables"):
 				return
 		EventBus.interactable_nearby.emit(false)
 

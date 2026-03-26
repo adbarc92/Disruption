@@ -40,6 +40,9 @@ func _update_visibility(state: GameManager.GameState) -> void:
 			joystick.visible = true
 			action_buttons.visible = true
 			cancel_button.visible = true
+			# Reset context buttons — proximity signals will re-show if still nearby
+			grapple_button.visible = false
+			interact_button.visible = false
 		GameManager.GameState.COMBAT:
 			joystick.visible = false
 			action_buttons.visible = false

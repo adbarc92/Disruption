@@ -14,7 +14,6 @@ func _ready() -> void:
 	_overlay = TOUCH_OVERLAY_SCENE.instantiate()
 	add_child(_overlay)
 	_overlay.visible = false
-	print("TouchInputManager initialized")
 
 
 func _input(event: InputEvent) -> void:
