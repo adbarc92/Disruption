@@ -39,6 +39,8 @@ var portrait_map: Dictionary = {
 func _ready() -> void:
 	choice_container.visible = false
 	continue_indicator.visible = false
+	dialog_box.gui_input.connect(_on_dialog_box_input)
+	dialog_box.mouse_filter = Control.MOUSE_FILTER_STOP
 
 
 func start_dialogue(dialogue_data: Dictionary) -> void:
@@ -115,6 +117,15 @@ func _handle_cancel() -> void:
 		_is_typing = false
 		dialog_text.text = _full_text
 		_on_typing_complete()
+
+
+func _on_dialog_box_input(event: InputEvent) -> void:
+	if not _state_machine:
+		return
+	if event is InputEventScreenTouch and event.pressed:
+		if not _showing_choices:
+			_handle_confirm()
+			get_viewport().set_input_as_handled()
 
 
 func _display_state(state: Dictionary) -> void:

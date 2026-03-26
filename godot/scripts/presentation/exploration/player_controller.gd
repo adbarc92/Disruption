@@ -51,6 +51,9 @@ var grapple_target: Vector2 = Vector2.ZERO
 var is_grappling: bool = false
 var grapple_point: Node2D = null
 
+# Proximity tracking for touch UI
+var _grapple_nearby: bool = false
+
 # Node references
 @onready var sprite: AnimatedSprite2D = $Sprite
 @onready var shadow: ColorRect = $Shadow
@@ -68,6 +71,12 @@ func _ready() -> void:
 	_update_facing(Vector2.DOWN)
 	_load_sprite_animations()
 	sprite.play("idle")
+
+	# Connect interactable proximity signals for touch overlay
+	interaction_area.area_entered.connect(_on_interaction_area_entered)
+	interaction_area.area_exited.connect(_on_interaction_area_exited)
+	interaction_area.body_entered.connect(_on_interaction_body_entered)
+	interaction_area.body_exited.connect(_on_interaction_body_exited)
 
 
 func _load_sprite_animations() -> void:
@@ -144,6 +153,10 @@ func _physics_process(delta: float) -> void:
 
 	# Apply z-offset to sprite (visual hop height)
 	sprite.position.y = -z_offset - 24  # Base offset + hop
+
+	# Update grapple proximity for touch overlay (only during exploration)
+	if GameManager.current_state == GameManager.GameState.EXPLORATION:
+		_check_grapple_proximity()
 
 	move_and_slide()
 
@@ -295,6 +308,54 @@ func _try_interact() -> void:
 			interacted.emit(body)
 			EventBus.player_interacted.emit(body)
 			return
+
+
+func _on_interaction_area_entered(area: Area2D) -> void:
+	if area.is_in_group("interactables"):
+		EventBus.interactable_nearby.emit(true)
+
+
+func _on_interaction_area_exited(area: Area2D) -> void:
+	if area.is_in_group("interactables"):
+		# Check if any other interactables still overlap (exclude the exiting node)
+		for a in interaction_area.get_overlapping_areas():
+			if a != area and a.is_in_group("interactables"):
+				return
+		for b in interaction_area.get_overlapping_bodies():
+			if b.is_in_group("interactables"):
+				return
+		EventBus.interactable_nearby.emit(false)
+
+
+func _on_interaction_body_entered(body: Node2D) -> void:
+	if body.is_in_group("interactables"):
+		EventBus.interactable_nearby.emit(true)
+
+
+func _on_interaction_body_exited(body: Node2D) -> void:
+	if body.is_in_group("interactables"):
+		for a in interaction_area.get_overlapping_areas():
+			if a.is_in_group("interactables"):
+				return
+		for b in interaction_area.get_overlapping_bodies():
+			if b != body and b.is_in_group("interactables"):
+				return
+		EventBus.interactable_nearby.emit(false)
+
+
+func _check_grapple_proximity() -> void:
+	var has_grapple = false
+	var grapple_points = get_tree().get_nodes_in_group("grapple_points")
+	for point in grapple_points:
+		var dist = global_position.distance_to(point.global_position)
+		if dist < GRAPPLE_RANGE:
+			var dir_to_point = (point.global_position - global_position).normalized()
+			if dir_to_point.dot(facing_direction) > 0.3:
+				has_grapple = true
+				break
+	if has_grapple != _grapple_nearby:
+		_grapple_nearby = has_grapple
+		EventBus.grapple_point_nearby.emit(_grapple_nearby)
 
 
 func _get_input_direction() -> Vector2:

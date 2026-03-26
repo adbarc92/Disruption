@@ -322,6 +322,15 @@ func _input(event: InputEvent) -> void:
 			print("Debug panel toggle (not yet implemented)")
 			get_viewport().set_input_as_handled()
 
+	# Cancel action for touch overlay and keyboard (only during active combat)
+	if event.is_action_pressed("cancel") and GameManager.current_state == GameManager.GameState.COMBAT:
+		if current_phase == CombatPhase.SELECTING_TARGET:
+			_on_targeting_cancelled()
+			get_viewport().set_input_as_handled()
+		elif current_phase == CombatPhase.SELECTING_ACTION and skill_panel.visible:
+			_on_skill_cancelled()
+			get_viewport().set_input_as_handled()
+
 
 func _hot_reload_data() -> void:
 	print("🔄 Hot reloading combat data...")
